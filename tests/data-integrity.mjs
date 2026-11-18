@@ -60,7 +60,7 @@ assert.ok(!personalResults().some(row=>row.id===legacy.id));
 state.managed=[];
 state.rankings=[{athlete_name:'山口 竣平',event_name:'5000m',ranking_date:'2025-10-02',source_url:source},
  {athlete_name:'山口 竣平',event_name:'5000m',ranking_date:'2026-11-18',source_url:source}];
-assert.equal(worldRankings('山口竣平').length,2);
+assert.equal(worldRankings('山口竣平').filter(row=>row.event_name==='5000m').length,3);
 assert.equal(worldRankings('山口竣平')[0].ranking_date,'2026-11-18');
 console.log('PASS: legacy archive coverage, dated ranks, and precedence of personal-result overrides.');
 
@@ -84,3 +84,14 @@ for(const row of rows){
  assert.doesNotMatch(recordLabel(row.event)+recordLabel(row.stage),/[马驿竞预决组级纪录晋]/u,row.id);
 }
 console.log('PASS: Japanese labels across the personal results snapshot, with event scopes preserved.');
+
+state.rankings=[{athlete_name:'本田 桜二郎',event_name:'1500m',ranking_date:'2026-11-10',world_rank:163,source_url:source}];
+const official=worldRankings('本田桜二郎').find(row=>row.event_name==='1500m');
+assert.equal(official.world_rank,164);
+assert.equal(official.asia_rank,7);
+assert.equal(official.ranking_points,1135);
+assert.match(official.asia_source_url,/region=asia/);
+state.rankings=[];
+assert.equal(worldRankings().length,12);
+assert.ok(worldRankings().every(row=>row.asia_rank>0&&row.ranking_points>0&&row.ranking_date==='2026-11-10'));
+console.log('PASS: dated World Athletics Asia rankings, points and offline fallback.');
