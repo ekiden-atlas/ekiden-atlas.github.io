@@ -1,5 +1,5 @@
 import {t,language,setLanguage,translateStatic} from './i18n.js';
-import {loadData,state,athletes,athlete,worldRankings,ekiden,schoolRecords,alltimeRankings,parseTime,formatPace,personalResults,specialtyPbs,sectionRecords,nameSearch,comparisonRankings} from './data.js';
+import {loadData,state,athletes,athlete,worldRankings,ekiden,schoolRecords,alltimeRankings,parseTime,formatPace,personalResults,specialtyPbs,sectionRecords,legHonors,athleteEkidenHonors,nameSearch,comparisonRankings} from './data.js';
 import {meetLabel,recordLabel} from './record-names.js';
 import {DATA_SNAPSHOT} from '../data/roster.js';
 import {renderAdminPage,detachAdmin} from './admin.js';
@@ -31,14 +31,28 @@ const metrics=[['1500m','pb1500',1.5],['5000m','pb5000',5],['10000m','pb10000',1
  ${E(t('rankingPoints'))} · ${E(r.ranking_points??t('notRecorded'))}<br>
  ${E(t('rankingDate'))} · ${E(r.ranking_date)}</p>
  ${sourceLink(r.source_url,t('worldRankingSource'))} ${sourceLink(r.asia_source_url,t('asiaRankingSource'))}</div>`).join(''):`<p>${E(t('notRanked'))}</p>`}<p>${E(t('rankDisclosure'))}</p><p>${E(t('termWorldDesc'))}</p></article></div>`;}
+function honorBadges(honors){
+ return honors.map(honor=>`<span class="tag">${sourceLink(honor.source,t(honor.kind))||E(t(honor.kind))}</span>`).join(' ');
+}
+function renderAthleteHonors(rows){
+ if(!rows.length)return '';
+ return `<section class="section"><h2>${E(t('ekidenHonors'))}</h2>
+ <p>${E(t('ekidenHonorsNote'))}</p>
+ <div class="table-wrap"><table class="data-table"><thead><tr>
+ ${['years','meet','section','resultMark','ekidenHonors'].map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}
+ </tr></thead><tbody>${rows.map(row=>`<tr><td>${E(row.year)}</td><td>${E(raceName(row.race))}</td>
+ <td>${E(row.leg)}</td><td class="mono">${E(row.time)}</td><td>${honorBadges(row.honors)}</td></tr>`).join('')}</tbody></table></div></section>`;
+}
 function renderAthletes(){const params=new URLSearchParams(location.hash.split('?')[1]||'');const name=params.get('name');if(name){
  const matches=athletes().filter(row=>nameSearch(row.name)===nameSearch(name));
  const known=athlete(name)||(matches.length===1?matches[0]:null);
  const canonical=known?.name||name;
  const records=athleteResultRows(canonical);
+ const honors=athleteEkidenHonors(canonical);
  return `<section class="wrap section"><a class="btn btn-sm" href="#athletes">← ${E(t('navAthletes'))}</a>
- ${known||records.length?profileDetail(canonical):`<p role="status">${E(t(dataLoaded?'empty':'loading'))}</p>`}
- ${known||records.length?`<section class="section"><h2>${E(t('athleteResults'))}</h2>${resultPanel(records,false)}</section>`:''}
+ ${known||records.length||honors.length?profileDetail(canonical):`<p role="status">${E(t(dataLoaded?'empty':'loading'))}</p>`}
+ ${renderAthleteHonors(honors)}
+ ${known||records.length||honors.length?`<section class="section"><h2>${E(t('athleteResults'))}</h2>${resultPanel(records,false)}</section>`:''}
  </section>`;
  }
  return pageIntro('navTitleAthletes','athletesDesc')+`<div class="wrap section"><div class="filterbar"><label class="field">${E(t('search'))}<input id="filter-q" type="search" value="${E(filter.q)}" placeholder="${E(t('searchPlace'))}"></label><label class="field">${E(t('filterGrade'))}<select id="filter-grade"><option value="all">${E(t('all'))}</option>${[1,2,3,4].map(n=>`<option value="${n}" ${filter.grade===String(n)?'selected':''}>${E(gradeName(n))}</option>`).join('')}</select></label><label class="field">${E(t('filterGender'))}<select id="filter-gender"><option value="all">${E(t('all'))}</option><option value="男">${E(t('male'))}</option><option value="女">${E(t('female'))}</option></select></label><label class="field">${E(t('filterEvent'))}<select id="filter-metric">${[['pb5000','5000m'],['pb10000','10000m'],['pb1500','1500m'],['pbHalf','ハーフマラソン']].map(([v,l])=>`<option value="${v}" ${filter.metric===v?'selected':''}>${l}</option>`).join('')}</select></label></div><div class="card-top" style="margin-bottom:12px"><span class="micro">${E(t('snapshot'))} · <span id="athlete-count">${athletes().length}</span></span><span class="micro">${E(DATA_SNAPSHOT)}</span></div><div class="table-wrap"><table class="data-table"><thead><tr><th>${E(t('profile'))}</th><th>1500m · PB</th><th>5000m · PB</th><th>10000m · PB</th><th>ハーフマラソン · PB</th><th>${E(t('source'))}</th></tr></thead><tbody id="athlete-rows"></tbody></table></div><div class="note">${E(t('sourceFallback'))} · ${E(t('rankDisclosure'))}</div></div>`;}
@@ -131,7 +145,7 @@ function updateResults(reset=false){
  document.querySelector('#result-next').disabled=start+resultsPageSize>=rows.length;
 }
 let raceFilters={race:'all',year:'all'};
-function renderRaceList(){const root=document.querySelector('#race-results');if(!root)return;const rows=ekiden().filter(x=>(raceFilters.race==='all'||x.race===raceFilters.race)&&(raceFilters.year==='all'||String(x.year)===raceFilters.year));root.innerHTML=rows.map(r=>`<details class="race-detail"><summary><div><span class="micro">${E(r.year)} / ${E(raceName(r.race))}</span><br><strong>${E(t('teamRank'))} ${E(r.rank??'—')} · ${E(t('time'))} ${E(r.total||'—')}</strong></div><span>⌄</span></summary><div class="inside"><div class="table-wrap"><table class="data-table"><thead><tr><th>${E(t('section'))}</th><th>${E(t('profile'))}</th><th>${E(t('time'))}</th><th>${E(t('legRank'))}</th><th>km</th><th>${E(t('handoffRank'))}</th></tr></thead><tbody>${(r.legs||[]).map(l=>`<tr><td>${E(l.leg)}</td><td>${E(l.name)}</td><td class="mono">${E(l.time)}</td><td>${E(l.rank??'—')}</td><td>${E(l.km??'—')}</td><td>${E(l.team_position??'—')}</td></tr>`).join('')||`<tr><td colspan="6">${E(t('notRecorded'))}</td></tr>`}</tbody></table></div><p>${[r.date,r.distance,r.reason||r.status,r.source_format_note].filter(Boolean).map(value=>E(recordLabel(value))).join(' · ')}</p>${r.out||r.back?`<p>${E(t('outbound'))} ${E(r.out??'—')} (${E(r.out_rank??'—')}) / ${E(t('returnLeg'))} ${E(r.back??'—')} (${E(r.back_rank??'—')})</p>`:''}<p>${sourceLink(r.source)}</p></div></details>`).join('')||`<p class="empty">${E(t('empty'))}</p>`;}
+function renderRaceList(){const root=document.querySelector('#race-results');if(!root)return;const rows=ekiden().filter(x=>(raceFilters.race==='all'||x.race===raceFilters.race)&&(raceFilters.year==='all'||String(x.year)===raceFilters.year));root.innerHTML=rows.map(r=>`<details class="race-detail"><summary><div><span class="micro">${E(r.year)} / ${E(raceName(r.race))}</span><br><strong>${E(t('teamRank'))} ${E(r.rank??'—')} · ${E(t('time'))} ${E(r.total||'—')}</strong></div><span>⌄</span></summary><div class="inside"><div class="table-wrap"><table class="data-table"><thead><tr><th>${E(t('section'))}</th><th>${E(t('profile'))}</th><th>${E(t('time'))}</th><th>${E(t('legRank'))}</th><th>km</th><th>${E(t('handoffRank'))}</th><th>${E(t('ekidenHonors'))}</th></tr></thead><tbody>${(r.legs||[]).map(l=>`<tr><td>${E(l.leg)}</td><td>${E(l.name)}</td><td class="mono">${E(l.time)}</td><td>${E(l.rank??'—')}</td><td>${E(l.km??'—')}</td><td>${E(l.team_position??'—')}</td><td>${honorBadges(legHonors(r,l))||'—'}</td></tr>`).join('')||`<tr><td colspan="7">${E(t('notRecorded'))}</td></tr>`}</tbody></table></div><p>${[r.date,r.distance,r.reason||r.status,r.source_format_note].filter(Boolean).map(value=>E(recordLabel(value))).join(' · ')}</p>${r.out||r.back?`<p>${E(t('outbound'))} ${E(r.out??'—')} (${E(r.out_rank??'—')}) / ${E(t('returnLeg'))} ${E(r.back??'—')} (${E(r.back_rank??'—')})</p>`:''}<p>${sourceLink(r.source)}</p></div></details>`).join('')||`<p class="empty">${E(t('empty'))}</p>`;}
 function renderRaceFilters(){
  const years=ekiden().filter(row=>raceFilters.race==='all'||row.race===raceFilters.race).map(row=>row.year);
  return `<label class="field">${E(t('filterRace'))}<select id="race-type">

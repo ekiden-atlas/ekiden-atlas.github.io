@@ -1,3 +1,4 @@
+import {EKIDEN_RECORD_HONORS} from '../data/ekiden-honors.js';
 import {VERIFIED_WORLD_RANKINGS} from '../data/world-ranking-snapshot.js';
 import {SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,SUPABASE_SDK} from './config.js';
 import {ROSTER} from '../data/roster.js';
@@ -187,6 +188,31 @@ export function specialtyPbs(name){
 }
 export function sectionRecords(){
  return applyManaged('section_record',state.official?.sectionRecords||[],x=>x.id);
+}
+export function legHonors(race,leg){
+ if(!leg.name||!leg.time||!race.source)return [];
+ const sameLeg=row=>row.race===race.race&&Number(row.year)===Number(race.year)&&
+   Number(row.leg)===Number(leg.leg)&&nameSearch(row.name)===nameSearch(leg.name)&&row.time===leg.time;
+ const record=EKIDEN_RECORD_HONORS.find(sameLeg);
+ const japaneseBest=sectionRecords().find(row=>row.scope==='japanese'&&sameLeg(row));
+ const honors=[];
+ if(Number(leg.rank)===1){
+   honors.push({kind:record?.sharedFirst?'legSharedAward':'legAward',source:record?.sharedFirst?record.source:race.source});
+ }
+ if(record)honors.push(record);
+ if(japaneseBest)honors.push({kind:'legJapaneseBest',source:japaneseBest.source});
+ return honors;
+}
+export function athleteEkidenHonors(name){
+ const results=[];
+ for(const race of ekiden()){
+   for(const leg of race.legs){
+     if(nameSearch(leg.name)!==nameSearch(name))continue;
+     const honors=legHonors(race,leg);
+     if(honors.length)results.push({race:race.race,year:race.year,leg:leg.leg,time:leg.time,honors});
+   }
+ }
+ return results;
 }
 export function parseTime(s){if(!s)return Infinity;const parts=String(s).trim().split(':').map(Number);if(!parts.length||parts.some(n=>!Number.isFinite(n)))return Infinity;return parts.reduce((a,b)=>a*60+b,0);}
 export function formatPace(s,km){const v=parseTime(s);if(!Number.isFinite(v))return null;const n=Math.round(v/km);return `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}/km`;}

@@ -95,3 +95,13 @@ state.rankings=[];
 assert.equal(worldRankings().length,12);
 assert.ok(worldRankings().every(row=>row.asia_rank>0&&row.ranking_points>0&&row.ranking_date==='2026-11-10'));
 console.log('PASS: dated World Athletics Asia rankings, points and offline fallback.');
+
+const {athleteEkidenHonors}=await import('../js/data.js');
+const honorsAt=(name,race,leg)=>athleteEkidenHonors(name)
+ .find(row=>row.race===race&&row.year===2026&&row.leg===leg)?.honors.map(honor=>honor.kind);
+assert.deepEqual(honorsAt('鈴木琉胤','izu',3),['legNewRecord']);
+assert.deepEqual(honorsAt('増子 陽太','zen',2),['legSharedAward','legNewRecord']);
+assert.deepEqual(honorsAt('工藤 慎作','zen',8),['legAward','legJapaneseBest']);
+assert.deepEqual(honorsAt('本田 桜二郎','izu',2),['legAward']);
+assert.equal(honorsAt('山口 竣平','zen',7),undefined);
+console.log('PASS: section winners, tied winners, course records and Japanese bests.');
