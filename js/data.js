@@ -1,3 +1,4 @@
+import {VERIFIED_WORLD_RANKINGS} from '../data/world-ranking-snapshot.js';
 import {SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,SUPABASE_SDK} from './config.js';
 import {ROSTER} from '../data/roster.js';
 import {RECENT_EKIDEN} from '../data/recent-ekiden.js';
@@ -80,7 +81,12 @@ export function athlete(name){return athletes().find(x=>x.name===name)||null;}
 export const worldRankKey=x=>x._recordKey||[x.athlete_name,x.event_name,x.ranking_date].join(':');
 export function worldRankings(name){
  // Earlier drafts used undated keys. Resolve those against the matching dated snapshot.
- const prior=state.rankings;
+ const byKey=new Map(state.rankings.map(row=>[worldRankKey(row),row]));
+ for(const snapshot of VERIFIED_WORLD_RANKINGS){
+   const key=worldRankKey(snapshot);
+   byKey.set(key,{...byKey.get(key),...snapshot});
+ }
+ const prior=[...byKey.values()];
  const edits=state.managed.filter(x=>x.kind==='world_rank');
  const overrides=edits.map(x=>{
    const old=prior.find(r=>[r.athlete_name,r.event_name].join(':')===x.record_key&&
