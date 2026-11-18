@@ -1,3 +1,4 @@
+import {SCHOOL_RESULTS} from '../data/school-results.js';
 import {EKIDEN_RECORD_HONORS} from '../data/ekiden-honors.js';
 import {VERIFIED_WORLD_RANKINGS} from '../data/world-ranking-snapshot.js';
 import {SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,SUPABASE_SDK} from './config.js';
@@ -157,7 +158,7 @@ function legacyResultKey(row){
  return 'ob:'+[row.name,row.date,row.meet,row.event,row.time].map(x=>String(x??'').trim()).join('|').slice(0,178);
 }
 export function personalResults(){
- const rows=new Map((state.official?.results||[]).map(r=>[r.id,r]));
+ const rows=new Map([...SCHOOL_RESULTS,...(state.official?.results||[])].map(r=>[r.id,r]));
  const legacy=new Map();
  for(const row of rows.values()){
    if(/^(?:workbook-|selected-|ob2026-)/.test(row.id)){
