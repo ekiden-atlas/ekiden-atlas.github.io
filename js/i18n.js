@@ -1,5 +1,7 @@
 const zh={
 navResults:"比赛成绩",
+navArchive:"成绩档案",
+archiveDesc:"查阅早稻田历届驿传战绩、校纪录和各项目历代排名。",
 graduated:"毕业年份",
 resultPrimary:"已与官方赛果核对",
 resultsDesc:"查找已收录的历年个人赛果。来源和复核状态随记录列出。",
@@ -77,6 +79,8 @@ footerData:'资料快照 2026-11-18 · 早稻田跑步资料独立整理',copyri
 },
 ja={
 navResults:"競技結果",
+navArchive:"記録アーカイブ",
+archiveDesc:"早稲田の歴代駅伝成績、学校記録、種目別の歴代順位を確認できます。",
 graduated:"卒業年",
 resultPrimary:"公式結果と照合済み",
 resultsDesc:"収録済みの個人競技結果を検索できます。出典と確認状況は各行に記載しています。",
