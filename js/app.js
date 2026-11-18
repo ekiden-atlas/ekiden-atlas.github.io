@@ -64,6 +64,7 @@ function renderResults(){
 function resultPanel(records,showAthlete,name=''){
  const names=[...new Set(records.map(row=>row.name))].sort((a,b)=>a.localeCompare(b,'ja'));
  const meets=[...new Set(records.map(row=>meetLabel(row.meet)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ja'));
+ const events=[...new Set(records.map(row=>recordLabel(row.event)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ja',{numeric:true}));
  const headers=[...(showAthlete?['profile']:[]),'date','meet','event','resultMark','rank','resultStatus','source'];
  resultsPage=0;
  return `<div class="filterbar results-filters">
@@ -72,6 +73,8 @@ function resultPanel(records,showAthlete,name=''){
  <label class="field">${E(t('filterYear'))}<select id="result-year"><option value="">${E(t('all'))}</option>${yearOption(records.map(row=>row.year))}</select></label>
  <label class="field">${E(t('meet'))}<select id="result-meet"><option value="">${E(t('all'))}</option>
  ${meets.map(value=>`<option value="${E(value)}">${E(value)}</option>`).join('')}</select></label>
+ <label class="field">${E(t('event'))}<select id="result-event"><option value="">${E(t('all'))}</option>
+ ${events.map(value=>`<option value="${E(value)}">${E(value)}</option>`).join('')}</select></label>
  <label class="field">${E(t('groupResults'))}<select id="result-group">
  <option value="year">${E(t('years'))}</option><option value="meet">${E(t('meet'))}</option></select></label>
  <label class="field">${E(t('resultStatus'))}<select id="result-status"><option value="">${E(t('all'))}</option><option value="student">${E(t('student'))}</option><option value="OB">OB / OG</option></select></label>
@@ -93,9 +96,10 @@ function updateResults(reset=false){
  const year=document.querySelector('#result-year').value;
  const status=document.querySelector('#result-status').value;
  const meet=document.querySelector('#result-meet').value;
+ const event=document.querySelector('#result-event').value;
  const group=document.querySelector('#result-group').value;
  const groups=new Map();
- const matching=records.filter(r=>(!meet||meetLabel(r.meet)===meet)&&(!year||String(r.year)===year)&&(!status||r.status===status)&&
+ const matching=records.filter(r=>(!event||recordLabel(r.event)===event)&&(!meet||meetLabel(r.meet)===meet)&&(!year||String(r.year)===year)&&(!status||r.status===status)&&
    (!q||[r.name,r.meet,r.meetAlias,r.event,meetLabel(r.meet),recordLabel(r.event),r.location,recordLabel(r.location)].some(value=>nameSearch(value).includes(q))));
  for(const row of matching){
    const key=(group==='meet'?meetLabel(row.meet):String(row.year||''))||t('notRecorded');
@@ -208,7 +212,7 @@ document.querySelector('#lang-ja').addEventListener('click',()=>chooseLanguage('
 function chooseLanguage(v){setLanguage(v);document.querySelector('#lang-zh').setAttribute('aria-pressed',String(v==='zh'));document.querySelector('#lang-ja').setAttribute('aria-pressed',String(v==='ja'));render();}
 document.querySelector('#menu-btn').addEventListener('click',()=>{const n=document.querySelector('#mobile-nav');n.hidden=!n.hidden;document.querySelector('#menu-btn').setAttribute('aria-expanded',String(!n.hidden));});
 document.addEventListener('input',e=>{if(e.target?.id==='result-q')updateResults(true);if(e.target?.id==='filter-q'){filter.q=e.target.value;renderAthleteTable();}if(e.target?.id==='history-search'){rankingFilters.alltime.name=e.target.value;historyTable('alltime');}});
-document.addEventListener('change',e=>{const id=e.target?.id,v=e.target?.value;if(['result-year','result-status','result-meet','result-group'].includes(id))updateResults(true);if(id==='filter-grade')filter.grade=v;if(id==='filter-gender')filter.gender=v;if(id==='filter-metric')filter.metric=v;if(id?.startsWith('filter-'))renderAthleteTable();if(id==='race-type'){
+document.addEventListener('change',e=>{const id=e.target?.id,v=e.target?.value;if(['result-year','result-status','result-meet','result-event','result-group'].includes(id))updateResults(true);if(id==='filter-grade')filter.grade=v;if(id==='filter-gender')filter.gender=v;if(id==='filter-metric')filter.metric=v;if(id?.startsWith('filter-'))renderAthleteTable();if(id==='race-type'){
  raceFilters.race=v;
  raceFilters.year='all';
  const controls=e.target.closest('.filterbar');
