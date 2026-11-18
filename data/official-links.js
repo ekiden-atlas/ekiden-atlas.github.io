@@ -1,0 +1,36 @@
+// The university directory and the club's own launch announcement are the
+// authority for these external account URLs.
+export const OFFICIAL_LINK_GROUPS = [
+  {
+    title:'officialTrackClub',
+    source:'https://waseda-ac.jp/',
+    links:[
+      ['officialWebsite','https://waseda-ac.jp/'],
+      ['X','https://x.com/Waseda_Kyoso'],
+      ['Instagram','https://www.instagram.com/waseda_kyoso/'],
+      ['YouTube','https://www.youtube.com/channel/UCC64bHW2cmRzk1UMEX9idQA']
+    ]
+  },
+  {
+    title:'officialDistanceTeam',
+    source:'https://readyfor.jp/projects/waseda-ac2025/announcements/445234',
+    links:[
+      ['X','https://x.com/Waseda_Kyoso_LD'],
+      ['SpoLive','https://web.spo.live/team/Waseda_Kyoso_LD']
+    ]
+  },
+  {
+    title:'officialUniversity',
+    source:'https://www.waseda.jp/top/about/work/organizations/public-relations/social-media',
+    links:[
+      ['officialWebsite','https://www.waseda.jp/top/'],
+      ['X','https://x.com/waseda_univ'],
+      ['Instagram','https://www.instagram.com/waseda_university/'],
+      ['YouTube','https://www.youtube.com/user/wasedaPR'],
+      ['Facebook','https://www.facebook.com/WasedaU'],
+      ['TikTok','https://www.tiktok.com/@waseda_university'],
+      ['LinkedIn','https://www.linkedin.com/school/wasedauniversity/'],
+      ['LINE','https://www.waseda.jp/top/wasedaline']
+    ]
+  }
+];
