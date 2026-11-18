@@ -1,5 +1,7 @@
 const zh={
 navResults:"比赛成绩",
+athleteResults:"选手比赛成绩",
+groupResults:"分组方式",
 navArchive:"成绩档案",
 archiveDesc:"查阅早稻田历届驿传战绩、校纪录和各项目历代排名。",
 graduated:"毕业年份",
@@ -79,6 +81,8 @@ footerData:'资料快照 2026-11-18 · 早稻田跑步资料独立整理',copyri
 },
 ja={
 navResults:"競技結果",
+athleteResults:"選手の競技結果",
+groupResults:"グループ分け",
 navArchive:"記録アーカイブ",
 archiveDesc:"早稲田の歴代駅伝成績、学校記録、種目別の歴代順位を確認できます。",
 graduated:"卒業年",
