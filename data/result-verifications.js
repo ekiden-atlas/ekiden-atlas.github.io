@@ -2,7 +2,16 @@
 const waseda = id => `https://waseda-ac.jp/competition/detail/${id}`;
 const springTrial = 'https://readyfor.jp/projects/waseda-ac2025/announcements/421606';
 
+const nobeoka = {
+  date:'2026-05-04',precision:'日',meet:'第37回ゴールデンゲームズ・イン・のべおか',
+  meetAlias:'延冈GGN',verification:'primary'
+};
+const nobeokaHeat = group => `https://ggn.goldengames.jp/2026/26ggn/r1_008_4_${group}.html`;
+
 export const RESULT_CORRECTIONS = {
+  'annual-12': {...nobeoka,gradeAtRace:3,rank:5,stage:'男子5000m A組',source:nobeokaHeat(1)},
+  'annual-48': {...nobeoka,gradeAtRace:1,rank:9,stage:'男子5000m B組',source:nobeokaHeat(2)},
+  'annual-60': {...nobeoka,gradeAtRace:1,rank:14,stage:'男子5000m A組',source:nobeokaHeat(1)},
   'annual-1': {date:'2026-03-01',precision:'日',gradeAtRace:3,rank:20,japaneseRank:5,verification:'primary',source:'https://www.jaaf.or.jp/news/article/23192/'},
   'annual-2': {date:'2026-05-04',precision:'日',gradeAtRace:4,meet:'Tokyo : Speed : Race',meetAlias:'Tokyo Road Race',rank:1,pb:true,stage:'エリート男子',verification:'primary',source:waseda(842)},
   'annual-3': {date:'2026-05-24',precision:'日',gradeAtRace:4,rank:5,stage:'男子1部・決勝',verification:'primary',source:waseda(869)},
