@@ -26,6 +26,7 @@ jobs:
         run: node scripts/build-archive.mjs
       - name: Test site and privacy
         run: node tests/check.mjs
+      - run: node tests/data-integrity.mjs
       - name: Build clean static output
         run: node scripts/build-site.mjs
       - uses: actions/configure-pages@v5

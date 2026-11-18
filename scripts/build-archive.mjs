@@ -1,38 +1,45 @@
 import {writeFile,readFile} from 'node:fs/promises';
+import {officialFacts} from './archive-facts.mjs';
+
 const output=new URL('../data/official-records.json',import.meta.url);
 const source=process.env.SOURCE_RECORDS_URL?.trim();
 if(!source){
- console.log('SOURCE_RECORDS_URL is not configured; retaining the curated local snapshot.');
+ console.log('SOURCE_RECORDS_URL is not configured. Using the checked-in historical snapshot.');
  process.exit(0);
 }
-if(!source.startsWith('https://'))throw new Error('Historical source URL must use HTTPS');
-const response=await fetch(source,{signal:AbortSignal.timeout(25000)});
-if(!response.ok)throw new Error('Historical source HTTP status: '+response.status);
-const script=(await response.text()).trim();
-const marker='window.WSD_OFFICIAL_RECORDS=';
-if(!script.startsWith('/*') && !script.startsWith(marker))throw new Error('Unexpected source format');
-const offset=script.indexOf(marker);
-if(offset<0)throw new Error('Structured records marker not found');
-const raw=script.slice(offset+marker.length).trim().replace(/;\s*$/,'');
-const parsed=JSON.parse(raw);
-for(const key of ['hakone','otherEkiden','school','rankings']){
- if(!Array.isArray(parsed[key]))throw new Error('Missing archive category: '+key);
+let parsed;
+try {
+ if(new URL(source).protocol!=='https:')throw new Error();
+ const response=await fetch(source,{signal:AbortSignal.timeout(25000)});
+ if(!response.ok)throw new Error();
+ const script=(await response.text()).trim();
+ const marker='window.WSD_OFFICIAL_RECORDS=';
+ const offset=script.indexOf(marker);
+ if(offset<0)throw new Error();
+ parsed=JSON.parse(script.slice(offset+marker.length).trim().replace(/;\s*$/,''));
+} catch {
+ throw new Error('Unable to read and parse the configured historical archive');
 }
-if(parsed.hakone.length<100 || parsed.rankings.length<400)throw new Error('Historical data unexpectedly incomplete; aborting deploy');
-// Allowlist only structured factual fields. No names, paths or URLs from source repository metadata.
-function pick(x,fields){return Object.fromEntries(fields.filter(k=>Object.hasOwn(x,k)).map(k=>[k,x[k]]));}
-function link(x){return typeof x==='string'&&/^https:\/\/(?:waseda-ac\.jp|www\.waseda\.jp|www\.hakone-ekiden\.jp)\//.test(x)?x:null;}
-const leg=(x)=>pick(x,['leg','name','time','rank','km']);
-function race(x){const v=pick(x,['year','type','edition','rank','total','out','back','out_rank','back_rank','status','reason','note','source_format_note']);v.source=link(x.source);v.legs=Array.isArray(x.legs)?x.legs.map(leg):[];return v;}
-function score(x){const v=pick(x,['gender','event','performance','athlete','date','rank','year']);if(link(x.source))v.source=link(x.source);return v;}
-const bundle={
- hakone:parsed.hakone.map(race),
- otherEkiden:parsed.otherEkiden.map(race),
- school:parsed.school.map(score),
- rankings:parsed.rankings.map(score),
- meta:{fetched:new Date().toISOString().slice(0,10),completeHakone:true}
-};
-const out=JSON.stringify(bundle);
-if(/THIS-PRIVATE-USERNAME/i.test(out))throw new Error('Potential original account leak in generated public archive');
-await writeFile(output,out+'\n','utf8');
-console.log('Generated historical records:', bundle.hakone.length,'Hakone editions,',bundle.school.length,'school records,',bundle.rankings.length,'rank entries');
+const snapshot=JSON.parse(await readFile(output,'utf8'));
+const refreshed=officialFacts(parsed);
+const key=row=>[row.type||'hak',row.year].join(':');
+for(const category of ['hakone','otherEkiden','school','rankings']){
+ if(refreshed[category].length<snapshot[category].length)throw new Error('Historical coverage decreased: '+category);
+}
+for(const category of ['hakone','otherEkiden']){
+ const prior=new Map(snapshot[category].map(row=>[key(row),row]));
+ const seen=new Set();
+ refreshed[category]=refreshed[category].map(row=>{
+   const old=prior.get(key(row));
+   seen.add(key(row));
+   const positions=new Map(old?.legs.map(leg=>[leg.leg,leg]));
+   return {...old,...row,legs:row.legs.length?row.legs.map(leg=>{
+     const previous=positions.get(leg.leg);
+     return previous?.name===leg.name&&previous?.time===leg.time?{...previous,...leg}:leg;
+   }):old?.legs||[]};
+ });
+ if([...prior.keys()].some(k=>!seen.has(k)))throw new Error('Historical edition missing: '+category);
+}
+const bundle={...snapshot,...refreshed,meta:{...snapshot.meta,refreshed:new Date().toISOString().slice(0,10)}};
+await writeFile(output,JSON.stringify(bundle)+'\n','utf8');
+console.log('Refreshed historical team and ranking data.');
