@@ -3,7 +3,7 @@ import {meetLabel,recordLabel} from './record-names.js';
 import {getDb,checkAdmin,state,loadData,athletes,ekiden,schoolRecords,alltimeRankings,personalResults,specialtyPbs,sectionRecords,worldRankings,worldRankKey,comparisonRankings,ekidenKey,alltimeKey,schoolKey} from './data.js';
 let adminRoot=null,context=null,adminDb=null;
 let tab='managed',current=null,prefill=null,draftKind='result';
-const raceForm=kind=>kind==='result'||kind==='ekiden';
+const fieldForm=kind=>['athlete','result','ekiden'].includes(kind);
 const KINDS=['athlete','pb','specialty_pb','result','ekiden','section_record','school_record','alltime_rank','world_rank','comparison_rank'];
 const KIND_LABELS={athlete:'adminTypeAthlete',pb:'adminTypePb',specialty_pb:'adminTypeSpecialtyPb',result:'adminTypeResult',section_record:'adminTypeSectionRecord',ekiden:'adminTypeEkiden',school_record:'adminTypeSchool',alltime_rank:'adminTypeAlltime',world_rank:'adminTypeWorld',comparison_rank:'adminTypeComparison'};
 const htmlspecialchars=x=>context.E(x);
@@ -43,12 +43,12 @@ function sourceChoices(kind){
  const entry=(key,label,payload,source='')=>({key,label,payload,source:source||''});
  const content=r=>Object.fromEntries(Object.entries(r).filter(([key])=>!key.startsWith('_')));
  if(kind==='athlete')return athletes().map(a=>{
-   const {name,grade,gender,birthday,birthplace,hometown,high_school,height_cm,mainEvent,graduation_year,graduation_source}=a;
-   return entry(name,name,{name,grade,gender,birthday,birthplace,hometown,high_school,height_cm,mainEvent,graduation_year,graduation_source},a.source_url);
+   const {name,grade,gender,birthday,birthplace,hometown,high_school,height_cm,mainEvent,graduation_year,graduation_source,officialGrade,block,clubSource}=a;
+   return entry(name,name,{name,grade,gender,birthday,birthplace,hometown,high_school,height_cm,mainEvent,graduation_year,graduation_source,officialGrade,block,clubSource},a.source_url||clubSource);
  });
  if(kind==='pb')return athletes().flatMap(a=>[['pb1500','1500m'],['pb5000','5000m'],['pb10000','10000m'],['pbHalf','Half Marathon']]
    .map(([field,label])=>entry(a.name+':'+label,a.name+' · '+recordLabel(label),{name:a.name,field,time:a[field]||''},a._pbSources?.[field])));
- if(kind==='ekiden')return ekiden().map(r=>entry(ekidenKey(r),r.year+' · '+(r.meet||context.t({hak:'introHak',izu:'introIzu',zen:'introZen'}[r.race])),content(r),r.source));
+ if(kind==='ekiden')return ekiden().map(r=>entry(ekidenKey(r),r.year+' · '+(r.meet||context.t({hak:'introHak',izu:'introIzu',zen:'introZen',other:'otherEkiden'}[r.race])),content(r),r.source));
  if(kind==='school_record')return schoolRecords().map(r=>entry(schoolKey(r),recordLabel(r.event),content(r),r.source));
  if(kind==='alltime_rank')return alltimeRankings().map(r=>entry(alltimeKey(r),recordLabel(r.event)+' · '+r.rank+' · '+r.athlete,content(r),r.source));
  if(kind==='world_rank')return worldRankings().map(r=>entry(worldRankKey(r),[r.athlete_name,recordLabel(r.event_name),r.ranking_date].join(' · '),content(r),r.source_url));
@@ -65,17 +65,28 @@ function managedPane(){
  const deployed=state.managedReady;
  const chosen=selectedRecord();
  const kind=chosen?.kind||draftKind;
- const structured=raceForm(kind);
+ const structured=fieldForm(kind);
  const templates=sourceChoices(kind);
  const base=structured?templates.find(row=>row.key===chosen?.record_key)||prefill:null;
  const value=chosen||{kind,record_key:prefill?.key||'',payload:{},source_url:prefill?.source||'',is_deleted:false};
  const payload={...value.payload,...base?.payload};
-area.innerHTML=`${!deployed?`<div class="notice"><strong>${E(t('adminMigration'))}</strong><p>${E(t('adminMigrationHelp'))}</p></div>`:''}<div class="split"><div><div class="card-top"><h3>${E(t('adminRecords'))}</h3><button id="admin-new" class="btn btn-sm" type="button" ${deployed?'':'disabled'}>${E(t('adminCreate'))}</button></div><div class="admin-list">${state.managed.map(x=>`<button type="button" data-edit-kind="${E(x.kind)}" data-edit-key="${E(x.record_key)}">${E(t(KIND_LABELS[x.kind]||'adminSelectType'))} / ${E(x.record_key)} ${x.is_deleted?'· '+E(t('adminDeleted')):''}</button>`).join('')||`<p class="empty">${E(t('empty'))}</p>`}</div></div><div><form id="admin-content-form" class="admin-form"><label class="field">${E(t('adminSelectType'))}<select name="kind" required ${chosen?'disabled':''}>${KINDS.map(k=>`<option value="${k}" ${value.kind===k?'selected':''}>${E(t(KIND_LABELS[k]||'adminSelectType'))}</option>`).join('')}</select></label>${!chosen?`<label class="field">${E(t('adminUseBase'))}<select id="admin-base-chooser"><option value="">${E(t('adminPickBase'))}</option>${templates.map((r,i)=>`<option value="${i}" ${r.key===prefill?.key?'selected':''}>${E(r.label)}</option>`).join('')}</select></label>`:''}${structured?'':`<label class="field">${E(t('adminKey'))}<input name="record_key" value="${E(value.record_key)}" required minlength="2" maxlength="180" ${chosen?'readonly':''}></label>`}<label class="field">${E(t(structured?'adminOfficialSource':'adminSource'))}<input name="source_url" type="url" required pattern="https://.*" value="${E(value.source_url)}" placeholder="https://…"></label>${structured?raceFields(kind,payload,context):`<label class="field">${E(t('adminPayload'))}<textarea name="payload" required spellcheck="false">${E(JSON.stringify(value.payload,null,2))}</textarea></label>`}<div class="admin-actions"><button class="btn btn-primary" type="submit" ${deployed?'':'disabled'}>${E(t('adminSave'))}</button><button class="btn btn-danger" type="button" id="admin-delete" ${deployed&&chosen&&!value.is_deleted?'':'disabled'}>${E(t('adminDelete'))}</button><button class="btn" type="button" id="admin-restore" ${deployed&&chosen&&value.is_deleted?'':'disabled'}>${E(t('adminRestore'))}</button><button class="btn" type="button" id="admin-cancel">${E(t('adminCancel'))}</button></div><p id="admin-form-msg" role="status"></p></form></div></div>`;
+ const officialProfiles=kind==='athlete'?templates.filter(row=>row.payload.clubSource):[];
+ const savedRows=state.managed.filter(row=>row.kind===kind);
+area.innerHTML=`${!deployed?`<div class="notice"><strong>${E(t('adminMigration'))}</strong><p>${E(t('adminMigrationHelp'))}</p></div>`:''}<div class="split"><div><div class="card-top"><h3>${E(t('adminEditedRecords'))}</h3><button id="admin-new" class="btn btn-sm" type="button" ${deployed?'':'disabled'}>${E(t('adminCreate'))}</button></div><div class="admin-list">${savedRows.map(x=>`<button type="button" data-edit-kind="${E(x.kind)}" data-edit-key="${E(x.record_key)}">${E(t(KIND_LABELS[x.kind]||'adminSelectType'))} / ${E(x.record_key)} ${x.is_deleted?'· '+E(t('adminDeleted')):''}</button>`).join('')||`<p class="empty">${E(t('empty'))}</p>`}</div>${officialProfiles.length?`<h3>${E(t('adminOfficialRoster'))} · ${officialProfiles.length}</h3>
+ <div class="admin-list">${officialProfiles.map(profile=>`<button type="button" data-profile-key="${E(profile.key)}">${E(profile.label)} · ${E(profile.payload.block)}</button>`).join('')}</div>`:''}</div><div><form id="admin-content-form" class="admin-form"><label class="field">${E(t('adminSelectType'))}<select name="kind" required ${chosen?'disabled':''}>${KINDS.map(k=>`<option value="${k}" ${value.kind===k?'selected':''}>${E(t(KIND_LABELS[k]||'adminSelectType'))}</option>`).join('')}</select></label>${!chosen?`<label class="field">${E(t('adminUseBase'))}<select id="admin-base-chooser"><option value="">${E(t('adminPickBase'))}</option>${templates.map((r,i)=>`<option value="${i}" ${r.key===prefill?.key?'selected':''}>${E(r.label)}</option>`).join('')}</select></label>`:''}${structured?'':`<label class="field">${E(t('adminKey'))}<input name="record_key" value="${E(value.record_key)}" required minlength="2" maxlength="180" ${chosen?'readonly':''}></label>`}<label class="field">${E(t(structured?'adminOfficialSource':'adminSource'))}<input name="source_url" type="url" required pattern="https://.*" value="${E(value.source_url)}" placeholder="https://…"></label>${structured?raceFields(kind,payload,context):`<label class="field">${E(t('adminPayload'))}<textarea name="payload" required spellcheck="false">${E(JSON.stringify(value.payload,null,2))}</textarea></label>`}<div class="admin-actions"><button class="btn btn-primary" type="submit" ${deployed?'':'disabled'}>${E(t('adminSave'))}</button><button class="btn btn-danger" type="button" id="admin-delete" ${deployed&&chosen&&!value.is_deleted?'':'disabled'}>${E(t('adminDelete'))}</button><button class="btn" type="button" id="admin-restore" ${deployed&&chosen&&value.is_deleted?'':'disabled'}>${E(t('adminRestore'))}</button><button class="btn" type="button" id="admin-cancel">${E(t('adminCancel'))}</button></div><p id="admin-form-msg" role="status"></p></form></div></div>`;
 area.querySelector('#admin-new')?.addEventListener('click',()=>{current=null;prefill=null;managedPane();});
 area.querySelector('select[name=kind]')?.addEventListener('change',e=>{draftKind=e.target.value;current=null;prefill=null;managedPane();});
 area.querySelector('#admin-base-chooser')?.addEventListener('change',e=>{const item=e.target.value===''?null:templates[Number(e.target.value)];
 if(structured){prefill=item;managedPane();return;}
 if(!item)return;const form=area.querySelector('#admin-content-form');form.querySelector('[name=record_key]').value=item.key;form.querySelector('[name=payload]').value=JSON.stringify(item.payload,null,2);form.querySelector('[name=source_url]').value=item.source;});
+area.querySelectorAll('[data-profile-key]').forEach(button=>button.onclick=()=>{
+ const profile=officialProfiles.find(row=>row.key===button.dataset.profileKey);
+ const saved=savedRows.find(row=>row.record_key===profile.key);
+ current=saved?{kind,record_key:profile.key}:null;
+ prefill=saved?null:profile;
+ managedPane();
+ area.querySelector('form input').focus();
+});
 area.querySelectorAll('[data-edit-kind]').forEach(btn=>btn.addEventListener('click',()=>{prefill=null;current={kind:btn.dataset.editKind,record_key:btn.dataset.editKey};managedPane();}));
 area.querySelector('#admin-cancel')?.addEventListener('click',()=>{current=null;prefill=null;managedPane();});
 const form=area.querySelector('#admin-content-form');
@@ -94,16 +105,16 @@ async function saveContent(event,base){
  const source_url=String(fields.get('source_url')).trim();
  if(!/^https:\/\/[^\s]+$/i.test(source_url)){status(t('adminInvalidUrl'));return;}
  let payload;
- if(raceForm(kind)){
+ if(fieldForm(kind)){
    payload=racePayload(kind,form,base);
-   if(!payload){status(t('adminRaceInvalid'));return;}
+   if(!payload){status(t(kind==='athlete'?'adminFailed':'adminRaceInvalid'));return;}
  }else{
    try{payload=JSON.parse(fields.get('payload'));}
    catch{status(t('adminInvalidJson'));return;}
    if(!payload||Array.isArray(payload)||typeof payload!=='object'){status(t('adminInvalidJson'));return;}
  }
- let record_key=current?.record_key||(raceForm(kind)?prefill?.key:String(fields.get('record_key')).trim());
- if(!record_key&&kind==='ekiden'){
+ let record_key=current?.record_key||(fieldForm(kind)?prefill?.key:String(fields.get('record_key')).trim());
+ if(!record_key&&kind==='ekiden'&&payload.race!=='other'){
    if(ekiden().some(row=>row.race===payload.race&&Number(row.year)===payload.year)){
      status(t('adminRelayExists'));return;
    }
@@ -112,8 +123,12 @@ async function saveContent(event,base){
      status(t('adminRelayExists'));return;
    }
  }
- if(!record_key&&kind==='result'){
-   form.dataset.recordKey ||= 'result-'+crypto.randomUUID();
+ if(!record_key&&kind==='athlete'){
+   if(athletes().some(row=>row.name.replace(/\s/g,'')===payload.name.replace(/\s/g,''))){status(t('adminUseBase'));return;}
+   record_key=payload.name;
+ }
+ if(!record_key&&(kind==='result'||kind==='ekiden')){
+   form.dataset.recordKey ||= kind+'-'+crypto.randomUUID();
    record_key=form.dataset.recordKey;
  }
  if(!KINDS.includes(kind)||!record_key||record_key.length<2||record_key.length>180){status(t('adminFailed'));return;}

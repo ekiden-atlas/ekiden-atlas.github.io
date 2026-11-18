@@ -1,3 +1,4 @@
+import {OFFICIAL_CLUB_ROSTER} from '../data/official-club-roster.js';
 import {ROSTER_AUDITED_RESULTS,ROSTER_RESULT_CORRECTIONS} from '../data/roster-race-audit.js';
 import {RESULT_CORRECTIONS,KUDO_UNIVERSITY_RESULTS} from '../data/result-verifications.js';
 import {SCHOOL_RESULTS} from '../data/school-results.js';
@@ -69,7 +70,17 @@ export function athletes(){
  const extraByName=new Map(extras.map(x=>[x.name,x]));
  const baseline=[...ROSTER.map(x=>({...x,...extraByName.get(x.name)})),
    ...extras.filter(x=>!ROSTER.some(row=>row.name===x.name))];
- const rosterNames=new Set(baseline.map(x=>nameSearch(x.name)));
+ const officialByName=new Map(OFFICIAL_CLUB_ROSTER.map(row=>[nameSearch(row.name),row]));
+ const rosterNames=new Set(baseline.map(row=>nameSearch(row.name)));
+ for(const row of baseline){
+   const member=officialByName.get(nameSearch(row.name));
+   if(member)Object.assign(row,{...member,name:row.name,source_url:row.source_url||member.source_url,clubSource:member.source_url});
+ }
+ for(const member of OFFICIAL_CLUB_ROSTER){
+   const key=nameSearch(member.name);
+   if(!rosterNames.has(key))baseline.push({...member,clubSource:member.source_url});
+   rosterNames.add(key);
+ }
  const profiles=state.profiles.filter(x=>!rosterNames.has(nameSearch(x.athlete_name)))
    .map(x=>({...x,name:x.athlete_name}));
  const rows=applyManaged('athlete',[...baseline.map(x=>({...x,...Object.fromEntries(Object.entries(basicProfile(x.name)).filter(([,value])=>value!=null&&value!==''))})),...profiles],x=>x.name);
@@ -129,7 +140,7 @@ export function ekiden(){
  [...(state.official.hakone||[]).map(x=>({...x,race:'hak'})),...(state.official.otherEkiden||[]).map(x=>({...x,race:x.type}))]:RECENT_EKIDEN;
  let rows=legacyPatch('ekiden',old,ekidenKey);
  rows=applyManaged('ekiden',rows,ekidenKey);
- return rows.filter(x=>x?.year && ['hak','izu','zen'].includes(x.race)).map(x=>({...x,legs:typeof x.legs_text==='string'?parseLegs(x.legs_text):x.legs||[]})).sort((a,b)=>b.year-a.year||['hak','izu','zen'].indexOf(a.race)-['hak','izu','zen'].indexOf(b.race));
+ return rows.filter(x=>x?.year && ['hak','izu','zen','other'].includes(x.race)).map(x=>({...x,legs:typeof x.legs_text==='string'?parseLegs(x.legs_text):x.legs||[]})).sort((a,b)=>b.year-a.year||['hak','izu','zen','other'].indexOf(a.race)-['hak','izu','zen','other'].indexOf(b.race));
 }
 function parseLegs(s){return s.split('\n').map(line=>line.split(/[｜|]/).map(x=>x.trim())).filter(x=>x.length>=4).map(([leg,name,km,time,rank])=>({leg:Number(leg),name,km:km||null,time,rank:rank?Number(rank):null}));}
 export function schoolRecords(){
