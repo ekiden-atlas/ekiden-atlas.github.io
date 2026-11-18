@@ -33,3 +33,13 @@
   outline: 2px solid #781e3e;
   outline-offset: 3px;
 }
+
+.data-table .result-group-heading td {
+  background: #f2e9ed;
+  color: #641b38;
+}
+
+.results-filters .field,
+.results-filters select {
+  min-width: 0;
+}

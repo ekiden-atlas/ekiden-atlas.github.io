@@ -16,7 +16,7 @@ assert.ok(RECENT_EKIDEN.length>=6);
 assert.ok(RECENT_EKIDEN.every(r=>r.source.startsWith('https://')&&r.legs.every(l=>l.leg&&l.name&&l.time)));
 assert.equal(parseTime('13:17.19'),797.19);
 assert.equal(formatPace('13:20.00',5),'2:40/km');
-const keys=['navHome','navAthletes','navResults','navArchive','archiveDesc','resultPrimary','resultCount','sectionRecords','adminTypeComparison','navEkiden','navHistory','navGuide','navAdmin','independent','adminMigration','adminSyncNotice','worldRank','adminNoAccess','adminDelete','historyFailed','notRanked'];
+const keys=['navHome','navAthletes','navResults','athleteResults','groupResults','navArchive','archiveDesc','resultPrimary','resultCount','sectionRecords','adminTypeComparison','navEkiden','navHistory','navGuide','navAdmin','independent','adminMigration','adminSyncNotice','worldRank','adminNoAccess','adminDelete','historyFailed','notRanked'];
 for(const lang of ['zh','ja']){setLanguage(lang);for(const key of keys)assert.notEqual(t(key),key,`${key} absent: ${lang}`);}
 setLanguage('zh');
 assert.equal(t('resultLegacy'),'赛果快照 · 已复核');
