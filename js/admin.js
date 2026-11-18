@@ -1,27 +1,41 @@
 import {meetLabel,recordLabel} from './record-names.js';
 import {getDb,checkAdmin,state,loadData,athletes,ekiden,schoolRecords,alltimeRankings,personalResults,specialtyPbs,sectionRecords,worldRankings,worldRankKey,comparisonRankings,ekidenKey,alltimeKey,schoolKey} from './data.js';
-let listener=null;
-let adminRoot=null,context=null,adminDb=null,adminUser=null;
+let adminRoot=null,context=null,adminDb=null;
 let tab='managed',current=null,draftKind='athlete';
 const KINDS=['athlete','pb','specialty_pb','result','ekiden','section_record','school_record','alltime_rank','world_rank','comparison_rank'];
 const KIND_LABELS={athlete:'adminTypeAthlete',pb:'adminTypePb',specialty_pb:'adminTypeSpecialtyPb',result:'adminTypeResult',section_record:'adminTypeSectionRecord',ekiden:'adminTypeEkiden',school_record:'adminTypeSchool',alltime_rank:'adminTypeAlltime',world_rank:'adminTypeWorld',comparison_rank:'adminTypeComparison'};
 const htmlspecialchars=x=>context.E(x);
 const status=m=>{const x=adminRoot?.querySelector('#admin-status');if(x)x.textContent=m;};
-export function detachAdmin(){adminRoot=null;context=null;adminDb=null;adminUser=null;current=null;if(listener){listener.data?.subscription?.unsubscribe();listener=null;}}
+export function detachAdmin(){adminRoot=null;context=null;adminDb=null;current=null;}
 export async function renderAdminPage(root,ctx){adminRoot=root;context=ctx;
- const {t,E}=ctx;root.innerHTML=`<div class="intro-panel"><p>${E(t('adminLoginHint'))}</p><button class="btn btn-primary" type="button" id="google-login">${E(t('loginGoogle'))}</button><button class="btn" type="button" id="google-logout" hidden>${E(t('logout'))}</button><p id="admin-status" role="status">${E(t('adminLoading'))}</p></div><div id="admin-work" hidden></div>`;
- root.querySelector('#google-login').addEventListener('click',login);
- root.querySelector('#google-logout').addEventListener('click',async()=>{await adminDb?.auth.signOut();location.hash='#home';});
- try{adminDb=await getDb(); const result=await checkAdmin(adminDb);if(!adminRoot||adminRoot!==root)return;
-   if(!result.user){status(t('adminLoginHint'));return;}
-   root.querySelector('#google-login').hidden=true;root.querySelector('#google-logout').hidden=false;
-   if(!result.ok){status(t('adminNoAccess'));return;}
-   adminUser=result.user;status(t('adminYes'));root.querySelector('#admin-work').hidden=false;showWork();
- }catch{status(t('adminFailed'));}
+ const {t,E}=ctx;
+ try{
+   const db=await getDb();
+   const result=await checkAdmin(db);
+   if(adminRoot!==root)return;
+   if(!result.ok){
+     root.innerHTML=`<p role="status">${E(t('adminNoAccess'))}</p>
+     <a class="btn" href="#submissions">${E(t('submissionTitle'))}</a>`;
+     return;
+   }
+   adminDb=db;
+   root.innerHTML=`<h1>${E(t('adminTitle'))}</h1><p>${E(t('adminDesc'))}</p>
+   <div class="admin-actions">
+   ${state.submissionsReady?`<a class="btn" href="#submissions?review">${E(t('submissionReview'))}</a>`:''}
+   <button class="btn" type="button" id="google-logout">${E(t('logout'))}</button></div>
+   <p id="admin-status" role="status">${E(t('adminYes'))}</p><div id="admin-work"></div>`;
+   root.querySelector('#google-logout').addEventListener('click',async()=>{
+     const {error}=await db.auth.signOut({scope:'local'});
+     if(error){status(t('adminFailed'));return;}
+     if(adminRoot===root)location.hash='#submissions';
+   });
+   showWork();
+ }catch{
+   if(adminRoot===root)root.textContent=t('adminFailed');
+ }
 }
-async function login(){try{const db=adminDb||await getDb();const {error}=await db.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname+'#admin'}});if(error)throw error;}catch{status(context.t('adminFailed'));}}
-function tabsMarkup(){const {t,E}=context;const items=[['managed','adminTabManaged'],['rankings','adminTabRankings'],['members','adminTabMembers'],['audit','adminTabAudit']];return `<div class="admin-tabs" role="tablist">${items.map(([id,key])=>`<button role="tab" type="button" data-tab="${id}" aria-selected="${String(tab===id)}" class="${tab===id?'active':''}">${E(t(key))}</button>`).join('')}</div>`;}
-function showWork(){if(!adminRoot)return;const {t,E}=context;const root=adminRoot.querySelector('#admin-work');root.innerHTML=`<div class="notice">${E(t('adminSyncNotice'))}</div>${tabsMarkup()}<div id="admin-panel"></div>`;root.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{tab=btn.dataset.tab;showWork();}));if(tab==='managed')managedPane();if(tab==='rankings')rankPane();if(tab==='members')membersPane();if(tab==='audit')auditPane();}
+function tabsMarkup(){const {t,E}=context;const items=[['managed','adminTabManaged'],['rankings','adminTabRankings'],['audit','adminTabAudit']];return `<div class="admin-tabs" role="tablist">${items.map(([id,key])=>`<button role="tab" type="button" data-tab="${id}" aria-selected="${String(tab===id)}" class="${tab===id?'active':''}">${E(t(key))}</button>`).join('')}</div>`;}
+function showWork(){if(!adminRoot)return;const {t,E}=context;const root=adminRoot.querySelector('#admin-work');root.innerHTML=`<div class="notice">${E(t('adminSyncNotice'))}</div>${tabsMarkup()}<div id="admin-panel"></div>`;root.querySelectorAll('[data-tab]').forEach(btn=>btn.addEventListener('click',()=>{tab=btn.dataset.tab;showWork();}));if(tab==='managed')managedPane();if(tab==='rankings')rankPane();if(tab==='audit')auditPane();}
 function selectedRecord(){return state.managed.find(x=>x.kind===current?.kind&&x.record_key===current?.record_key);}
 function sourceChoices(kind){
  const entry=(key,label,payload,source='')=>({key,label,payload,source:source||''});
@@ -62,12 +76,6 @@ try{const {error}=await adminDb.from('wsd_public_content').upsert({kind,record_k
 async function setDeleted(value){const {t}=context;if(!current||!state.managedReady)return;if(value&&!confirm(t('adminConfirmDelete')))return;
 try{const {error}=await adminDb.from('wsd_public_content').update({is_deleted:value}).eq('kind',current.kind).eq('record_key',current.record_key);if(error)throw error;await loadData();managedPane();status(t('adminSaved'));}catch{status(t('adminFailed'));}}
 function rankPane(){const {t,E}=context;const area=adminRoot.querySelector('#admin-panel');area.innerHTML=`<div class="notice">${E(t('adminRankingsHint'))}</div><div class="table-wrap"><table class="data-table"><thead><tr><th>${E(t('profile'))}</th><th>${E(t('schoolRecords'))}</th><th>${E(t('worldRank'))}</th><th>${E(t('asiaRank'))}</th><th>${E(t('rankingPoints'))}</th><th>${E(t('rankingDate'))}</th><th>${E(t('source'))}</th></tr></thead><tbody>${worldRankings().map(x=>`<tr><td>${E(x.athlete_name)}</td><td>${E(recordLabel(x.event_name))}</td><td>${E(x.world_rank??'—')}</td><td>${E(x.asia_rank??'—')}</td><td>${E(x.ranking_points??'—')}</td><td>${E(x.ranking_date)}</td><td>${context.sourceLink(x.source_url,t('worldRankingSource'))} ${context.sourceLink(x.asia_source_url,t('asiaRankingSource'))}</td></tr>`).join('')}</tbody></table></div>`;}
-async function membersPane(){const {t,E}=context;const area=adminRoot.querySelector('#admin-panel');area.innerHTML=`<div class="notice">${E(t('adminInviteHint'))}</div><form id="member-form" class="filterbar"><label class="field">${E(t('adminEmail'))}<input type="email" name="email" required autocomplete="off" placeholder="runner@example.com"></label><button type="submit" class="btn btn-primary">${E(t('adminInvite'))}</button></form><p id="member-msg" role="status"></p><h3>${E(t('adminMembers'))}</h3><div id="member-list">${E(t('loading'))}</div>`;
-const display=area.querySelector('#member-list');const {data,error}=await adminDb.rpc('wsd_public_list_admins');if(!adminRoot||!display.isConnected)return;
-if(error){display.textContent=t('adminInviteNotReady');area.querySelector('#member-form button').disabled=true;return;}
-display.innerHTML=(data||[]).map(x=>`<div class="card-top" style="background:white;border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px"><div><strong>${E(x.email)}</strong><small class="subline">${E(x.created_at?.slice(0,10)||'')} · ${E(t(x.scope==='shared'?'adminSharedScope':'adminNewScope'))}</small></div>${x.scope==='atlas'&&x.user_id!==adminUser.id?`<button type="button" class="btn btn-sm btn-danger" data-revoke="${E(x.user_id)}">${E(t('adminDelete'))}</button>`:''}</div>`).join('')||E(t('empty'));
-area.querySelector('#member-form').addEventListener('submit',async e=>{e.preventDefault();const email=String(new FormData(e.currentTarget).get('email')).trim();const {data:result,error:err}=await adminDb.rpc('wsd_public_grant_admin_by_email',{p_email:email});area.querySelector('#member-msg').textContent=err?t('adminFailed'):result==='granted'?t('adminSaved'):t('adminInviteHint');if(!err&&result==='granted')membersPane();});
-area.querySelectorAll('[data-revoke]').forEach(btn=>btn.addEventListener('click',async()=>{if(!confirm(t('adminConfirmDelete')))return;const {error:err}=await adminDb.rpc('wsd_public_revoke_admin',{p_user_id:btn.dataset.revoke});area.querySelector('#member-msg').textContent=err?t('adminFailed'):t('adminSaved');if(!err)membersPane();}));}
 async function auditPane(){const {t,E}=context;const area=adminRoot.querySelector('#admin-panel');area.textContent=t('loading');const {data,error}=await adminDb.from('wsd_public_audit').select('id,kind,record_key,action,actor_id,changed_at,before_data,after_data').order('changed_at',{ascending:false}).limit(60);
 if(!adminRoot||!area.isConnected)return;if(error){area.textContent=t('adminMigration');return;}
 area.innerHTML=(data||[]).map(x=>`<article class="audit-item"><div class="card-top"><strong>${E(x.kind)} / ${E(x.record_key)}</strong><span>${E(x.action)} · ${E(x.changed_at)}</span></div><p>${E(t('adminActor'))}: ${E(x.actor_id)}</p><details><summary>${E(t('adminBefore'))} / ${E(t('adminAfter'))}</summary><p>${E(t('adminBefore'))}</p><pre>${E(JSON.stringify(x.before_data,null,2))}</pre><p>${E(t('adminAfter'))}</p><pre>${E(JSON.stringify(x.after_data,null,2))}</pre></details></article>`).join('')||`<p>${E(t('adminNoHistory'))}</p>`;}
