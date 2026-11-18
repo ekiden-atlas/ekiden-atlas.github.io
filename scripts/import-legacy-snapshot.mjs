@@ -108,7 +108,11 @@ const primary=[{
   date:'2024-03-30',meet:'World Athletics Cross Country Championships Belgrade 24',
   event:'U20 8km',time:'26:03',rank:64,
   source:'https://worldathletics.org/competition/calendar-results/results/7190594?eventId=10230007'
-}];
+},
+  {"id":"primary-wa-7204187-honda","verification":"primary","year":2026,"name":"本田 桜二郎","grade":1,"gender":"男","meet":"コペンハーゲン2026世界ロードランニング選手権大会","event":"1マイル","date":"2026-09-19","precision":"日","time":"3:57.50","rank":16,"status":"student","stage":"決勝","location":"デンマーク・コペンハーゲン","unit":"早稲田大学","pb":true,"source":"https://worldathletics.org/competitions/world-athletics-road-running-championships/copenhagen26/results/men/road-mile/final/result"},
+  {"id":"primary-wa-7204187-suzuki","verification":"primary","year":2026,"name":"鈴木 琉胤","grade":2,"gender":"男","meet":"コペンハーゲン2026世界ロードランニング選手権大会","event":"5km","date":"2026-09-19","precision":"日","time":"13:38","rank":28,"status":"student","stage":"決勝","location":"デンマーク・コペンハーゲン","unit":"早稲田大学","pb":true,"source":"https://worldathletics.org/competitions/world-athletics-road-running-championships/copenhagen26/results/men/5-kilometres/final/result"},
+  {"id":"primary-wa-7204187-mashiko","verification":"primary","year":2026,"name":"増子 陽太","grade":1,"gender":"男","meet":"コペンハーゲン2026世界ロードランニング選手権大会","event":"5km","date":"2026-09-19","precision":"日","time":"13:50","rank":40,"status":"student","stage":"決勝","location":"デンマーク・コペンハーゲン","unit":"早稲田大学","pb":true,"source":"https://worldathletics.org/competitions/world-athletics-road-running-championships/copenhagen26/results/men/5-kilometres/final/result"}
+];
 const snapshot={...records,results:[...results,...primary],athleteProfiles,specialtyPb,sectionRecords,
   meta:{fetched:process.argv[3],completeHakone:true}};
 const lines=Object.entries(snapshot).map(([key,value])=>{

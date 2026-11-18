@@ -42,9 +42,9 @@ assert.equal(specialtyPbs().length,4);
 assert.equal(athletes().length,50);
 assert.equal(athlete('佐々木 哲').high_school,'佐久長聖高等学校');
 const rows=personalResults();
-assert.equal(rows.length,577);
+assert.equal(rows.length,580);
 assert.equal(new Set(rows.map(row=>row.id)).size,rows.length);
-for(const [year,count] of [[2024,210],[2025,179],[2026,188]]){
+for(const [year,count] of [[2024,210],[2025,179],[2026,191]]){
  assert.equal(rows.filter(row=>row.year===year).length,count);
 }
 assert.ok(rows.some(row=>row.verification==='primary'&&row.rank===64&&row.time==='26:03'));
@@ -96,6 +96,13 @@ assert.equal(worldRankings().length,12);
 assert.ok(worldRankings().every(row=>row.asia_rank>0&&row.ranking_points>0&&row.ranking_date==='2026-11-10'));
 console.log('PASS: dated World Athletics Asia rankings, points and offline fallback.');
 
+const copenhagen=rows.filter(row=>row.id.startsWith("primary-wa-7204187-"));
+assert.deepEqual(copenhagen.map(row=>[row.name,row.event,row.time,row.rank]),[
+  ["本田 桜二郎", "1マイル", "3:57.50", 16],
+  ["鈴木 琉胤", "5km", "13:38", 28],
+  ["増子 陽太", "5km", "13:50", 40]
+]);
+assert.ok(copenhagen.every(row=>row.date==="2026-09-19"&&row.pb&&row.verification==="primary"));
 const {athleteEkidenHonors}=await import('../js/data.js');
 const honorsAt=(name,race,leg)=>athleteEkidenHonors(name)
  .find(row=>row.race===race&&row.year===2026&&row.leg===leg)?.honors.map(honor=>honor.kind);
