@@ -105,11 +105,14 @@ function renderCompetitionDetail(meet){
  ${language()==='zh'?`<p>${E(t(meet.intro))}</p>`:''}
  ${sourceLink(meet.source,t('scheduleOfficial'))}</div></header>
  <div class="wrap section schedule-detail">
- <section aria-labelledby="schedule-entry-title"><div class="section-head"><h2 id="schedule-entry-title">${E(t('scheduleEntries'))}</h2></div>
- ${meet.entries?.length?`<p><span class="tag">${E(t(meet.entryStatus))}</span> ${sourceLink(meet.entrySource)}</p>
- ${meet.entries.map(entry=>`<article class="card"><h3>${E(recordLabel(entry.event))}</h3>
+ <section aria-labelledby="schedule-entry-title"><div class="section-head"><h2 id="schedule-entry-title">${E(t(meet.entryHeading||'scheduleEntries'))}</h2></div>
+ ${meet.entries?.length?`${meet.entryStatus?`<p><span class="tag">${E(t(meet.entryStatus))}</span> ${sourceLink(meet.entrySource)}</p>`:''}
+ ${meet.entries.map(entry=>`<article class="card schedule-entry"><h3>${E(entry.title?t(entry.title,{count:entry.athletes.length+(entry.reserves?.length||0)}):recordLabel(entry.event))}</h3>
+ ${entry.published?`<p>${E(t('scheduleEntryPublished',{date:entry.published}))} · ${sourceLink(entry.source)}</p>`:''}
  ${entry.start?`<p>${E(t('scheduleStartTime',{time:entry.start}))}</p>`:''}
- <ul class="schedule-athletes">${entry.athletes.map(name=>`<li>${competitionAthlete(name)}</li>`).join('')}</ul></article>`).join('')}`
+ <ul class="schedule-athletes">${entry.athletes.map((name,index)=>`<li>${entry.orderedLegs?`${E(t('scheduleEntryLeg',{leg:index+1}))} · `:''}${competitionAthlete(name)}</li>`).join('')}</ul>
+ ${entry.reserves?.length?`<h4>${E(t('scheduleEntryReserves'))}</h4>
+ <ul class="schedule-athletes">${entry.reserves.map(name=>`<li>${competitionAthlete(name)}</li>`).join('')}</ul>`:''}</article>`).join('')}`
  :`<p>${E(t(marks.length?'scheduleEntriesUnarchived':'scheduleEntriesAwaiting'))}</p>`}</section>
  <section aria-labelledby="schedule-results-title"><div class="section-head"><h2 id="schedule-results-title">${E(t('scheduleResults'))}</h2>
  ${meet.relay?`<a class="btn btn-sm" href="${raceArchiveLink(meet.race,meet.relay.year)}">${E(t('navEkiden'))} →</a>`:''}</div>
