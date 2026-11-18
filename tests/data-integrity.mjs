@@ -68,3 +68,19 @@ assert.equal(rows.filter(row=>row.date==='2026-11-15'&&row.time==='44:12').lengt
 const tied=schoolRecords().filter(row=>row.gender==='男'&&row.event==='400m');
 assert.equal(tied.length,2);
 assert.ok(tied.every(row=>row.performance==='45.71'));
+
+const {meetLabel,recordLabel}=await import('../js/record-names.js');
+assert.equal(meetLabel('第253回东海大学长距离竞技会'),'第253回東海大学長距離競技会');
+assert.equal(meetLabel('第58回全日本大学驿传'),'第58回全日本大学駅伝対校選手権大会');
+assert.equal(meetLabel('Zevenheuvelenloop（Seven Hills Run）'),'ナイメーヘン15kmロードレース（セブンヒルズラン）');
+assert.equal(recordLabel('荷兰·奈梅亨'),'オランダ・ナイメーヘン');
+assert.equal(recordLabel('男子10000m第6组'),'男子10000m第6組');
+assert.equal(recordLabel('5000m预赛第1组'),'5000m予選第1組');
+assert.equal(recordLabel('半程马拉松'),recordLabel('ハーフマラソン'));
+assert.notEqual(recordLabel('5000m'),recordLabel('5km'));
+for(const row of rows){
+ const name=meetLabel(row.meet);
+ assert.doesNotMatch(name,/[A-Za-z]{3,}|[马驿竞长锦联选东稻]/u,row.id);
+ assert.doesNotMatch(recordLabel(row.event)+recordLabel(row.stage),/[马驿竞预决组级纪录晋]/u,row.id);
+}
+console.log('PASS: Japanese labels across the personal results snapshot, with event scopes preserved.');
