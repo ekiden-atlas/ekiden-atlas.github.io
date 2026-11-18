@@ -134,3 +134,8 @@
 .athlete-highlights li { padding: 12px; border: 1px solid var(--line); border-radius: 10px; overflow-wrap: anywhere; }
 .athlete-highlights .row-meta { display: block; }
 .athlete-highlights a { color: var(--wine); text-decoration: underline; }
+
+.submission-form { display: grid; gap: 12px; max-width: 640px; }
+.submission-form .btn { justify-self: start; }
+.submission-list { display: grid; gap: 12px; }
+.submission-list .card { overflow-wrap: anywhere; }
