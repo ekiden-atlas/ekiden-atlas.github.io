@@ -127,3 +127,10 @@
 .schedule-athletes { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 24px; padding-inline-start: 20px; }
 .schedule-entry + .schedule-entry { margin-top: 16px; }
 .schedule-detail a { color: var(--wine); text-decoration: underline; }
+
+.athlete-highlights { margin-block: 24px; }
+.athlete-highlights h2 { margin-bottom: 12px; }
+.athlete-highlights ul { display: grid; gap: 8px; list-style: none; padding: 0; margin: 0; }
+.athlete-highlights li { padding: 12px; border: 1px solid var(--line); border-radius: 10px; overflow-wrap: anywhere; }
+.athlete-highlights .row-meta { display: block; }
+.athlete-highlights a { color: var(--wine); text-decoration: underline; }
