@@ -115,7 +115,7 @@ function resultPanel(records,showAthlete,name=''){
  ${events.map(value=>`<option value="${E(value)}">${E(value)}</option>`).join('')}</select></label>
  <label class="field">${E(t('groupResults'))}<select id="result-group">
  <option value="year">${E(t('years'))}</option><option value="meet">${E(t('meet'))}</option></select></label>
- <label class="field">${E(t('resultStatus'))}<select id="result-status"><option value="">${E(t('all'))}</option><option value="student">${E(t('student'))}</option><option value="OB">OB / OG</option></select></label>
+ <label class="field">${E(t('resultStatus'))}<select id="result-status"><option value="">${E(t('all'))}</option><option value="middleSchool">${E(t('middleSchool'))}</option><option value="highSchool">${E(t('highSchool'))}</option><option value="student">${E(t('student'))}</option><option value="OB">OB / OG</option></select></label>
  </div>${showAthlete?`<p>${E(t('resultsMatching'))}</p>`:''}
  <p id="result-count" role="status"></p><div class="table-wrap"><table class="data-table">
  <thead><tr>${headers.map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}</tr></thead>
@@ -138,7 +138,7 @@ function updateResults(reset=false){
  const group=document.querySelector('#result-group').value;
  const groups=new Map();
  const matching=records.filter(r=>(!event||recordLabel(r.event)===event)&&(!meet||meetLabel(r.meet)===meet)&&(!year||String(r.year)===year)&&(!status||r.status===status)&&
-   (!q||[r.name,r.meet,r.meetAlias,r.event,meetLabel(r.meet),recordLabel(r.event),r.location,recordLabel(r.location)].some(value=>nameSearch(value).includes(q))));
+   (!q||[r.name,r.meet,r.meetAlias,r.event,r.unit,meetLabel(r.meet),recordLabel(r.event),r.location,recordLabel(r.location)].some(value=>nameSearch(value).includes(q))));
  for(const row of matching){
    const key=(group==='meet'?meetLabel(row.meet):String(row.year||''))||t('notRecorded');
    if(!groups.has(key))groups.set(key,[]);
@@ -157,10 +157,10 @@ function updateResults(reset=false){
  <td>${E(r.date||r.year||'—')}</td><td>${E(meetLabel(r.meet))}<span class="subline">${E([r.location,r.unit].filter(Boolean).map(recordLabel).join(' · '))}</span></td>
  <td>${E(recordLabel(r.event))}<span class="subline">${E(recordLabel(r.stage))}</span></td><td class="mono">${E(r.time||'—')}${r.pb?' · PB':''}</td>
  <td>${E(({冠军:'1',亚军:'2',季军:'3'})[r.rank]??r.rank??'—')}</td>
- <td>${E(r.status==='OB'?'OB / OG':t(r.status==='student'?'student':'notRecorded'))}</td>
+ <td>${E(r.status==='OB'?'OB / OG':t(['student','middleSchool','highSchool'].includes(r.status)?r.status:'notRecorded'))}</td>
  <td>${E(t(r._managed?'resultManaged':labels[r.verification]||'resultLegacy'))}
  <span class="subline">${E(String(r._updatedAt||r.updated_at||state.official?.meta?.fetched||DATA_SNAPSHOT).slice(0,10))}</span>
- ${sourceLink(r.source)}</td></tr>`;}).join('')||`<tr><td colspan="${colspan}">${E(t(state.officialOnline?'empty':'historyFailed'))}</td></tr>`;
+ ${sourceLink(r.source)}</td></tr>`;}).join('')||`<tr><td colspan="${colspan}">${E(t(records.length||state.officialOnline?'empty':'historyFailed'))}</td></tr>`;
  document.querySelector('#result-count').textContent=t('resultCount',{start:rows.length?start+1:0,end:Math.min(start+resultsPageSize,rows.length),total:rows.length});
  document.querySelector('#result-prev').disabled=!resultsPage;
  document.querySelector('#result-next').disabled=start+resultsPageSize>=rows.length;

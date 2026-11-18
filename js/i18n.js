@@ -1,5 +1,7 @@
 const zh={
 navResults:"比赛成绩",
+middleSchool:"中学",
+highSchool:"高中",
 officialLinks:"官方渠道",
 allOfficialLinks:"查看全部官方渠道",
 officialTrackClub:"早稻田大学竞走部",
@@ -98,6 +100,8 @@ footerData:'资料快照 2026-11-18 · 早稻田跑步资料独立整理',copyri
 },
 ja={
 navResults:"競技結果",
+middleSchool:"中学",
+highSchool:"高校",
 officialLinks:"公式リンク",
 allOfficialLinks:"公式リンク一覧",
 officialTrackClub:"早稲田大学競走部",
