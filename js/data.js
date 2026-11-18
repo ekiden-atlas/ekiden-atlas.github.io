@@ -12,7 +12,7 @@ export function getDb(){
   if(!supabasePromise)supabasePromise=Promise.race([import(SUPABASE_SDK),new Promise((_,reject)=>setTimeout(()=>reject(new Error('SDK network timeout')),6000))]).then(m=>m.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})).catch(e=>{supabasePromise=null;throw e;});
   return supabasePromise;
 }
-export const state={profiles:[],rankings:[],legacyEdits:[],managed:[],managedReady:false,dbOnline:false,official:null,officialOnline:false};
+export const state={profiles:[],rankings:[],legacyEdits:[],managed:[],managedReady:false,submissionsReady:false,dbOnline:false,official:null,officialOnline:false};
 async function safeSelect(db,table,columns,order){
  const rows=[];
  try {
@@ -44,8 +44,8 @@ export async function loadData(){
       safeSelect(db,'wsd_open_archive_edits','id,entity_type,record_key,payload,is_deleted,updated_at','id'),
       safeSelect(db,'wsd_public_content','id,kind,record_key,payload,source_url,is_deleted,created_at,updated_at','id')
     ]);
-    Object.assign(state,{profiles:a.rows,rankings:b.rows,legacyEdits:c.rows,managed:d.rows,managedReady:d.ok,dbOnline:a.ok||b.ok||c.ok});
-  }catch{Object.assign(state,{dbOnline:false,profiles:[],rankings:[],legacyEdits:[],managed:[],managedReady:false});}
+    Object.assign(state,{profiles:a.rows,rankings:b.rows,legacyEdits:c.rows,managed:d.rows,managedReady:d.ok,submissionsReady:d.ok&&(await db.rpc('wsd_atlas_submissions_ready')).data===true,dbOnline:a.ok||b.ok||c.ok});
+  }catch{Object.assign(state,{dbOnline:false,profiles:[],rankings:[],legacyEdits:[],managed:[],managedReady:false,submissionsReady:false});}
   state.official=await officialTask;
   return state;
 }

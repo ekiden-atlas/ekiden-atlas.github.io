@@ -1,3 +1,4 @@
+import {renderSubmissions} from './submissions.js';
 import {ATHLETE_HIGHLIGHTS} from '../data/athlete-highlights.js';
 import {COMPETITIONS} from '../data/competition-schedule.js';
 import {ATHLETE_SOCIAL_LINKS} from '../data/athlete-social-links.js';
@@ -356,7 +357,7 @@ function updateResults(reset=false){
  <td>${E(resultDivision(r))}</td>
  <td>${E(t(r._managed?'resultManaged':labels[r.verification]||'resultLegacy'))}
  <span class="subline">${E(String(r._updatedAt||r.updated_at||state.official?.meta?.fetched||DATA_SNAPSHOT).slice(0,10))}</span>
- ${sourceLink(r.source)}${r.gradeSource?`<div>${sourceLink(r.gradeSource,t('gradeSource'))}</div>`:''}</td></tr>`;}).join('')||`<tr><td colspan="${colspan}">${E(t(records.length||state.officialOnline?'empty':'historyFailed'))}</td></tr>`;
+ ${sourceLink(r.source)}${state.submissionsReady?`<div><a href="#submissions?result=${encodeURIComponent(r.id)}">${E(t('submissionCorrection'))}</a></div>`:''}${r.gradeSource?`<div>${sourceLink(r.gradeSource,t('gradeSource'))}</div>`:''}</td></tr>`;}).join('')||`<tr><td colspan="${colspan}">${E(t(records.length||state.officialOnline?'empty':'historyFailed'))}</td></tr>`;
  document.querySelector('#result-count').textContent=t('resultCount',{start:rows.length?start+1:0,end:Math.min(start+resultsPageSize,rows.length),total:rows.length});
  document.querySelector('#result-prev').disabled=!resultsPage;
  document.querySelector('#result-next').disabled=start+resultsPageSize>=rows.length;
@@ -440,7 +441,11 @@ function historyTable(tab){
  `<tr><td colspan="${headers.length}">${E(t(state.officialOnline?'empty':'historyFailed'))}</td></tr>`}</tbody></table></div>`;
 }
 function renderGuide(){const keys=['PB','Leg','Student','World','Team','Source'];return pageIntro('aboutTitle','guideIntro')+`<section class="wrap section"><div class="guide-grid">${keys.map(k=>`<article class="card"><span class="micro">GLOSSARY / ${E(k.toUpperCase())}</span><h3>${E(t('term'+k))}</h3><p>${E(t('term'+k+'Desc'))}</p></article>`).join('')}</div><article class="intro-panel" style="margin-top:20px"><h3>${E(t('legalTitle'))}</h3><p>${E(t('independent'))}</p><p>${E(t('legalNote'))}</p><p>${sourceLink('https://waseda-ac.jp/record/',t('sourceLabel'))}</p></article>${renderOfficialLinks(true)}</section>`;}
-async function render(){detachAdmin();const path=decodeURIComponent((location.hash.slice(1).split('?')[0]||'home'));const tab=archiveTab(path);const current=tab?'archive':['home','athletes','results','schedule','guide','admin'].includes(path)?path:'home';document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('active',a.dataset.nav===current));document.querySelector('#mobile-nav').hidden=true;document.querySelector('#menu-btn').setAttribute('aria-expanded','false');document.documentElement.lang=language()==='ja'?'ja':'zh-CN';translateStatic(document);if(!dataLoaded&&['results','archive','schedule'].includes(current)){app.innerHTML=`<p class="wrap section" role="status">${E(t('historyBusy'))}</p>`;return;}if(current==='home')app.innerHTML=renderHome();if(current==='athletes')app.innerHTML=renderAthletes();if(current==='schedule')app.innerHTML=renderSchedule();if(current==='results'){app.innerHTML=renderResults();updateResults();}applyArchiveRoute(tab);if(current==='archive')app.innerHTML=renderArchive(tab);if(current==='guide'){
+async function render(){detachAdmin();const path=decodeURIComponent((location.hash.slice(1).split('?')[0]||'home'));const tab=archiveTab(path);const current=tab?'archive':['home','athletes','results','schedule','guide','admin','submissions'].includes(path)?path:'home';document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('active',a.dataset.nav===current));document.querySelector('#mobile-nav').hidden=true;document.querySelector('#menu-btn').setAttribute('aria-expanded','false');document.documentElement.lang=language()==='ja'?'ja':'zh-CN';translateStatic(document);document.querySelector('#submission-link').hidden=!state.submissionsReady;if(!dataLoaded&&['results','archive','schedule','submissions'].includes(current)){app.innerHTML=`<p class="wrap section" role="status">${E(t('historyBusy'))}</p>`;return;}if(current==='submissions'){
+ app.innerHTML=pageIntro('submissionTitle','submissionIntro')+`<section class="wrap section" id="submission-root"><p role="status">${E(t('loading'))}</p></section>`;
+ await renderSubmissions(document.querySelector('#submission-root'),{t,E,sourceLink});
+ return;
+}if(current==='home')app.innerHTML=renderHome();if(current==='athletes')app.innerHTML=renderAthletes();if(current==='schedule')app.innerHTML=renderSchedule();if(current==='results'){app.innerHTML=renderResults();updateResults();}applyArchiveRoute(tab);if(current==='archive')app.innerHTML=renderArchive(tab);if(current==='guide'){
  app.innerHTML=renderGuide();
  if(new URLSearchParams(location.hash.split('?')[1]).has('official')){
    document.querySelector('#official-links-title').scrollIntoView();
@@ -493,7 +498,18 @@ window.addEventListener('hashchange',event=>{
  }
 });
 chooseLanguage(language());
-loadData().finally(()=>{dataLoaded=true;render();});
+loadData().finally(()=>{
+ const url=new URL(location.href);
+ if(url.searchParams.get('atlas-submissions')==='1'){
+   const destination=sessionStorage.getItem('atlas-submission-return');
+   sessionStorage.removeItem('atlas-submission-return');
+   url.searchParams.delete('atlas-submissions');
+   url.hash=destination?.startsWith('#submissions')?destination:'#submissions';
+   history.replaceState(history.state,'',url);
+ }
+ dataLoaded=true;
+ render();
+});
 
 document.addEventListener('click',e=>{
  const id=e.target.closest('button')?.id;
