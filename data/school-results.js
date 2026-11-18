@@ -1,5 +1,18 @@
 // Historical school-stage results transcribed from the linked public sources.
+const kudoHighSchool = (id,date,grade,meet,event,time,rank,stage,source,extra={})=>({
+  id:'school-kudo-'+id,date,year:Number(date.slice(0,4)),name:'工藤 慎作',grade,
+  status:'highSchool',unit:'八千代松陰高等学校',verification:'primary',meet,event,time,rank,stage,source,...extra
+});
+
 export const SCHOOL_RESULTS = [
+  {"id":"school-kudo-2019-chiba-rookie-ekiden","verification":"cited","name":"工藤 慎作","year":2019,"date":"2019-02-09","grade":2,"status":"middleSchool","unit":"船橋市立三田中学校","meet":"第8回千葉県中学校新人駅伝大会","event":"駅伝3区","time":"9:19","rank":null,"stage":"3.08km","source":"https://blog.neet-shikakugets.com/chiba-chugaku-shinjin-ekiden-m-2019"},
+  kudoHighSchool('2020-chiba-ekiden','2020-10-31',1,'第75回千葉県高等学校駅伝競走大会','駅伝6区','15:09',2,'5km','https://yanbaruekiden.com/chiba-koukou-ekiden-danshi/#y2020',{verification:'cited'}),
+  kudoHighSchool('2020-ekiden','2020-12-20',1,'第71回全国高等学校駅伝競走大会','駅伝6区','14:48',14,'5km','https://gold.jaic.org/jaic/member/okayama/2020/1220/2020M71-ekiden.pdf'),
+  kudoHighSchool('2021-chiba-ekiden','2021-10-30',2,'第76回千葉県高等学校駅伝競走大会','駅伝3区','23:47',1,'8.1075km · 区間新記録','https://koukou-rikujou.info/data/2021/2021_ekiden_chiba_result.pdf'),
+  kudoHighSchool('2021-kanto-ekiden','2021-11-20',2,'第74回関東高等学校男子駅伝競走大会','駅伝5区','8:29.10',3,'3km','https://yamanashi-koutairen.jp/archives/094/202402/R3%E9%96%A2%E6%9D%B1%E9%AB%98%E6%A0%A1%E9%A7%85%E4%BC%9D%E7%94%B7%E5%AD%90%E7%B5%90%E6%9E%9C%E4%B8%80%E8%A6%A7.pdf'),
+  kudoHighSchool('2021-chiba-selection','2021-11-27',2,'都道府県対抗駅伝千葉県選手選考会','5000m','14:04.28',1,'高校男子選考会','https://www.jaaf-chiba.jp/pages/main/result/past/2021/130-tdfkekiden/kessyo.pdf'),
+  kudoHighSchool('2022-chiba-ekiden','2022-10-29',3,'第77回千葉県高等学校駅伝競走大会','駅伝3区','23:59',1,'8.1075km','https://koukou-rikujou.info/data/2022/2022_ekiden_chiba_result.pdf'),
+  kudoHighSchool('2023-prefecture-ekiden','2023-01-22',3,'第28回全国都道府県対抗男子駅伝競走大会','駅伝5区','24:17',4,'8.5km','https://www.hiroshima-ekiden.com/archive/runner/4621/',{unit:'千葉県（八千代松陰高等学校）'}),
   {"id":"school-kudo-2019-funabashi","verification":"primary","name":"工藤 慎作","year":2019,"date":"2019","grade":3,"status":"middleSchool","unit":"船橋市立三田中学校","meet":"船橋市中学校総合体育大会","event":"3000m","time":"8:59.56","rank":null,"stage":"大会記録一覧","source":"https://f-athletics.jp/sotai_record.html"},
   {"id":"school-kudo-2019-3000","verification":"primary","name":"工藤 慎作","year":2019,"date":"2019-08-21","grade":3,"status":"middleSchool","unit":"船橋市立三田中学校","meet":"第46回全日本中学校陸上競技選手権大会","event":"3000m","time":"8:55.22","rank":10,"stage":"予選3組","source":"https://www.oaaa.jp/cyutairen/2019zenchu/result/web/rel056.html"},
   {"id":"school-kudo-2019-1500","verification":"primary","name":"工藤 慎作","year":2019,"date":"2019-08-23","grade":3,"status":"middleSchool","unit":"船橋市立三田中学校","meet":"第46回全日本中学校陸上競技選手権大会","event":"1500m","time":"4:09.83","rank":9,"stage":"予選3組","source":"https://gold.jaic.org/jaic/member/okayama/2019/46zenchu/rel050.html"},

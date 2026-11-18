@@ -36,12 +36,18 @@ const kudo = (id,date,gradeAtRace,meet,event,time,rank,stage,source,extra={})=>(
   id:'kudo-'+id,date,year:Number(date.slice(0,4)),gradeAtRace,name:'工藤 慎作',gender:'男',
   status:'student',verification:'primary',meet,event,time,rank,stage,source,...extra
 });
-export const KUDO_EARLY_RESULTS = [
-  kudo('2023-izumo','2023-10-09',1,'第35回出雲全日本大学選抜駅伝競走','駅伝4区','18:04',9,'6.2km',waseda(78)),
+export const KUDO_UNIVERSITY_RESULTS = [
+  kudo('2023-nittaidai-10000','2023-04-22',1,'第304回日本体育大学長距離競技会 兼 第1回日体大チャレンジゲームズ','10000m','28:31.87',12,'9組','https://www.waseda-ac.org/result/sfs2_diary/sfs2_diary/202304.html',{pb:true}),
+  kudo('2023-kanto-10000','2023-05-11',1,'第102回関東学生陸上競技対校選手権大会','10000m','28:35.76',6,'男子1部・決勝','https://www.waseda-ac.org/result/sfs2_diary/sfs2_diary/202305.html'),
+  kudo('2023-izumo','2023-10-09',1,'第35回出雲全日本大学選抜駅伝競走','駅伝4区','18:04',9,'6.2km','https://www.izumo-ekiden.jp/35/record/record.html'),
   kudo('2023-all-japan','2023-11-05',1,'第55回全日本大学駅伝対校選手権大会','駅伝4区','35:36',13,'11.8km',waseda(88)),
   kudo('2024-hakone','2024-01-02',1,'第100回東京箱根間往復大学駅伝競走','駅伝5区','1:12:12',6,'20.8km',waseda(124)),
+  kudo('2024-waseda-10','2024-01-31',1,'第10回早稲田大学競技会','10000m','29:38.16',4,'1組',waseda(136)),
+  kudo('2024-waseda-11','2024-02-17',1,'第11回早稲田大学競技会','10000m','29:48.81',9,'1組','https://waseda-ac.jp/news/detail/157'),
   kudo('2024-student-half','2024-03-10',1,'第27回日本学生ハーフマラソン選手権大会','ハーフマラソン','1:02:29',3,'',waseda(163),{pb:true}),
+  kudo('2024-kanto-10000','2024-05-09',2,'第103回関東学生陸上競技対校選手権大会','10000m','28:53.41',13,'男子1部・決勝','https://waseda-ac.jp/news/detail/243'),
   kudo('2024-all-japan-qualifier','2024-06-23',2,'第56回全日本大学駅伝 関東学連推薦校選考会','10000m','29:07.55',19,'4組','https://waseda-ac.jp/news/detail/280'),
   kudo('2024-izumo','2024-10-14',2,'第36回出雲全日本大学選抜駅伝競走','駅伝6区','29:35',2,'10.2km',waseda(410)),
   kudo('2024-all-japan','2024-11-03',2,'第56回全日本大学駅伝対校選手権大会','駅伝8区','58:12',3,'19.7km',waseda(412)),
+  kudo('2025-waseda-road','2025-09-28',3,'2025年度 第5回早稲田大学競技会（ザ・ロード・オブ・早稲田）','5km','13:44',3,'1組',waseda(709),{pb:true}),
 ];
