@@ -1,4 +1,6 @@
 /* Original repo's 2026 roster snapshot, extracted 2026-11-18. NOT independently verified. */
+import {VERIFIED_ROSTER_PROFILES} from './roster-verified-profiles.js';
+
 const hakoneEntry='https://www.kgrr.org/files/upload/202512/102teamentry.pdf';
 const ito1500='https://www.waseda-ac.org/dbf/profile.cgi?hor=1&max=10&page=10&tpl=view2&view=rvs&width=100%25';
 const maseda1500='https://www.jaaf.or.jp/files/competition/document/1563-7.pdf';
@@ -66,6 +68,6 @@ const alumni = [
  _pbSources:{...(pb1500?{pb1500:pb1500Source}:{}),pb5000:pbSource,pb10000:pbSource,pbHalf:pbSource}
 }));
 
-export const ROSTER=[...students,...alumni];
+export const ROSTER=[...students.map(row=>({...row,...VERIFIED_ROSTER_PROFILES[row.name]})),...alumni];
 export const FEATURED=['山口 竣平','増子 陽太','工藤 慎作','鈴木 琉胤','本田 桜二郎','新妻 遼己'];
 export const DATA_SNAPSHOT='2026-11-18';
