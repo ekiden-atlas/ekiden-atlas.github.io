@@ -1,3 +1,4 @@
+import {meetLabel,recordLabel} from './record-names.js';
 import {getDb,checkAdmin,state,loadData,athletes,ekiden,schoolRecords,alltimeRankings,personalResults,specialtyPbs,sectionRecords,worldRankings,worldRankKey,comparisonRankings,ekidenKey,alltimeKey,schoolKey} from './data.js';
 let listener=null;
 let adminRoot=null,context=null,adminDb=null,adminUser=null;
@@ -30,14 +31,14 @@ function sourceChoices(kind){
    return entry(name,name,{name,grade,gender,birthday,birthplace,hometown,high_school,height_cm,mainEvent,graduation_year,graduation_source},a.source_url);
  });
  if(kind==='pb')return athletes().flatMap(a=>[['pb1500','1500m'],['pb5000','5000m'],['pb10000','10000m'],['pbHalf','Half Marathon']]
-   .map(([field,label])=>entry(a.name+':'+label,a.name+' · '+label,{name:a.name,field,time:a[field]||''},a._pbSources?.[field])));
+   .map(([field,label])=>entry(a.name+':'+label,a.name+' · '+recordLabel(label),{name:a.name,field,time:a[field]||''},a._pbSources?.[field])));
  if(kind==='ekiden')return ekiden().map(r=>entry(ekidenKey(r),r.year+' · '+r.race,content(r),r.source));
- if(kind==='school_record')return schoolRecords().map(r=>entry(schoolKey(r),r.event,content(r),r.source));
- if(kind==='alltime_rank')return alltimeRankings().map(r=>entry(alltimeKey(r),r.event+' · '+r.rank+' · '+r.athlete,content(r),r.source));
- if(kind==='world_rank')return worldRankings().map(r=>entry(worldRankKey(r),[r.athlete_name,r.event_name,r.ranking_date].join(' · '),content(r),r.source_url));
+ if(kind==='school_record')return schoolRecords().map(r=>entry(schoolKey(r),recordLabel(r.event),content(r),r.source));
+ if(kind==='alltime_rank')return alltimeRankings().map(r=>entry(alltimeKey(r),recordLabel(r.event)+' · '+r.rank+' · '+r.athlete,content(r),r.source));
+ if(kind==='world_rank')return worldRankings().map(r=>entry(worldRankKey(r),[r.athlete_name,recordLabel(r.event_name),r.ranking_date].join(' · '),content(r),r.source_url));
  if(kind==='comparison_rank')return comparisonRankings().map(r=>entry(r.id,r.name+' · '+context.t(r.scope),content(r),r.source));
- if(kind==='result')return personalResults().map(r=>entry(r.id,[r.date||r.year,r.name,r.meet,r.event,r.time].join(' · '),content(r),r.source));
- if(kind==='specialty_pb')return specialtyPbs().map(r=>entry(r.id,r.name+' · '+r.event,content(r),r.source));
+ if(kind==='result')return personalResults().map(r=>entry(r.id,[r.date||r.year,r.name,meetLabel(r.meet),recordLabel(r.event),r.time].join(' · '),content(r),r.source));
+ if(kind==='specialty_pb')return specialtyPbs().map(r=>entry(r.id,r.name+' · '+recordLabel(r.event),content(r),r.source));
  if(kind==='section_record')return sectionRecords().map(r=>entry(r.id,[r.race,r.leg,r.name,r.year].join(' · '),content(r),r.source));
  return [];
 }
@@ -60,7 +61,7 @@ if(['result','section_record','specialty_pb','comparison_rank'].includes(kind))p
 try{const {error}=await adminDb.from('wsd_public_content').upsert({kind,record_key,payload,source_url,is_deleted:false},{onConflict:'kind,record_key'});if(error)throw error;await loadData();current={kind,record_key};managedPane();status(t('adminSaved'));}catch{status(t('adminFailed'));}}
 async function setDeleted(value){const {t}=context;if(!current||!state.managedReady)return;if(value&&!confirm(t('adminConfirmDelete')))return;
 try{const {error}=await adminDb.from('wsd_public_content').update({is_deleted:value}).eq('kind',current.kind).eq('record_key',current.record_key);if(error)throw error;await loadData();managedPane();status(t('adminSaved'));}catch{status(t('adminFailed'));}}
-function rankPane(){const {t,E}=context;const area=adminRoot.querySelector('#admin-panel');area.innerHTML=`<div class="notice">${E(t('adminRankingsHint'))}</div><div class="table-wrap"><table class="data-table"><thead><tr><th>${E(t('profile'))}</th><th>${E(t('schoolRecords'))}</th><th>${E(t('worldRank'))}</th><th>${E(t('rankingDate'))}</th><th>${E(t('source'))}</th></tr></thead><tbody>${state.rankings.map(x=>`<tr><td>${E(x.athlete_name)}</td><td>${E(x.event_name)}</td><td>${E(x.world_rank??'—')}</td><td>${E(x.ranking_date)}</td><td>${context.sourceLink(x.source_url)}</td></tr>`).join('')}</tbody></table></div>`;}
+function rankPane(){const {t,E}=context;const area=adminRoot.querySelector('#admin-panel');area.innerHTML=`<div class="notice">${E(t('adminRankingsHint'))}</div><div class="table-wrap"><table class="data-table"><thead><tr><th>${E(t('profile'))}</th><th>${E(t('schoolRecords'))}</th><th>${E(t('worldRank'))}</th><th>${E(t('rankingDate'))}</th><th>${E(t('source'))}</th></tr></thead><tbody>${state.rankings.map(x=>`<tr><td>${E(x.athlete_name)}</td><td>${E(recordLabel(x.event_name))}</td><td>${E(x.world_rank??'—')}</td><td>${E(x.ranking_date)}</td><td>${context.sourceLink(x.source_url)}</td></tr>`).join('')}</tbody></table></div>`;}
 async function membersPane(){const {t,E}=context;const area=adminRoot.querySelector('#admin-panel');area.innerHTML=`<div class="notice">${E(t('adminInviteHint'))}</div><form id="member-form" class="filterbar"><label class="field">${E(t('adminEmail'))}<input type="email" name="email" required autocomplete="off" placeholder="runner@example.com"></label><button type="submit" class="btn btn-primary">${E(t('adminInvite'))}</button></form><p id="member-msg" role="status"></p><h3>${E(t('adminMembers'))}</h3><div id="member-list">${E(t('loading'))}</div>`;
 const display=area.querySelector('#member-list');const {data,error}=await adminDb.rpc('wsd_public_list_admins');if(!adminRoot||!display.isConnected)return;
 if(error){display.textContent=t('adminInviteNotReady');area.querySelector('#member-form button').disabled=true;return;}
