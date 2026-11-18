@@ -24,6 +24,25 @@ export const COMPETITIONS = [
   {
     id:'all-japan-58', title:'第58回全日本大学駅伝対校選手権大会', start:'2026-11-01',
     venue:'熱田神宮 → 伊勢神宮', source:'https://waseda-ac.jp/competition/detail/1066',
-    intro:'allJapanWatch', race:'zen'
+    intro:'allJapanWatch', race:'zen', entryHeading:'scheduleRelayEntries',
+    entries:[
+      {
+        title:'scheduleTeamEntry', published:'2026-10-08',
+        source:'https://daigaku-ekiden.com/news/files/e946626ecacbe9848c78c329dd03f3e6ee38b071.pdf',
+        athletes:[
+          '工藤 慎作','小平 敦之','増子 陽季','山﨑 一吹','瀬間 元輔','山口 竣平','吉倉 ナヤブ直希','佐々木 哲',
+          '鈴木 琉胤','堀野 正太','山田 晃央','上杉 敦史','新妻 遼己','本田 桜二郎','増子 陽太','若狭 奏汰'
+        ]
+      },
+      {
+        title:'scheduleMemberEntry', published:'2026-10-30', orderedLegs:true,
+        source:'https://daigaku-ekiden.com/news/#entry662',
+        athletes:[
+          '本田 桜二郎','増子 陽太','吉倉 ナヤブ直希','小平 敦之',
+          '山田 晃央','堀野 正太','山口 竣平','工藤 慎作'
+        ],
+        reserves:['瀬間 元輔','佐々木 哲','鈴木 琉胤','上杉 敦史','新妻 遼己']
+      }
+    ]
   }
 ];

@@ -125,4 +125,5 @@
 .schedule-list .result-card h3 { margin-top: 12px; }
 .schedule-past, .schedule-detail > section + section { margin-top: 32px; }
 .schedule-athletes { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 24px; padding-inline-start: 20px; }
+.schedule-entry + .schedule-entry { margin-top: 16px; }
 .schedule-detail a { color: var(--wine); text-decoration: underline; }
