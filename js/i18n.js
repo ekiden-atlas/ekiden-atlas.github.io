@@ -1,5 +1,12 @@
 const zh={
 navResults:"比赛成绩",
+ekidenHonors:"驿传区间荣誉",
+ekidenHonorsNote:"区间赏代表该届区间第一。区间新指跑得比赛前区间纪录更快，日本选手最佳另列。点击荣誉可查看来源。",
+legAward:"区间赏",
+legSharedAward:"并列区间赏",
+legNewRecord:"区间新",
+legJapaneseBest:"日本选手最佳",
+
 athleteResults:"选手比赛成绩",
 groupResults:"分组方式",
 navArchive:"成绩档案",
@@ -81,6 +88,13 @@ footerData:'资料快照 2026-11-18 · 早稻田跑步资料独立整理',copyri
 },
 ja={
 navResults:"競技結果",
+ekidenHonors:"駅伝の区間表彰・記録",
+ekidenHonorsNote:"区間賞は当該大会の区間1位、区間新は大会前の区間記録を上回った記録です。日本人選手最高は別に表示しています。表彰・記録を選ぶと出典を確認できます。",
+legAward:"区間賞",
+legSharedAward:"区間賞（同着）",
+legNewRecord:"区間新",
+legJapaneseBest:"日本人選手最高",
+
 athleteResults:"選手の競技結果",
 groupResults:"グループ分け",
 navArchive:"記録アーカイブ",

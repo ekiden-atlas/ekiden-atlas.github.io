@@ -103,3 +103,12 @@ assert.deepEqual(copenhagen.map(row=>[row.name,row.event,row.time,row.rank]),[
   ["増子 陽太", "5km", "13:50", 40]
 ]);
 assert.ok(copenhagen.every(row=>row.date==="2026-09-19"&&row.pb&&row.verification==="primary"));
+const {athleteEkidenHonors}=await import('../js/data.js');
+const honorsAt=(name,race,leg)=>athleteEkidenHonors(name)
+ .find(row=>row.race===race&&row.year===2026&&row.leg===leg)?.honors.map(honor=>honor.kind);
+assert.deepEqual(honorsAt('鈴木琉胤','izu',3),['legNewRecord']);
+assert.deepEqual(honorsAt('増子 陽太','zen',2),['legSharedAward','legNewRecord']);
+assert.deepEqual(honorsAt('工藤 慎作','zen',8),['legAward','legJapaneseBest']);
+assert.deepEqual(honorsAt('本田 桜二郎','izu',2),['legAward']);
+assert.equal(honorsAt('山口 竣平','zen',7),undefined);
+console.log('PASS: section winners, tied winners, course records and Japanese bests.');
