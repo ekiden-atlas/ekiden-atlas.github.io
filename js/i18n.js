@@ -174,8 +174,8 @@ adminEmail:'ログイン済みユーザーの Google メール',adminInvite:'管
 adminConfirmDelete:'このデータを論理削除しますか？ 復元できます。',adminSaved:'変更を保存しました。',adminInvalidJson:'有効な JSON を入力してください。',adminInvalidUrl:'出典は HTTPS URL が必要です。',adminFailed:'処理に失敗しました。RLS と認証設定を確認してください。',
 footerData:'2026-11-18 時点の資料 · 独立長距離データ研究',copyright:'事実データを整理し、構成と解説は独自に制作しています。',
 };
-const DICTS={zh,ja};
-let locale=localStorage.getItem('ekidenAtlasLang')==='ja'?'ja':'zh';
+const DICTS={ja,zh};
+let locale=localStorage.getItem('ekidenAtlasLang')==='zh'?'zh':'ja';
 export function language(){return locale;}
 export function setLanguage(v){if(!DICTS[v])return;locale=v;localStorage.setItem('ekidenAtlasLang',v);document.documentElement.lang=v==='ja'?'ja':'zh-CN';}
 export function t(key, params={}){const path=key.split('.');let value=path.reduce((o,k)=>o?.[k],DICTS[locale]); if(value===undefined)value=path.reduce((o,k)=>o?.[k],DICTS.zh);if(typeof value==='string')return value.replace(/\{(\w+)\}/g,(_,k)=>String(params[k]??''));return value??key;}
