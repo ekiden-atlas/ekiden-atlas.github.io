@@ -31,8 +31,49 @@ function renderOfficialLinks(showUniversity){
  ${showUniversity?`<p class="micro">${sourceLink(group.source,t('viewSource'))}</p>`:''}
  </div>`).join('')}</div></section>`;
 }
-function renderHome(){const recent=ekiden().filter(x=>x.year===2026 && x.total).slice(0,3);return `<section class="hero"><div class="wrap hero-inner"><div class="hero-copy"><span class="eyebrow">${E(t('heroEyebrow'))}</span><h1>${E(t('heroTitle'))}<span>${E(t('heroTitle2'))}</span></h1><p>${E(t('heroDesc'))}</p><div class="actions"><a class="btn btn-on-dark" href="#athletes">${E(t('heroAction'))} →</a><a class="btn btn-outline-dark" href="#archive">${E(t('heroAction2'))} ↗</a></div></div><div class="hero-art" aria-hidden="true"><strong>42.195</strong><small>RUN / CONNECT / REMEMBER</small></div></div></section><div class="wrap"><div class="statrow"><div><small>${E(t('heroStat1'))}</small><strong>${athletes().length}</strong></div><div><small>${E(t('heroStat2'))}</small><strong>03</strong></div><div><small>${E(t('heroStat3'))}</small><strong>${worldRankings().length}</strong></div></div><div class="intro-grid"><div class="intro-panel"><span class="eyebrow">THE CULTURE OF EKIDEN</span><h3>${E(t('introLabel'))}</h3><div class="accent-line"></div><p>${E(t('intro'))}</p><a class="btn btn-sm" href="#guide">${E(t('navGuide'))} →</a></div><div class="race-mini">${['Hak','Izu','Zen'].map((k,i)=>`<article><div class="index">0${i+1}</div><div><h4>${E(t('intro'+k))}</h4><p>${E(t('intro'+k+'Desc'))}</p></div></article>`).join('')}</div></div></div>
-<section class="section soft-section"><div class="wrap"><div class="section-head"><div><span class="eyebrow">RECENT RACES · 2026</span><h2>${E(t('latest'))}</h2><p>${E(t('latestDesc'))}</p></div><a class="btn btn-sm" href="#archive">${E(t('navEkiden'))} →</a></div><div class="results-mini">${recent.map(r=>`<article class="result-card"><span class="micro">${r.year} / ${E(raceName(r.race))}</span><div class="big">${E(r.total)}</div><p>${E(t('teamRank'))} · ${E(r.rank||t('notRecorded'))}</p>${sourceLink(r.source)}</article>`).join('')||`<p>${E(t('empty'))}</p>`}</div></div></section><div class="wrap">${renderOfficialLinks(false)}</div><div class="wrap statusbar">${E(t('sourceFallback'))} · ${E(DATA_SNAPSHOT)}</div>`;}
+const ekidenSeason=[
+ {race:'izu',key:'Izu',source:'https://www.izumo-ekiden.jp/'},
+ {race:'zen',key:'Zen',source:'https://daigaku-ekiden.com/'},
+ {race:'hak',key:'Hak',source:'https://www.hakone-ekiden.jp/'}
+];
+const raceArchiveLink=(race,year)=>`#archive?race=${encodeURIComponent(race)}${year?`&year=${encodeURIComponent(year)}`:''}`;
+function ekidenTerms(){
+ return `<dl class="ekiden-terms">${['Leg','Handoff','Award'].map(term=>`<div>
+ <dt>${E(t('ekidenTerm'+term))}</dt><dd>${E(t('ekidenTerm'+term+'Desc'))}</dd></div>`).join('')}</dl>`;
+}
+function renderEkidenIntro(){
+ return `<section class="section ekiden-intro" aria-labelledby="ekiden-intro-title">
+ <div class="section-head"><div><h2 id="ekiden-intro-title" tabindex="-1">${E(t('introLabel'))}</h2><p>${E(t('intro'))}</p></div></div>
+ <ol class="ekiden-season">${ekidenSeason.map(({race,key,source})=>`<li>
+ <span class="season-month">${E(t('intro'+key+'Month'))}</span>
+ <h3>${E(raceName(race))}</h3><p>${E(t('intro'+key+'Desc'))}</p>
+ <a class="btn btn-sm" href="${raceArchiveLink(race)}">${E(t('raceResultsLink',{race:raceName(race)}))} →</a>
+ <div class="season-source">${sourceLink(source,t('officialWebsite'))}</div>
+ </li>`).join('')}</ol>
+ <details class="ekiden-help"><summary>${E(t('ekidenGlossary'))}</summary>${ekidenTerms()}</details></section>`;
+}
+function renderHome(){
+ const beginner=language()==='zh';
+ const calendarOrder=['hak','izu','zen'];
+ const recent=ekiden().filter(row=>row.total)
+   .sort((a,b)=>b.year-a.year||calendarOrder.indexOf(b.race)-calendarOrder.indexOf(a.race)).slice(0,3);
+ return `<section class="hero home-hero ${beginner?'home-hero-guide':'home-hero-results'}">
+ <div class="wrap hero-inner"><div class="hero-copy"><h1>${E(t('heroTitle'))}</h1><p>${E(t('heroDesc'))}</p>
+ <div class="actions">${beginner
+   ?`<button class="btn btn-on-dark" id="ekiden-start" type="button">${E(t('heroAction'))} ↓</button>
+     <a class="btn btn-outline-dark" href="#archive">${E(t('navEkiden'))} →</a>`
+   :`<a class="btn btn-on-dark" href="#archive">${E(t('navEkiden'))} →</a>
+     <a class="btn btn-outline-dark" href="#athletes">${E(t('navAthletes'))} →</a>
+     <a class="btn btn-outline-dark" href="#archive/alltime">${E(t('allTime'))} →</a>`}</div></div></div></section>
+ ${beginner?`<div class="wrap">${renderEkidenIntro()}</div>`:''}
+ <section class="section ${beginner?'soft-section':''}" aria-labelledby="latest-heading"><div class="wrap">
+ <div class="section-head"><h2 id="latest-heading">${E(t('latest'))}</h2><a class="btn btn-sm" href="#archive">${E(t('navEkiden'))} →</a></div>
+ <div class="results-mini">${recent.map(r=>`<article class="result-card">
+ <h3><a href="${raceArchiveLink(r.race,r.year)}">${E(t('raceEditionLink',{race:raceName(r.race),year:r.year}))} →</a></h3>
+ <div class="big">${E(r.total)}</div><p>${E(t('teamRank'))} · ${E(r.rank??t('notRecorded'))}</p>${sourceLink(r.source)}
+ </article>`).join('')||`<p>${E(t(dataLoaded?'empty':'historyBusy'))}</p>`}</div></div></section>
+ <div class="wrap">${renderOfficialLinks(false)}</div><div class="wrap statusbar">${E(t('sourceFallback'))} · ${E(DATA_SNAPSHOT)}</div>`;
+}
 function athleteRows(rows){return rows.map(a=>`<tr><td><a href="#athletes?name=${encodeURIComponent(a.name)}">${E(a.name)}</a><span class="subline">${E(gradeName(a.grade))} · ${E(t({女:'female',男:'male'}[a.gender]||'notRecorded'))}</span></td><td class="mono">${E(a.pb1500||'—')}</td><td class="mono">${E(a.pb5000||'—')}</td><td class="mono">${E(a.pb10000||'—')}</td><td class="mono">${E(a.pbHalf||'—')}</td><td>${sourceLink(a.source_url)||E(t('sourceFallback'))}</td></tr>`).join('');}
 let filter={q:'',grade:'all',gender:'all',metric:'pb5000'};
 function renderAthleteTable(){const root=document.querySelector('#athlete-rows');if(!root)return;let rows=athletes().filter(a=>(!filter.q||nameSearch(a.name).includes(nameSearch(filter.q)))&&(filter.grade==='all'||String(a.grade)===filter.grade)&&(filter.gender==='all'||a.gender===filter.gender));rows.sort((a,b)=>parseTime(a[filter.metric])-parseTime(b[filter.metric]));root.innerHTML=athleteRows(rows)||`<tr><td colspan="6">${E(t('empty'))}</td></tr>`;document.querySelector('#athlete-count').textContent=String(rows.length);}
@@ -178,6 +219,20 @@ function updateResults(reset=false){
  document.querySelector('#result-next').disabled=start+resultsPageSize>=rows.length;
 }
 let raceFilters={race:'all',year:'all'};
+let previousArchiveHash;
+function applyArchiveRoute(tab){
+ if(tab!=='ekiden'){
+   previousArchiveHash=undefined;
+   return;
+ }
+ if(previousArchiveHash===location.hash)return;
+ previousArchiveHash=location.hash;
+ const params=new URLSearchParams(location.hash.split('?')[1]);
+ const race=params.get('race');
+ const year=params.get('year');
+ raceFilters.race=ekidenSeason.some(row=>row.race===race)?race:'all';
+ raceFilters.year=ekiden().some(row=>(raceFilters.race==='all'||row.race===raceFilters.race)&&String(row.year)===year)?year:'all';
+}
 function renderRaceList(){const root=document.querySelector('#race-results');if(!root)return;const rows=ekiden().filter(x=>(raceFilters.race==='all'||x.race===raceFilters.race)&&(raceFilters.year==='all'||String(x.year)===raceFilters.year));root.innerHTML=rows.map(r=>`<details class="race-detail"><summary><div><span class="micro">${E(r.year)} / ${E(raceName(r.race))}</span><br><strong>${E(t('teamRank'))} ${E(r.rank??'—')} · ${E(t('time'))} ${E(r.total||'—')}</strong></div><span>⌄</span></summary><div class="inside"><div class="table-wrap"><table class="data-table"><thead><tr><th>${E(t('section'))}</th><th>${E(t('profile'))}</th><th>${E(t('time'))}</th><th>${E(t('legRank'))}</th><th>km</th><th>${E(t('handoffRank'))}</th><th>${E(t('ekidenHonors'))}</th></tr></thead><tbody>${(r.legs||[]).map(l=>`<tr><td>${E(l.leg)}</td><td>${E(l.name)}</td><td class="mono">${E(l.time)}</td><td>${E(l.rank??'—')}</td><td>${E(l.km??'—')}</td><td>${E(l.team_position??'—')}</td><td>${honorBadges(legHonors(r,l))||'—'}</td></tr>`).join('')||`<tr><td colspan="7">${E(t('notRecorded'))}</td></tr>`}</tbody></table></div><p>${[r.date,r.distance,r.reason||r.status,r.source_format_note].filter(Boolean).map(value=>E(recordLabel(value))).join(' · ')}</p>${r.out||r.back?`<p>${E(t('outbound'))} ${E(r.out??'—')} (${E(r.out_rank??'—')}) / ${E(t('returnLeg'))} ${E(r.back??'—')} (${E(r.back_rank??'—')})</p>`:''}<p>${sourceLink(r.source)}</p></div></details>`).join('')||`<p class="empty">${E(t('empty'))}</p>`;}
 function renderRaceFilters(){
  const years=ekiden().filter(row=>raceFilters.race==='all'||row.race===raceFilters.race).map(row=>row.year);
@@ -202,12 +257,16 @@ function renderArchive(tab){
  const tabs=`<nav class="archive-tabs" aria-label="${E(t('navArchive'))}">
  ${archiveTabs.map(([id,label,href])=>`<a href="${href}" ${tab===id?'aria-current="page"':''}>${E(t(label))}</a>`).join('')}</nav>`;
  const controls=tab==='ekiden'?renderRaceFilters():renderRankingFilters(tab);
+ const beginner=language()==='zh';
+ const records=tab==='ekiden'?`<div id="section-records">${renderSectionRecords()}</div>`:'';
+
  return pageIntro('navArchive','archiveDesc')+`<section class="wrap section archive-section">
- ${tabs}<p class="micro">${E(t('lastChecked'))} · ${E(state.official?.meta?.refreshed||state.official?.meta?.fetched||DATA_SNAPSHOT)}
+ ${tabs}${tab==='ekiden'&&beginner?`<details class="ekiden-help archive-ekiden-help">
+ <summary>${E(t('ekidenGlossary'))}</summary>${ekidenTerms()}</details>`:''}<p class="micro">${E(t('lastChecked'))} · ${E(state.official?.meta?.refreshed||state.official?.meta?.fetched||DATA_SNAPSHOT)}
  ${tab==='ekiden'?'':sourceLink('https://waseda-ac.jp/record/')}</p>
  <div class="filterbar">${controls}</div>
  ${tab==='ekiden'
-   ?`<div id="race-results" class="race-grid"></div><p class="note">${E(t('historyNote'))}</p><div id="section-records">${renderSectionRecords()}</div>`
+   ?`${beginner?'':records}<div id="race-results" class="race-grid"></div><p class="note">${E(t('historyNote'))}</p>${beginner?records:''}`
    :'<div id="history-results"></div>'}</section>`;
 }
 function rankingRows(tab){
@@ -238,7 +297,7 @@ function historyTable(tab){
  `<tr><td colspan="${headers.length}">${E(t(state.officialOnline?'empty':'historyFailed'))}</td></tr>`}</tbody></table></div>`;
 }
 function renderGuide(){const keys=['PB','Leg','Student','World','Team','Source'];return pageIntro('aboutTitle','guideIntro')+`<section class="wrap section"><div class="guide-grid">${keys.map(k=>`<article class="card"><span class="micro">GLOSSARY / ${E(k.toUpperCase())}</span><h3>${E(t('term'+k))}</h3><p>${E(t('term'+k+'Desc'))}</p></article>`).join('')}</div><article class="intro-panel" style="margin-top:20px"><h3>${E(t('legalTitle'))}</h3><p>${E(t('independent'))}</p><p>${E(t('legalNote'))}</p><p>${sourceLink('https://waseda-ac.jp/record/',t('sourceLabel'))}</p></article>${renderOfficialLinks(true)}</section>`;}
-async function render(){detachAdmin();const path=decodeURIComponent((location.hash.slice(1).split('?')[0]||'home'));const tab=archiveTab(path);const current=tab?'archive':['home','athletes','results','guide','admin'].includes(path)?path:'home';document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('active',a.dataset.nav===current));document.querySelector('#mobile-nav').hidden=true;document.querySelector('#menu-btn').setAttribute('aria-expanded','false');document.documentElement.lang=language()==='ja'?'ja':'zh-CN';translateStatic(document);if(!dataLoaded&&['results','archive'].includes(current)){app.innerHTML=`<p class="wrap section" role="status">${E(t('historyBusy'))}</p>`;return;}if(current==='home')app.innerHTML=renderHome();if(current==='athletes')app.innerHTML=renderAthletes();if(current==='results'){app.innerHTML=renderResults();updateResults();}if(current==='archive')app.innerHTML=renderArchive(tab);if(current==='guide'){
+async function render(){detachAdmin();const path=decodeURIComponent((location.hash.slice(1).split('?')[0]||'home'));const tab=archiveTab(path);const current=tab?'archive':['home','athletes','results','guide','admin'].includes(path)?path:'home';document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('active',a.dataset.nav===current));document.querySelector('#mobile-nav').hidden=true;document.querySelector('#menu-btn').setAttribute('aria-expanded','false');document.documentElement.lang=language()==='ja'?'ja':'zh-CN';translateStatic(document);if(!dataLoaded&&['results','archive'].includes(current)){app.innerHTML=`<p class="wrap section" role="status">${E(t('historyBusy'))}</p>`;return;}if(current==='home')app.innerHTML=renderHome();if(current==='athletes')app.innerHTML=renderAthletes();if(current==='results'){app.innerHTML=renderResults();updateResults();}applyArchiveRoute(tab);if(current==='archive')app.innerHTML=renderArchive(tab);if(current==='guide'){
  app.innerHTML=renderGuide();
  if(new URLSearchParams(location.hash.split('?')[1]).has('official')){
    document.querySelector('#official-links-title').scrollIntoView();
@@ -286,11 +345,18 @@ if(id==='history-gender'||id==='history-event'){
 });
 window.addEventListener('hashchange',event=>{
  render();
- if(event.newURL.includes('#athletes?name=')||event.oldURL.includes('#athletes?name=')){
+ if(event.newURL.includes('#athletes?name=')||event.oldURL.includes('#athletes?name=')||event.newURL.includes('#archive?race=')){
    window.scrollTo({top:0,behavior:'instant'});
  }
 });
 chooseLanguage(language());
 loadData().finally(()=>{dataLoaded=true;render();});
 
-document.addEventListener('click',e=>{const id=e.target.closest('button')?.id;if(id==='result-prev'||id==='result-next'){resultsPage+=id==='result-next'?1:-1;updateResults();}});
+document.addEventListener('click',e=>{
+ const id=e.target.closest('button')?.id;
+ if(id==='result-prev'||id==='result-next'){
+   resultsPage+=id==='result-next'?1:-1;
+   updateResults();
+ }
+ if(id==='ekiden-start')document.querySelector('#ekiden-intro-title').focus();
+});
