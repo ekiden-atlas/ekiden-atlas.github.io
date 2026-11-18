@@ -8,7 +8,15 @@ const nobeoka = {
 };
 const nobeokaHeat = group => `https://ggn.goldengames.jp/2026/26ggn/r1_008_4_${group}.html`;
 
+const chitose = {
+  date:'2026-07-04',precision:'日',meet:'ホクレン・ディスタンスチャレンジ2026 第1戦 千歳大会',
+  verification:'primary',source:'https://www.jaaf.or.jp/files/upload/202607/chitoseResult.pdf'
+};
+
 export const RESULT_CORRECTIONS = {
+  'annual-17': {...chitose,meetAlias:'北联千岁站',gradeAtRace:3,rank:5,stage:'男子5000m A組'},
+  'annual-23': {...chitose,meetAlias:'北联千岁站',gradeAtRace:3,rank:13,stage:'男子5000m B組'},
+  'annual-64': {...chitose,meetAlias:'北陆长距离挑战赛千岁站',gradeAtRace:1,rank:6,stage:'男子5000m B組'},
   'annual-12': {...nobeoka,gradeAtRace:3,rank:5,stage:'男子5000m A組',source:nobeokaHeat(1)},
   'annual-48': {...nobeoka,gradeAtRace:1,rank:9,stage:'男子5000m B組',source:nobeokaHeat(2)},
   'annual-60': {...nobeoka,gradeAtRace:1,rank:14,stage:'男子5000m A組',source:nobeokaHeat(1)},

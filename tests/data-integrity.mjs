@@ -43,9 +43,9 @@ assert.equal(specialtyPbs().length,4);
 assert.equal(athletes().length,50);
 assert.equal(athlete('佐々木 哲').high_school,'佐久長聖高等学校');
 const rows=personalResults();
-assert.equal(rows.length,958);
+assert.equal(rows.length,960);
 assert.equal(new Set(rows.map(row=>row.id)).size,rows.length);
-for(const [year,count] of [[2023,44],[2024,336],[2025,255],[2026,246]]){
+for(const [year,count] of [[2023,44],[2024,336],[2025,255],[2026,248]]){
  assert.equal(rows.filter(row=>row.year===year).length,count);
 }
 for(const [name,profile] of Object.entries(VERIFIED_ROSTER_PROFILES)){
@@ -58,6 +58,11 @@ for(const [name,profile] of Object.entries(VERIFIED_ROSTER_PROFILES)){
 assert.equal(athlete('高舘 友杜').pb1500,'3:53.3');
 assert.equal(athlete('若狭 奏汰').pb1500,'');
 const resultById=id=>rows.find(row=>row.id===id);
+const chitoseRows=rows.filter(row=>row.meet==='ホクレン・ディスタンスチャレンジ2026 第1戦 千歳大会');
+assert.ok(chitoseRows.every(row=>row.date==='2026-07-04'&&row.verification==='primary'&&row.source.endsWith('chitoseResult.pdf')));
+assert.deepEqual(chitoseRows.map(row=>[row.time,row.rank,resultGrade(row)]),[
+ ['13:17.19',5,'3'],['13:37.61',13,'3'],['13:32.61',6,'1'],['4:36.13',5,'2'],['4:36.51',6,'3']
+]);
 assert.deepEqual(rows.filter(row=>row.meet==='第37回ゴールデンゲームズ・イン・のべおか')
  .map(row=>[row.name,row.time,row.rank,row.stage,row.date,resultGrade(row),row.verification]),[
  ['山口 竣平','13:29.72',5,'男子5000m A組','2026-05-04','3','primary'],
