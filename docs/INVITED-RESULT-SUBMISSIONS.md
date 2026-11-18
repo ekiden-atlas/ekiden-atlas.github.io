@@ -30,3 +30,7 @@
 `sql/optional-google-result-submissions.sql` 在原迁移之后应用，仅替换 Atlas 投稿队列的 INSERT 行级权限。Google 登录用户可以提交属于自己的赛果建议。查看权限、管理员审核与发布权限沿用原策略。原邀请表保留用于回滚，原网站及其 OAuth 设置无需修改。
 
 回滚时，将 `submission_insert` 的 WITH CHECK 恢复为 `sql/optional-result-submissions.sql` 中的条件，并回退对应前端更新。已经收到的投稿保留，继续由管理员审核。
+
+## 纳入已绑定 Google 的账号
+
+`sql/optional-linked-google-result-submissions.sql` 保留本人才能提交的检查，并识别 Supabase 签发的 Google 已绑定身份。既有账号即使最初通过其他方式创建，只要已绑定 Google，登录后也可投稿。读取、审核和发布策略维持原样。回滚时重新应用 `sql/optional-google-result-submissions.sql` 中的条件，再回退对应前端更新。

@@ -16,7 +16,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
    const {data:{user}}=await db.auth.getUser();
    if(!root.isConnected)return;
    const admin=user&&(await db.rpc('wsd_atlas_is_google_admin')).data===true;
-   const canSubmit=user?.app_metadata?.provider==='google';
+   const canSubmit=user?.app_metadata?.provider==='google'||user?.app_metadata?.providers?.includes('google');
    if(!user||(!review&&!canSubmit)){
      root.innerHTML=`${user?`<p>${E(t('submissionGoogleRequired'))}</p>`:''}
      <button class="btn" type="button">${E(t(user?'submissionSwitchGoogle':'submissionLogin'))}</button>
