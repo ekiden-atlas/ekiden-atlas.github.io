@@ -20,6 +20,14 @@ export const OFFICIAL_LINK_GROUPS = [
     ]
   },
   {
+    title:'officialSportsCenter',
+    source:'https://wnpspt.waseda.jp/student/wac-handbook/koho/',
+    links:[
+      ['officialWebsite','https://www.waseda.jp/inst/athletic/'],
+      ['X','https://x.com/wasedau_sports']
+    ]
+  },
+  {
     title:'officialUniversity',
     source:'https://www.waseda.jp/top/about/work/organizations/public-relations/social-media',
     links:[
