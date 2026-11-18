@@ -1,5 +1,7 @@
 const zh={
 athleteHighlights:"代表成绩",
+marathonPb:"全程马拉松",
+highlightOverallRank:"总排名第 {rank} 名",
 highlightLegRank:"区间第 {rank} 名",
 navSchedule:"赛事日程",
 scheduleDescription:"查看早稻田相关赛事的日期、已公布的出场名单和已收录的赛果。",
@@ -142,6 +144,8 @@ footerData:'资料快照 2026-11-18 · 早稻田跑步资料独立整理',copyri
 },
 ja={
 athleteHighlights:"主な競技成績",
+marathonPb:"マラソン",
+highlightOverallRank:"総合{rank}位",
 highlightLegRank:"区間{rank}位",
 navSchedule:"大会予定",
 scheduleDescription:"早稲田に関連する大会の日程、発表済みの出場選手、収録済みの結果を掲載しています。",
