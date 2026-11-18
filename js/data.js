@@ -1,3 +1,4 @@
+import {RESULT_CORRECTIONS,KUDO_EARLY_RESULTS} from '../data/result-verifications.js';
 import {SCHOOL_RESULTS} from '../data/school-results.js';
 import {EKIDEN_RECORD_HONORS} from '../data/ekiden-honors.js';
 import {VERIFIED_WORLD_RANKINGS} from '../data/world-ranking-snapshot.js';
@@ -157,10 +158,19 @@ export function comparisonRankings(){
 function legacyResultKey(row){
  return 'ob:'+[row.name,row.date,row.meet,row.event,row.time].map(x=>String(x??'').trim()).join('|').slice(0,178);
 }
+export function resultGrade(row){
+ if(!['student','highSchool','middleSchool'].includes(row.status))return '';
+ // Annual imports carry the roster's new academic year. A winter or undated result needs a race-grade override.
+ const annualSnapshotGrade=row.id?.startsWith('annual-')&&!/^\d{4}-(?:0[4-9]|1[0-2])(?:-|$)/.test(row.date||'');
+ const grade=String(row.gradeAtRace??(annualSnapshotGrade?'':row.grade)??'').normalize('NFKC').trim();
+ const value=/^([1-4])(?:年(?:生|級)?)?$/.exec(grade)?.[1]||'';
+ return value==='4'&&row.status!=='student'?'':value;
+}
 export function personalResults(){
- const rows=new Map([...SCHOOL_RESULTS,...(state.official?.results||[])].map(r=>[r.id,r]));
+ const rows=new Map([...SCHOOL_RESULTS,...KUDO_EARLY_RESULTS].map(row=>[row.id,row]));
  const legacy=new Map();
- for(const row of rows.values()){
+ for(const row of state.official?.results||[]){
+   rows.set(row.id,{...row,...RESULT_CORRECTIONS[row.id]});
    if(/^(?:workbook-|selected-|ob2026-)/.test(row.id)){
      const key=legacyResultKey(row);
      legacy.set(key,[...(legacy.get(key)||[]),row.id]);
@@ -173,8 +183,8 @@ export function personalResults(){
    if(!payload||typeof payload!=='object')continue;
    if(!keys.length&&edit.record_key.startsWith('new:')&&payload.link)keys.push('legacy-'+edit.id);
    for(const id of keys){
-     const {year,name,grade,meet,event,date,time,rank,status,stage,link}=payload;
-     const fields=Object.fromEntries(Object.entries({year,name,grade,meet,event,date,time,rank,status,stage,source:link})
+     const {year,name,grade,gradeAtRace,meet,event,date,time,rank,status,stage,link}=payload;
+     const fields=Object.fromEntries(Object.entries({year,name,grade,gradeAtRace,meet,event,date,time,rank,status,stage,source:link})
        .filter(([,value])=>value!==undefined));
      rows.set(id,{...rows.get(id),...fields,id,verification:'legacyEdit',updated_at:edit.updated_at});
    }

@@ -1,7 +1,7 @@
 import {ATHLETE_SOCIAL_LINKS} from '../data/athlete-social-links.js';
 import {OFFICIAL_LINK_GROUPS} from '../data/official-links.js';
 import {t,language,setLanguage,translateStatic} from './i18n.js';
-import {loadData,state,athletes,athlete,worldRankings,ekiden,schoolRecords,alltimeRankings,parseTime,formatPace,personalResults,specialtyPbs,sectionRecords,legHonors,athleteEkidenHonors,nameSearch,comparisonRankings} from './data.js';
+import {loadData,state,athletes,athlete,worldRankings,ekiden,schoolRecords,alltimeRankings,parseTime,formatPace,personalResults,resultGrade,specialtyPbs,sectionRecords,legHonors,athleteEkidenHonors,nameSearch,comparisonRankings} from './data.js';
 import {meetLabel,recordLabel} from './record-names.js';
 import {DATA_SNAPSHOT} from '../data/roster.js';
 import {renderAdminPage,detachAdmin} from './admin.js';
@@ -99,6 +99,16 @@ function renderResults(){
  return pageIntro('navResults','resultsDesc')+`<section class="wrap section">
  ${resultPanel(personalResults(),true,params.get('name')||'')}</section>`;
 }
+function resultDivision(row){
+ const grade=resultGrade(row);
+ if(row.status==='OB')return 'OB / OG';
+ if(row.status==='student')return grade?gradeName(grade):t('resultGradeUnknown');
+ if(['middleSchool','highSchool'].includes(row.status)){
+   const school=t(row.status);
+   return grade?t('schoolResultGrade',{school,grade:gradeName(grade)}):school;
+ }
+ return t('notRecorded');
+}
 function resultPanel(records,showAthlete,name=''){
  const names=[...new Set(records.map(row=>row.name))].sort((a,b)=>a.localeCompare(b,'ja'));
  const meets=[...new Set(records.map(row=>meetLabel(row.meet)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ja'));
@@ -116,6 +126,7 @@ function resultPanel(records,showAthlete,name=''){
  <label class="field">${E(t('groupResults'))}<select id="result-group">
  <option value="year">${E(t('years'))}</option><option value="meet">${E(t('meet'))}</option></select></label>
  <label class="field">${E(t('resultStatus'))}<select id="result-status"><option value="">${E(t('all'))}</option><option value="middleSchool">${E(t('middleSchool'))}</option><option value="highSchool">${E(t('highSchool'))}</option><option value="student">${E(t('student'))}</option><option value="OB">OB / OG</option></select></label>
+ <label class="field">${E(t('filterGrade'))}<select id="result-grade"><option value="">${E(t('all'))}</option>${[1,2,3,4].map(grade=>`<option value="${grade}">${E(gradeName(grade))}</option>`).join('')}</select></label>
  </div>${showAthlete?`<p>${E(t('resultsMatching'))}</p>`:''}
  <p id="result-count" role="status"></p><div class="table-wrap"><table class="data-table">
  <thead><tr>${headers.map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}</tr></thead>
@@ -133,11 +144,12 @@ function updateResults(reset=false){
  const q=nameSearch(document.querySelector('#result-q')?.value);
  const year=document.querySelector('#result-year').value;
  const status=document.querySelector('#result-status').value;
+ const grade=document.querySelector('#result-grade').value;
  const meet=document.querySelector('#result-meet').value;
  const event=document.querySelector('#result-event').value;
  const group=document.querySelector('#result-group').value;
  const groups=new Map();
- const matching=records.filter(r=>(!event||recordLabel(r.event)===event)&&(!meet||meetLabel(r.meet)===meet)&&(!year||String(r.year)===year)&&(!status||r.status===status)&&
+ const matching=records.filter(r=>(!event||recordLabel(r.event)===event)&&(!meet||meetLabel(r.meet)===meet)&&(!year||String(r.year)===year)&&(!status||r.status===status)&&(!grade||resultGrade(r)===grade)&&
    (!q||[r.name,r.meet,r.meetAlias,r.event,r.unit,meetLabel(r.meet),recordLabel(r.event),r.location,recordLabel(r.location)].some(value=>nameSearch(value).includes(q))));
  for(const row of matching){
    const key=(group==='meet'?meetLabel(row.meet):String(row.year||''))||t('notRecorded');
@@ -153,14 +165,14 @@ function updateResults(reset=false){
  const heading=key===currentGroup?'':`<tr class="result-group-heading"><td colspan="${colspan}"><strong>${E(key)}</strong> · ${groups.get(key).length}</td></tr>`;
  currentGroup=key;
  return heading+`<tr>
- ${isProfile?'':`<td><a href="#athletes?name=${encodeURIComponent(r.name)}">${E(r.name)}</a><span class="subline">${r.gradeAtRace||r.grade?E(gradeName(r.gradeAtRace||r.grade)):''}</span></td>`}
+ ${isProfile?'':`<td><a href="#athletes?name=${encodeURIComponent(r.name)}">${E(r.name)}</a></td>`}
  <td>${E(r.date||r.year||'—')}</td><td>${E(meetLabel(r.meet))}<span class="subline">${E([r.location,r.unit].filter(Boolean).map(recordLabel).join(' · '))}</span></td>
  <td>${E(recordLabel(r.event))}<span class="subline">${E(recordLabel(r.stage))}</span></td><td class="mono">${E(r.time||'—')}${r.pb?' · PB':''}</td>
- <td>${E(({冠军:'1',亚军:'2',季军:'3'})[r.rank]??r.rank??'—')}</td>
- <td>${E(r.status==='OB'?'OB / OG':t(['student','middleSchool','highSchool'].includes(r.status)?r.status:'notRecorded'))}</td>
+ <td>${E(({冠军:'1',亚军:'2',季军:'3'})[r.rank]??r.rank??'—')}${r.japaneseRank?`<span class="subline">${E(t('japaneseResultRank',{rank:r.japaneseRank}))}</span>`:''}</td>
+ <td>${E(resultDivision(r))}</td>
  <td>${E(t(r._managed?'resultManaged':labels[r.verification]||'resultLegacy'))}
  <span class="subline">${E(String(r._updatedAt||r.updated_at||state.official?.meta?.fetched||DATA_SNAPSHOT).slice(0,10))}</span>
- ${sourceLink(r.source)}</td></tr>`;}).join('')||`<tr><td colspan="${colspan}">${E(t(records.length||state.officialOnline?'empty':'historyFailed'))}</td></tr>`;
+ ${sourceLink(r.source)}${r.gradeSource?`<div>${sourceLink(r.gradeSource,t('gradeSource'))}</div>`:''}</td></tr>`;}).join('')||`<tr><td colspan="${colspan}">${E(t(records.length||state.officialOnline?'empty':'historyFailed'))}</td></tr>`;
  document.querySelector('#result-count').textContent=t('resultCount',{start:rows.length?start+1:0,end:Math.min(start+resultsPageSize,rows.length),total:rows.length});
  document.querySelector('#result-prev').disabled=!resultsPage;
  document.querySelector('#result-next').disabled=start+resultsPageSize>=rows.length;
@@ -255,7 +267,7 @@ document.querySelector('#lang-ja').addEventListener('click',()=>chooseLanguage('
 function chooseLanguage(v){setLanguage(v);document.querySelector('#lang-zh').setAttribute('aria-pressed',String(v==='zh'));document.querySelector('#lang-ja').setAttribute('aria-pressed',String(v==='ja'));render();}
 document.querySelector('#menu-btn').addEventListener('click',()=>{const n=document.querySelector('#mobile-nav');n.hidden=!n.hidden;document.querySelector('#menu-btn').setAttribute('aria-expanded',String(!n.hidden));});
 document.addEventListener('input',e=>{if(e.target?.id==='result-q')updateResults(true);if(e.target?.id==='filter-q'){filter.q=e.target.value;renderAthleteTable();}if(e.target?.id==='history-search'){rankingFilters.alltime.name=e.target.value;historyTable('alltime');}});
-document.addEventListener('change',e=>{const id=e.target?.id,v=e.target?.value;if(['result-year','result-status','result-meet','result-event','result-group'].includes(id))updateResults(true);if(id==='filter-grade')filter.grade=v;if(id==='filter-gender')filter.gender=v;if(id==='filter-metric')filter.metric=v;if(id?.startsWith('filter-'))renderAthleteTable();if(id==='race-type'){
+document.addEventListener('change',e=>{const id=e.target?.id,v=e.target?.value;if(['result-year','result-status','result-grade','result-meet','result-event','result-group'].includes(id))updateResults(true);if(id==='filter-grade')filter.grade=v;if(id==='filter-gender')filter.gender=v;if(id==='filter-metric')filter.metric=v;if(id?.startsWith('filter-'))renderAthleteTable();if(id==='race-type'){
  raceFilters.race=v;
  raceFilters.year='all';
  const controls=e.target.closest('.filterbar');
