@@ -4,6 +4,12 @@ import {meetLabel,recordLabel} from './record-names.js';
 const table='wsd_atlas_result_submissions';
 const fields='id,target_key,athlete_name,meet,event,race_date,mark,source_url,status';
 
+function adminLinks(t,E,review){
+ return `<div class="admin-actions">
+ <a href="${review?'#submissions':'#submissions?review'}">${E(t(review?'submissionTitle':'submissionReview'))}</a>
+ <a href="#admin">${E(t('navAdmin'))}</a></div>`;
+}
+
 export async function renderSubmissions(root,{t,E,sourceLink}){
  const params=new URLSearchParams(location.hash.split('?')[1]);
  const results=personalResults();
@@ -20,7 +26,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
    if(!user||(!review&&!canSubmit)){
      root.innerHTML=`${user?`<p>${E(t('submissionGoogleRequired'))}</p>`:''}
      <button class="btn" type="button">${E(t(user?'submissionSwitchGoogle':'submissionLogin'))}</button>
-     ${admin?`<p><a href="#submissions?review">${E(t('submissionReview'))}</a></p>`:''}
+     ${admin?adminLinks(t,E,false):''}
      <p role="status"></p>`;
      const button=root.querySelector('button');
      button.onclick=async()=>{
@@ -47,7 +53,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
    const input=(key,name,type,max,value='',readOnly=false)=>`<label class="field">${E(t(key))}<input name="${name}" type="${type}" maxlength="${max}" value="${E(value)}" required ${readOnly?'readonly':''}></label>`;
    root.innerHTML=`
    <div class="section-head"><h2>${E(t(review?'submissionReview':'submissionMine'))}</h2>
-   ${admin?`<a href="${review?'#submissions':'#submissions?review'}">${E(t(review?'submissionTitle':'submissionReview'))}</a>`:''}</div>
+   ${admin?adminLinks(t,E,review):''}</div>
    ${!review&&canSubmit?`<form class="card submission-form">
      <h3>${E(t(target?'submissionCorrection':'submissionNew'))}</h3>
      ${target?`<p>${E([target.date,meetLabel(target.meet),recordLabel(target.event),target.time].filter(Boolean).join(' · '))}</p>`:''}
