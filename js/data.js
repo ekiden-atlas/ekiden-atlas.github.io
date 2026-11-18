@@ -1,3 +1,4 @@
+import {ROSTER_AUDITED_RESULTS,ROSTER_RESULT_CORRECTIONS} from '../data/roster-race-audit.js';
 import {RESULT_CORRECTIONS,KUDO_UNIVERSITY_RESULTS} from '../data/result-verifications.js';
 import {SCHOOL_RESULTS} from '../data/school-results.js';
 import {EKIDEN_RECORD_HONORS} from '../data/ekiden-honors.js';
@@ -167,10 +168,10 @@ export function resultGrade(row){
  return value==='4'&&row.status!=='student'?'':value;
 }
 export function personalResults(){
- const rows=new Map([...SCHOOL_RESULTS,...KUDO_UNIVERSITY_RESULTS].map(row=>[row.id,row]));
+ const rows=new Map([...SCHOOL_RESULTS,...KUDO_UNIVERSITY_RESULTS,...ROSTER_AUDITED_RESULTS].map(row=>[row.id,row]));
  const legacy=new Map();
  for(const row of state.official?.results||[]){
-   rows.set(row.id,{...row,...RESULT_CORRECTIONS[row.id]});
+   rows.set(row.id,{...row,...RESULT_CORRECTIONS[row.id],...ROSTER_RESULT_CORRECTIONS[row.id]});
    if(/^(?:workbook-|selected-|ob2026-)/.test(row.id)){
      const key=legacyResultKey(row);
      legacy.set(key,[...(legacy.get(key)||[]),row.id]);
