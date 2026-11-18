@@ -119,3 +119,10 @@
 
 .roster-section + .roster-section:not([hidden]) { margin-top: 32px; }
 .roster-section[hidden] + .roster-section { margin-top: 0; }
+
+.schedule-list .result-card time { font-size: .9rem; font-variant-numeric: tabular-nums; color: var(--muted); }
+.schedule-list .card-top { flex-wrap: wrap; }
+.schedule-list .result-card h3 { margin-top: 12px; }
+.schedule-past, .schedule-detail > section + section { margin-top: 32px; }
+.schedule-athletes { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px 24px; padding-inline-start: 20px; }
+.schedule-detail a { color: var(--wine); text-decoration: underline; }

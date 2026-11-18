@@ -1,3 +1,4 @@
+import {COMPETITIONS} from '../data/competition-schedule.js';
 import {ATHLETE_SOCIAL_LINKS} from '../data/athlete-social-links.js';
 import {OFFICIAL_LINK_GROUPS} from '../data/official-links.js';
 import {t,language,setLanguage,translateStatic} from './i18n.js';
@@ -52,6 +53,79 @@ function renderEkidenIntro(){
  </li>`).join('')}</ol>
  <details class="ekiden-help"><summary>${E(t('ekidenGlossary'))}</summary>${ekidenTerms()}</details></section>`;
 }
+function competitionHref(meet){
+ return `#schedule?meet=${encodeURIComponent(meet.id)}`;
+}
+function competitionDate(meet){
+ return meet.end?`${meet.start} – ${meet.end}`:meet.start;
+}
+function competitionCards(events){
+ return events.map(meet=>`<article class="result-card">
+ <div class="card-top"><time datetime="${E(meet.start)}">${E(competitionDate(meet))}</time>
+ <span class="tag">${E(t(meet.phase))}</span></div>
+ <h3><a href="${competitionHref(meet)}">${E(meet.title)} →</a></h3>
+ ${meet.venue?`<p>${E(meet.venue)}</p>`:''}
+ ${language()==='zh'?`<p>${E(t(meet.intro))}</p>`:''}</article>`).join('');
+}
+function competitionCalendar(){
+ const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+ const results=personalResults();
+ const relays=ekiden();
+ return COMPETITIONS.map(meet=>{
+   const relay=meet.race?relays.find(row=>row.race===meet.race&&String(row.year)===meet.start.slice(0,4)):null;
+   const marks=meet.resultMeet?results.filter(row=>meetLabel(row.meet)===meet.resultMeet&&row.date>=meet.start&&row.date<=(meet.end||meet.start)):[];
+   const phase=(relay?.legs?.length||marks.length)?'scheduleResults':
+     (meet.end||meet.start)<today?'scheduleAwaitingResults':meet.entryStatus||'scheduleDateOnly';
+   return {...meet,relay,marks,phase};
+ });
+}
+function renderCompetitionList(home=false){
+ const calendar=competitionCalendar();
+ const next=calendar.filter(meet=>['scheduleDateOnly','entriesAnnounced','entriesProvisional','entriesFinal'].includes(meet.phase)).sort((a,b)=>a.start.localeCompare(b.start));
+ const past=calendar.filter(meet=>!next.includes(meet)).sort((a,b)=>b.start.localeCompare(a.start));
+ return `<section class="wrap section schedule-list" aria-labelledby="schedule-heading">
+ <div class="section-head"><h2 id="schedule-heading">${E(t('scheduleUpcoming'))}</h2>
+ ${home?`<a class="btn btn-sm" href="#schedule">${E(t('navSchedule'))} →</a>`:''}</div>
+ <div class="results-mini">${competitionCards(home?next.slice(0,3):next)||`<p>${E(t('scheduleNoUpcoming'))}</p>`}</div>
+ <div class="section-head schedule-past"><h2>${E(t('schedulePast'))}</h2></div>
+ <div class="results-mini">${competitionCards(home?past.slice(0,2):past)||`<p>${E(t('empty'))}</p>`}</div></section>`;
+}
+function competitionAthlete(name){
+ const match=athlete(name) || athletes().find(row=>nameSearch(row.name)===nameSearch(name));
+ return match?`<a href="#athletes?name=${encodeURIComponent(match.name)}">${E(name)}</a>`:E(name);
+}
+function renderCompetitionDetail(meet){
+ const marks=meet.relay?.legs?.length?meet.relay.legs.map(leg=>({
+   name:leg.name,event:`${t('section')} ${leg.leg}`,time:leg.time,rank:leg.rank,source:meet.relay.source
+ })):meet.marks;
+ const headings=['profile','event','resultMark','rank','source'];
+ return `<header class="page-intro"><div class="wrap">
+ <a href="#schedule">← ${E(t('navSchedule'))}</a><h1>${E(meet.title)}</h1>
+ <p>${E(competitionDate(meet))}${meet.venue?` · ${E(meet.venue)}`:''}</p>
+ ${language()==='zh'?`<p>${E(t(meet.intro))}</p>`:''}
+ ${sourceLink(meet.source,t('scheduleOfficial'))}</div></header>
+ <div class="wrap section schedule-detail">
+ <section aria-labelledby="schedule-entry-title"><div class="section-head"><h2 id="schedule-entry-title">${E(t('scheduleEntries'))}</h2></div>
+ ${meet.entries?.length?`<p><span class="tag">${E(t(meet.entryStatus))}</span> ${sourceLink(meet.entrySource)}</p>
+ ${meet.entries.map(entry=>`<article class="card"><h3>${E(recordLabel(entry.event))}</h3>
+ ${entry.start?`<p>${E(t('scheduleStartTime',{time:entry.start}))}</p>`:''}
+ <ul class="schedule-athletes">${entry.athletes.map(name=>`<li>${competitionAthlete(name)}</li>`).join('')}</ul></article>`).join('')}`
+ :`<p>${E(t(marks.length?'scheduleEntriesUnarchived':'scheduleEntriesAwaiting'))}</p>`}</section>
+ <section aria-labelledby="schedule-results-title"><div class="section-head"><h2 id="schedule-results-title">${E(t('scheduleResults'))}</h2>
+ ${meet.relay?`<a class="btn btn-sm" href="${raceArchiveLink(meet.race,meet.relay.year)}">${E(t('navEkiden'))} →</a>`:''}</div>
+ ${meet.relay?.total?`<p>${E(t('teamRank'))} ${E(meet.relay.rank??'—')} · ${E(t('time'))} ${E(meet.relay.total)}</p>`:''}
+ ${marks.length?`<div class="table-wrap"><table class="data-table"><thead><tr>${headings.map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}</tr></thead>
+ <tbody>${marks.map(row=>`<tr><td>${competitionAthlete(row.name)}</td>
+ <td>${E(recordLabel(row.event))}${row.stage?`<span class="subline">${E(recordLabel(row.stage))}</span>`:''}</td>
+ <td class="mono">${E(row.time||'—')}${row.pb?' · PB':''}</td><td>${E(row.rank??'—')}</td><td>${sourceLink(row.source)}</td></tr>`).join('')}
+ </tbody></table></div>`:`<p>${E(t('scheduleAwaitingResults'))}</p>`}</section></div>`;
+}
+function renderSchedule(){
+ const id=new URLSearchParams(location.hash.split('?')[1]).get('meet');
+ const meet=id&&competitionCalendar().find(row=>row.id===id);
+ if(meet)return renderCompetitionDetail(meet);
+ return pageIntro('navSchedule','scheduleDescription')+(id?`<p class="wrap note">${E(t('scheduleMeetMissing'))}</p>`:'')+renderCompetitionList();
+}
 function renderHome(){
  const beginner=language()==='zh';
  const calendarOrder=['hak','izu','zen'];
@@ -65,6 +139,7 @@ function renderHome(){
    :`<a class="btn btn-on-dark" href="#archive">${E(t('navEkiden'))} →</a>
      <a class="btn btn-outline-dark" href="#athletes">${E(t('navAthletes'))} →</a>
      <a class="btn btn-outline-dark" href="#archive/alltime">${E(t('allTime'))} →</a>`}</div></div></div></section>
+ ${renderCompetitionList(true)}
  ${beginner?`<div class="wrap">${renderEkidenIntro()}</div>`:''}
  <section class="section ${beginner?'soft-section':''}" aria-labelledby="latest-heading"><div class="wrap">
  <div class="section-head"><h2 id="latest-heading">${E(t('latest'))}</h2><a class="btn btn-sm" href="#archive">${E(t('navEkiden'))} →</a></div>
@@ -329,7 +404,7 @@ function historyTable(tab){
  `<tr><td colspan="${headers.length}">${E(t(state.officialOnline?'empty':'historyFailed'))}</td></tr>`}</tbody></table></div>`;
 }
 function renderGuide(){const keys=['PB','Leg','Student','World','Team','Source'];return pageIntro('aboutTitle','guideIntro')+`<section class="wrap section"><div class="guide-grid">${keys.map(k=>`<article class="card"><span class="micro">GLOSSARY / ${E(k.toUpperCase())}</span><h3>${E(t('term'+k))}</h3><p>${E(t('term'+k+'Desc'))}</p></article>`).join('')}</div><article class="intro-panel" style="margin-top:20px"><h3>${E(t('legalTitle'))}</h3><p>${E(t('independent'))}</p><p>${E(t('legalNote'))}</p><p>${sourceLink('https://waseda-ac.jp/record/',t('sourceLabel'))}</p></article>${renderOfficialLinks(true)}</section>`;}
-async function render(){detachAdmin();const path=decodeURIComponent((location.hash.slice(1).split('?')[0]||'home'));const tab=archiveTab(path);const current=tab?'archive':['home','athletes','results','guide','admin'].includes(path)?path:'home';document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('active',a.dataset.nav===current));document.querySelector('#mobile-nav').hidden=true;document.querySelector('#menu-btn').setAttribute('aria-expanded','false');document.documentElement.lang=language()==='ja'?'ja':'zh-CN';translateStatic(document);if(!dataLoaded&&['results','archive'].includes(current)){app.innerHTML=`<p class="wrap section" role="status">${E(t('historyBusy'))}</p>`;return;}if(current==='home')app.innerHTML=renderHome();if(current==='athletes')app.innerHTML=renderAthletes();if(current==='results'){app.innerHTML=renderResults();updateResults();}applyArchiveRoute(tab);if(current==='archive')app.innerHTML=renderArchive(tab);if(current==='guide'){
+async function render(){detachAdmin();const path=decodeURIComponent((location.hash.slice(1).split('?')[0]||'home'));const tab=archiveTab(path);const current=tab?'archive':['home','athletes','results','schedule','guide','admin'].includes(path)?path:'home';document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('active',a.dataset.nav===current));document.querySelector('#mobile-nav').hidden=true;document.querySelector('#menu-btn').setAttribute('aria-expanded','false');document.documentElement.lang=language()==='ja'?'ja':'zh-CN';translateStatic(document);if(!dataLoaded&&['results','archive','schedule'].includes(current)){app.innerHTML=`<p class="wrap section" role="status">${E(t('historyBusy'))}</p>`;return;}if(current==='home')app.innerHTML=renderHome();if(current==='athletes')app.innerHTML=renderAthletes();if(current==='schedule')app.innerHTML=renderSchedule();if(current==='results'){app.innerHTML=renderResults();updateResults();}applyArchiveRoute(tab);if(current==='archive')app.innerHTML=renderArchive(tab);if(current==='guide'){
  app.innerHTML=renderGuide();
  if(new URLSearchParams(location.hash.split('?')[1]).has('official')){
    document.querySelector('#official-links-title').scrollIntoView();
@@ -377,7 +452,7 @@ if(id==='history-gender'||id==='history-event'){
 });
 window.addEventListener('hashchange',event=>{
  render();
- if(event.newURL.includes('#athletes?name=')||event.oldURL.includes('#athletes?name=')||event.newURL.includes('#archive?race=')){
+ if(event.newURL.includes('#athletes?name=')||event.oldURL.includes('#athletes?name=')||event.newURL.includes('#archive?race=')||event.newURL.includes('#schedule')){
    window.scrollTo({top:0,behavior:'instant'});
  }
 });
