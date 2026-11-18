@@ -15,21 +15,30 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
    const db=await getDb();
    const {data:{user}}=await db.auth.getUser();
    if(!root.isConnected)return;
-   if(!user){
-     root.innerHTML=`<button class="btn" type="button">${E(t('submissionLogin'))}</button><p role="status"></p>`;
-     root.querySelector('button').onclick=async()=>{
+   const admin=user&&(await db.rpc('wsd_atlas_is_google_admin')).data===true;
+   const canSubmit=user?.app_metadata?.provider==='google';
+   if(!user||(!review&&!canSubmit)){
+     root.innerHTML=`${user?`<p>${E(t('submissionGoogleRequired'))}</p>`:''}
+     <button class="btn" type="button">${E(t(user?'submissionSwitchGoogle':'submissionLogin'))}</button>
+     ${admin?`<p><a href="#submissions?review">${E(t('submissionReview'))}</a></p>`:''}
+     <p role="status"></p>`;
+     const button=root.querySelector('button');
+     button.onclick=async()=>{
+       button.disabled=true;
        try{
          sessionStorage.setItem('atlas-submission-return',location.hash);
-         const {error}=await db.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname+'?atlas-submissions=1'}});
+         const options={redirectTo:location.origin+location.pathname+'?atlas-submissions=1'};
+         if(user)options.queryParams={prompt:'select_account'};
+         const {error}=await db.auth.signInWithOAuth({provider:'google',options});
          if(error)throw error;
-       }catch{root.querySelector('p').textContent=t('submissionFailed');}
+       }catch{
+         root.querySelector('[role=status]').textContent=t('submissionLoginFailed');
+         button.disabled=false;
+       }
      };
      return;
    }
-   const {data:admin}=await db.rpc('wsd_atlas_is_google_admin');
-   const canSubmit=user.app_metadata?.provider==='google';
    if(review&&!admin){say('submissionReviewDenied');return;}
-   if(!review&&!canSubmit){say('submissionGoogleRequired');return;}
    if(params.has('result')&&!target){say('submissionTargetMissing');return;}
    const query=db.from(table).select(fields).order('created_at',{ascending:false}).limit(100);
    const {data:rows,error}=await (review?query.eq('status','pending'):query.eq('author_id',user.id));
