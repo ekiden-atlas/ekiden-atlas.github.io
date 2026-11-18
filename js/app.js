@@ -76,7 +76,11 @@ function renderHome(){
 }
 const rosterDivision=a=>a.graduation_year?'alumni':String(a.grade??'');
 const rosterDivisionLabel=a=>rosterDivision(a)==='alumni'?t('alumni'):gradeName(a.grade);
-function athleteRows(rows){return rows.map(a=>`<tr><td><a href="#athletes?name=${encodeURIComponent(a.name)}">${E(a.name)}</a><span class="subline">${E(rosterDivisionLabel(a))} · ${E(t({女:'female',男:'male'}[a.gender]||'notRecorded'))}</span></td><td class="mono">${E(a.pb1500||'—')}</td><td class="mono">${E(a.pb5000||'—')}</td><td class="mono">${E(a.pb10000||'—')}</td><td class="mono">${E(a.pbHalf||'—')}</td><td>${sourceLink(a.source_url)||E(t('sourceFallback'))}</td></tr>`).join('');}
+function rosterSources(athlete){
+ const links=[...new Set(Object.values(athlete._pbSources||{}))].map(url=>sourceLink(url)).filter(Boolean);
+ return links.length?links.join('<br>'):sourceLink(athlete.source_url)||E(t('sourceFallback'));
+}
+function athleteRows(rows){return rows.map(a=>`<tr><td><a href="#athletes?name=${encodeURIComponent(a.name)}">${E(a.name)}</a><span class="subline">${E(rosterDivisionLabel(a))} · ${E(t({女:'female',男:'male'}[a.gender]||'notRecorded'))}</span></td><td class="mono">${E(a.pb1500||'—')}</td><td class="mono">${E(a.pb5000||'—')}</td><td class="mono">${E(a.pb10000||'—')}</td><td class="mono">${E(a.pbHalf||'—')}</td><td>${rosterSources(a)}</td></tr>`).join('');}
 let filter={q:'',grade:'all',gender:'all',metric:'pb5000'};
 function renderAthleteTable(){const root=document.querySelector('#athlete-rows');if(!root)return;let rows=athletes().filter(a=>(!filter.q||nameSearch(a.name).includes(nameSearch(filter.q)))&&(filter.grade==='all'||rosterDivision(a)===filter.grade)&&(filter.gender==='all'||a.gender===filter.gender));rows.sort((a,b)=>parseTime(a[filter.metric])-parseTime(b[filter.metric]));root.innerHTML=athleteRows(rows)||`<tr><td colspan="6">${E(t('empty'))}</td></tr>`;document.querySelector('#athlete-count').textContent=String(rows.length);}
 function renderAthleteSocialLinks(name){

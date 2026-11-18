@@ -1,6 +1,10 @@
 /* Original repo's 2026 roster snapshot, extracted 2026-11-18. NOT independently verified. */
+const hakoneEntry='https://www.kgrr.org/files/upload/202512/102teamentry.pdf';
+const ito1500='https://www.waseda-ac.org/dbf/profile.cgi?hor=1&max=10&page=10&tpl=view2&view=rvs&width=100%25';
+const maseda1500='https://www.jaaf.or.jp/files/competition/document/1563-7.pdf';
+const yamaguchiProfile='https://www.sg-hldgs.co.jp/trackfield/member/yamaguchi.html';
 const graduationSource='https://www.waseda.jp/top/news/117621';
-export const ROSTER = [
+const students = [
 ['山口 竣平',3,'3:55.75','13:17.19','27:59.47',''],
 ['吉倉 ナヤブ直希',3,'3:44.81','13:37.61','28:13.07','1:02:26'],
 ['工藤 慎作',4,'3:55.08','13:38.67','28:31.87','1:00:06'],
@@ -46,11 +50,22 @@ export const ROSTER = [
 ['金野真綾',2,'5:00.11','','','', '女'],
 ['田村るう',1,'','','','', '女'],
 ['熊倉花萌',2,'','16:56.82','','', '女'],
-['始関千華',3,'','16:35.75','','', '女'],
-['山口 智規',4,'','','27:52.37','1:01:16','男',2026],
-['間瀬田 純平',4,'','','29:13.46','1:02:31','男',2026]
-].map(([name, grade, pb1500, pb5000, pb10000, pbHalf, gender='男', graduationYear]) =>
-({name,grade,gender,pb1500,pb5000,pb10000,pbHalf,
- ...(graduationYear?{graduation_year:graduationYear,graduation_source:graduationSource}:{})}));
+['始関千華',3,'','16:35.75','','', '女']
+].map(([name,grade,pb1500,pb5000,pb10000,pbHalf,gender='男'])=>({
+ name,grade,gender,pb1500,pb5000,pb10000,pbHalf
+}));
+
+const alumni = [
+ ['山口 智規','3:38.16','13:16.38','27:52.37','1:01:16',yamaguchiProfile],
+ ['間瀬田 純平','3:42.22','13:55.61','29:13.46','1:02:31',hakoneEntry,maseda1500],
+ ['宮岡 凛太','','14:16.96','29:46.31','1:01:59',hakoneEntry],
+ ['伊藤 幸太郎','4:05.93','14:16.44','29:44.34','1:02:14',hakoneEntry,ito1500]
+].map(([name,pb1500,pb5000,pb10000,pbHalf,pbSource,pb1500Source=pbSource])=>({
+ name,grade:null,gender:'男',pb1500,pb5000,pb10000,pbHalf,
+ graduation_year:2026,graduation_source:graduationSource,
+ _pbSources:{...(pb1500?{pb1500:pb1500Source}:{}),pb5000:pbSource,pb10000:pbSource,pbHalf:pbSource}
+}));
+
+export const ROSTER=[...students,...alumni];
 export const FEATURED=['山口 竣平','増子 陽太','工藤 慎作','鈴木 琉胤','本田 桜二郎','新妻 遼己'];
 export const DATA_SNAPSHOT='2026-11-18';
