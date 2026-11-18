@@ -1,4 +1,4 @@
-import {RESULT_CORRECTIONS,KUDO_EARLY_RESULTS} from '../data/result-verifications.js';
+import {RESULT_CORRECTIONS,KUDO_UNIVERSITY_RESULTS} from '../data/result-verifications.js';
 import {SCHOOL_RESULTS} from '../data/school-results.js';
 import {EKIDEN_RECORD_HONORS} from '../data/ekiden-honors.js';
 import {VERIFIED_WORLD_RANKINGS} from '../data/world-ranking-snapshot.js';
@@ -167,7 +167,7 @@ export function resultGrade(row){
  return value==='4'&&row.status!=='student'?'':value;
 }
 export function personalResults(){
- const rows=new Map([...SCHOOL_RESULTS,...KUDO_EARLY_RESULTS].map(row=>[row.id,row]));
+ const rows=new Map([...SCHOOL_RESULTS,...KUDO_UNIVERSITY_RESULTS].map(row=>[row.id,row]));
  const legacy=new Map();
  for(const row of state.official?.results||[]){
    rows.set(row.id,{...row,...RESULT_CORRECTIONS[row.id]});
