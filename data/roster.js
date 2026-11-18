@@ -1,4 +1,5 @@
 /* Original repo's 2026 roster snapshot, extracted 2026-11-18. NOT independently verified. */
+const graduationSource='https://www.waseda.jp/top/news/117621';
 export const ROSTER = [
 ['山口 竣平',3,'3:55.75','13:17.19','27:59.47',''],
 ['吉倉 ナヤブ直希',3,'3:44.81','13:37.61','28:13.07','1:02:26'],
@@ -46,9 +47,10 @@ export const ROSTER = [
 ['田村るう',1,'','','','', '女'],
 ['熊倉花萌',2,'','16:56.82','','', '女'],
 ['始関千華',3,'','16:35.75','','', '女'],
-['山口 智規',4,'','','27:52.37','1:01:16'],
-['間瀬田 純平',4,'','','29:13.46','1:02:31']
-].map(([name, grade, pb1500, pb5000, pb10000, pbHalf, gender='男']) =>
-({name,grade,gender,pb1500,pb5000,pb10000,pbHalf}));
+['山口 智規',4,'','','27:52.37','1:01:16','男',2026],
+['間瀬田 純平',4,'','','29:13.46','1:02:31','男',2026]
+].map(([name, grade, pb1500, pb5000, pb10000, pbHalf, gender='男', graduationYear]) =>
+({name,grade,gender,pb1500,pb5000,pb10000,pbHalf,
+ ...(graduationYear?{graduation_year:graduationYear,graduation_source:graduationSource}:{})}));
 export const FEATURED=['山口 竣平','増子 陽太','工藤 慎作','鈴木 琉胤','本田 桜二郎','新妻 遼己'];
 export const DATA_SNAPSHOT='2026-11-18';
