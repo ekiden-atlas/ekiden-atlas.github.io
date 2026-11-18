@@ -16,8 +16,8 @@ assert.ok(RECENT_EKIDEN.length>=6);
 assert.ok(RECENT_EKIDEN.every(r=>r.source.startsWith('https://')&&r.legs.every(l=>l.leg&&l.name&&l.time)));
 assert.equal(parseTime('13:17.19'),797.19);
 assert.equal(formatPace('13:20.00',5),'2:40/km');
-const keys=['navHome','navAthletes','navStories','navEkiden','navHistory','navGuide','navAdmin','independent','adminMigration','adminSyncNotice','worldRank','adminNoAccess','adminDelete','historyFailed','notRanked'];
-for(const lang of ['zh','ja']){setLanguage(lang);for(const key of keys)assert.notEqual(t(key),key,`${key} absent: ${lang}`);assert.ok(t('cardStories').length===6);}
+const keys=['navHome','navAthletes','navResults','resultPrimary','resultCount','sectionRecords','adminTypeComparison','navEkiden','navHistory','navGuide','navAdmin','independent','adminMigration','adminSyncNotice','worldRank','adminNoAccess','adminDelete','historyFailed','notRanked'];
+for(const lang of ['zh','ja']){setLanguage(lang);for(const key of keys)assert.notEqual(t(key),key,`${key} absent: ${lang}`);}
 const paths=[];function walk(p){for(const name of readdirSync(p,{withFileTypes:true})){const q=join(p,name.name);if(name.isDirectory())walk(q);else if(!q.endsWith('package-lock.json'))paths.push(q);}}walk(dir);
 const sources=paths.filter(x=>/\.(?:js|html|css|svg|json)$/.test(x)).map(x=>[x,readFileSync(x,'utf8')]);
 for(const [f,s] of sources){assert.ok(!/sb_secret_[A-Za-z0-9]{8}|service.role\s*[:=]|SUPABASE_SERVICE_ROLE_KEY|waseda-ac\.jp\/diary\/detail\/\d+/.test(s),`Sensitive or excluded material in ${f}`);}

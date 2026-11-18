@@ -7,11 +7,13 @@ BEGIN;
 
 CREATE TABLE IF NOT EXISTS public.wsd_public_content (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  kind text NOT NULL CHECK (kind IN ('athlete','pb','story','ekiden','school_record','alltime_rank','world_rank')),
+  kind text NOT NULL CHECK (kind IN ('athlete','pb','specialty_pb','result','ekiden','section_record','school_record','alltime_rank','world_rank','comparison_rank')),
   record_key text NOT NULL CHECK (length(trim(record_key)) BETWEEN 2 AND 180),
   payload jsonb NOT NULL DEFAULT '{}'::jsonb
     CHECK (jsonb_typeof(payload) = 'object' AND octet_length(payload::text) <= 24000),
-  source_url text NOT NULL CHECK (source_url ~ '^https://[^[:space:]]+$' AND length(source_url) <= 600),
+  source_url text NOT NULL CHECK (source_url ~ '^https://[^[:space:]]+$' AND length(source_url) <= 600
+    AND source_url !~* '^https://[^/]*github[^/]*(/|$)'
+    AND source_url !~ '^https://[^/]*@'),
   is_deleted boolean NOT NULL DEFAULT false,
   changed_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   created_at timestamptz NOT NULL DEFAULT now(),
