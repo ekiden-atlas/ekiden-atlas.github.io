@@ -139,3 +139,8 @@
 .submission-form .btn { justify-self: start; }
 .submission-list { display: grid; gap: 12px; }
 .submission-list .card { overflow-wrap: anywhere; }
+
+.admin-race-legs, .admin-race-leg { min-width: 0; border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+.admin-race-leg { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); align-items: end; gap: 10px; margin: 0 0 10px; }
+.admin-race-leg input { min-width: 0; width: 100%; }
+.admin-race-leg button { justify-self: start; }
