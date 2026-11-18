@@ -82,7 +82,33 @@ function rosterSources(athlete){
 }
 function athleteRows(rows){return rows.map(a=>`<tr><td><a href="#athletes?name=${encodeURIComponent(a.name)}">${E(a.name)}</a><span class="subline">${E(rosterDivisionLabel(a))} · ${E(t({女:'female',男:'male'}[a.gender]||'notRecorded'))}</span></td><td class="mono">${E(a.pb1500||'—')}</td><td class="mono">${E(a.pb5000||'—')}</td><td class="mono">${E(a.pb10000||'—')}</td><td class="mono">${E(a.pbHalf||'—')}</td><td>${rosterSources(a)}</td></tr>`).join('');}
 let filter={q:'',grade:'all',gender:'all',metric:'pb5000'};
-function renderAthleteTable(){const root=document.querySelector('#athlete-rows');if(!root)return;let rows=athletes().filter(a=>(!filter.q||nameSearch(a.name).includes(nameSearch(filter.q)))&&(filter.grade==='all'||rosterDivision(a)===filter.grade)&&(filter.gender==='all'||a.gender===filter.gender));rows.sort((a,b)=>parseTime(a[filter.metric])-parseTime(b[filter.metric]));root.innerHTML=athleteRows(rows)||`<tr><td colspan="6">${E(t('empty'))}</td></tr>`;document.querySelector('#athlete-count').textContent=String(rows.length);}
+function renderAthleteTable(){
+ const studentBody=document.querySelector('#athlete-rows');
+ if(!studentBody)return;
+ const query=nameSearch(filter.q);
+ const rows=athletes().filter(a=>(!query||nameSearch(a.name).includes(query))&&
+   (filter.grade==='all'||rosterDivision(a)===filter.grade)&&(filter.gender==='all'||a.gender===filter.gender));
+ rows.sort((a,b)=>parseTime(a[filter.metric])-parseTime(b[filter.metric]));
+ const students=rows.filter(a=>rosterDivision(a)!=='alumni');
+ const alumni=rows.filter(a=>rosterDivision(a)==='alumni');
+ for(const [prefix,body,entries] of [['athlete',studentBody,students],['ob',document.querySelector('#ob-rows'),alumni]]){
+   document.querySelector(`#${prefix}-section`).hidden=!entries.length;
+   document.querySelector(`#${prefix}-count`).textContent=String(entries.length);
+   body.innerHTML=athleteRows(entries);
+ }
+ const empty=document.querySelector('#athlete-empty');
+ empty.textContent=rows.length?'':t('empty');
+ empty.hidden=Boolean(rows.length);
+}
+function rosterSection(prefix,title){
+ const columns=[t('profile'),'1500m · PB','5000m · PB','10000m · PB','ハーフマラソン · PB',t('source')];
+ return `<section id="${prefix}-section" class="roster-section" aria-labelledby="${prefix}-title" hidden>
+ <div class="section-head"><h2 id="${prefix}-title">${E(t(title))}</h2>
+ <span id="${prefix}-count" class="micro"></span></div>
+ <div class="table-wrap"><table class="data-table" aria-labelledby="${prefix}-title"><thead><tr>
+ ${columns.map(column=>`<th scope="col">${E(column)}</th>`).join('')}
+ </tr></thead><tbody id="${prefix}-rows"></tbody></table></div></section>`;
+}
 function renderAthleteSocialLinks(name){
  const match=Object.keys(ATHLETE_SOCIAL_LINKS).find(key=>nameSearch(key)===nameSearch(name));
  if(!match)return '';
@@ -123,7 +149,7 @@ function renderAthletes(){const params=new URLSearchParams(location.hash.split('
  ${known||records.length||honors.length?`<section class="section"><h2>${E(t('athleteResults'))}</h2>${resultPanel(records,false)}</section>`:''}
  </section>`;
  }
- return pageIntro('navTitleAthletes','athletesDesc')+`<div class="wrap section"><div class="filterbar"><label class="field">${E(t('search'))}<input id="filter-q" type="search" value="${E(filter.q)}" placeholder="${E(t('searchPlace'))}"></label><label class="field">${E(t('filterRosterDivision'))}<select id="filter-grade"><option value="all">${E(t('all'))}</option>${[1,2,3,4].map(n=>`<option value="${n}" ${filter.grade===String(n)?'selected':''}>${E(gradeName(n))}</option>`).join('')}<option value="alumni" ${filter.grade==='alumni'?'selected':''}>${E(t('alumni'))}</option></select></label><label class="field">${E(t('filterGender'))}<select id="filter-gender"><option value="all">${E(t('all'))}</option><option value="男">${E(t('male'))}</option><option value="女">${E(t('female'))}</option></select></label><label class="field">${E(t('filterEvent'))}<select id="filter-metric">${[['pb5000','5000m'],['pb10000','10000m'],['pb1500','1500m'],['pbHalf','ハーフマラソン']].map(([v,l])=>`<option value="${v}" ${filter.metric===v?'selected':''}>${l}</option>`).join('')}</select></label></div><div class="card-top" style="margin-bottom:12px"><span class="micro">${E(t('snapshot'))} · <span id="athlete-count">${athletes().length}</span></span><span class="micro">${E(DATA_SNAPSHOT)}</span></div><div class="table-wrap"><table class="data-table"><thead><tr><th>${E(t('profile'))}</th><th>1500m · PB</th><th>5000m · PB</th><th>10000m · PB</th><th>ハーフマラソン · PB</th><th>${E(t('source'))}</th></tr></thead><tbody id="athlete-rows"></tbody></table></div><div class="note">${E(t('sourceFallback'))} · ${E(t('rankDisclosure'))}</div></div>`;}
+ return pageIntro('navTitleAthletes','athletesDesc')+`<div class="wrap section"><div class="filterbar"><label class="field">${E(t('search'))}<input id="filter-q" type="search" value="${E(filter.q)}" placeholder="${E(t('searchPlace'))}"></label><label class="field">${E(t('filterRosterDivision'))}<select id="filter-grade"><option value="all">${E(t('all'))}</option>${[1,2,3,4].map(n=>`<option value="${n}" ${filter.grade===String(n)?'selected':''}>${E(gradeName(n))}</option>`).join('')}<option value="alumni" ${filter.grade==='alumni'?'selected':''}>${E(t('alumni'))}</option></select></label><label class="field">${E(t('filterGender'))}<select id="filter-gender"><option value="all">${E(t('all'))}</option><option value="男">${E(t('male'))}</option><option value="女">${E(t('female'))}</option></select></label><label class="field">${E(t('filterEvent'))}<select id="filter-metric">${[['pb5000','5000m'],['pb10000','10000m'],['pb1500','1500m'],['pbHalf','ハーフマラソン']].map(([v,l])=>`<option value="${v}" ${filter.metric===v?'selected':''}>${l}</option>`).join('')}</select></label></div>${rosterSection('athlete','snapshot')}${rosterSection('ob','alumni')}<p id="athlete-empty" role="status" hidden></p><div class="note">${E(t('sourceFallback'))} · ${E(t('rankDisclosure'))}</div></div>`;}
 function renderSectionRecords(){
  const records=sectionRecords().filter(row=>raceFilters.race==='all'||row.race===raceFilters.race);
  if(!records.length)return '';

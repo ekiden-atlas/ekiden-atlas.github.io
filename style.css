@@ -116,3 +116,6 @@
   .ekiden-season li { padding: 16px; }
 }
 #section-records:has(+ .race-grid) { margin-bottom: 16px; }
+
+.roster-section + .roster-section:not([hidden]) { margin-top: 32px; }
+.roster-section[hidden] + .roster-section { margin-top: 0; }
