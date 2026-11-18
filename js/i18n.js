@@ -1,4 +1,6 @@
 const zh={
+athleteHighlights:"代表成绩",
+highlightLegRank:"区间第 {rank} 名",
 navSchedule:"赛事日程",
 scheduleDescription:"查看早稻田相关赛事的日期、已公布的出场名单和已收录的赛果。",
 scheduleUpcoming:"近期赛事",
@@ -139,6 +141,8 @@ adminConfirmDelete:'确定软删除这条资料？该操作可恢复。',adminSa
 footerData:'资料快照 2026-11-18 · 早稻田跑步资料独立整理',copyright:'数据属于事实信息；网站的原创排版与解释由本站制作。',
 },
 ja={
+athleteHighlights:"主な競技成績",
+highlightLegRank:"区間{rank}位",
 navSchedule:"大会予定",
 scheduleDescription:"早稲田に関連する大会の日程、発表済みの出場選手、収録済みの結果を掲載しています。",
 scheduleUpcoming:"直近の大会予定",
