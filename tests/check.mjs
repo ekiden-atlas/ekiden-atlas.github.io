@@ -19,11 +19,11 @@ assert.equal(formatPace('13:20.00',5),'2:40/km');
 const keys=['navHome','navAthletes','navResults','navArchive','archiveDesc','resultPrimary','resultCount','sectionRecords','adminTypeComparison','navEkiden','navHistory','navGuide','navAdmin','independent','adminMigration','adminSyncNotice','worldRank','adminNoAccess','adminDelete','historyFailed','notRanked'];
 for(const lang of ['zh','ja']){setLanguage(lang);for(const key of keys)assert.notEqual(t(key),key,`${key} absent: ${lang}`);}
 setLanguage('zh');
-assert.equal(t('resultLegacy'),'旧站快照 · 已复核');
-assert.equal(t('resultWorkbook'),'旧站历史档案 · 已复核');
+assert.equal(t('resultLegacy'),'赛果快照 · 已复核');
+assert.equal(t('resultWorkbook'),'历史档案 · 已复核');
 setLanguage('ja');
-assert.equal(t('resultLegacy'),'旧サイトの記録 · 確認済み');
-assert.equal(t('resultWorkbook'),'旧サイトの歴史資料 · 確認済み');
+assert.equal(t('resultLegacy'),'競技結果のスナップショット · 確認済み');
+assert.equal(t('resultWorkbook'),'歴史資料 · 確認済み');
 const paths=[];function walk(p){for(const name of readdirSync(p,{withFileTypes:true})){const q=join(p,name.name);if(name.isDirectory())walk(q);else if(!q.endsWith('package-lock.json'))paths.push(q);}}walk(dir);
 const sources=paths.filter(x=>/\.(?:js|html|css|svg|json)$/.test(x)).map(x=>[x,readFileSync(x,'utf8')]);
 for(const [f,s] of sources){assert.ok(!/sb_secret_[A-Za-z0-9]{8}|service.role\s*[:=]|SUPABASE_SERVICE_ROLE_KEY|waseda-ac\.jp\/diary\/detail\/\d+/.test(s),`Sensitive or excluded material in ${f}`);}
