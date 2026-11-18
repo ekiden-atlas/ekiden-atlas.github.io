@@ -24,3 +24,9 @@
 2. 核对 Google 登录的 Atlas 投稿回调地址（站点根路径带 `?atlas-submissions=1`）。受邀者先注册 Google 身份，再由运营者在数据库中将已核对的 Auth 用户 UUID 加入 `wsd_atlas_result_invites`。删除该标识即可停止其后续投稿。先核对部署是否有姓名称谓或用户 UUID 泄漏，再邀请真实账号。
 3. 首版的纠错仅更新已有记录的成绩和出处，并清除旧成绩的 PB 标志。名次、日期和其他字段的修订走现有管理员编辑流程。新增赛果发布到 Atlas 的个人赛果。页面只在受管内容可读且数据库确认投稿功能可用时显示投稿入口。
 4. 立刻停用时，撤销 `anon` 和 `authenticated` 对 `wsd_atlas_submissions_ready()` 的执行权限，并撤销 `authenticated` 在投稿队列上的 INSERT 和 UPDATE。旧站及受管内容的其他编辑流程照常运行。
+
+## 改为 Google 登录即可投稿
+
+`sql/optional-google-result-submissions.sql` 在原迁移之后应用，仅替换 Atlas 投稿队列的 INSERT 行级权限。Google 登录用户可以提交属于自己的赛果建议。查看权限、管理员审核与发布权限沿用原策略。原邀请表保留用于回滚，原网站及其 OAuth 设置无需修改。
+
+回滚时，将 `submission_insert` 的 WITH CHECK 恢复为 `sql/optional-result-submissions.sql` 中的条件，并回退对应前端更新。已经收到的投稿保留，继续由管理员审核。

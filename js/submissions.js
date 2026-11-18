@@ -27,10 +27,9 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
      return;
    }
    const {data:admin}=await db.rpc('wsd_atlas_is_google_admin');
-   const {data:invite,error:inviteError}=await db.from('wsd_atlas_result_invites').select('user_id').maybeSingle();
-   if(inviteError)throw inviteError;
+   const canSubmit=user.app_metadata?.provider==='google';
    if(review&&!admin){say('submissionReviewDenied');return;}
-   if(!review&&!invite&&!admin){say('submissionInviteRequired');return;}
+   if(!review&&!canSubmit){say('submissionGoogleRequired');return;}
    if(params.has('result')&&!target){say('submissionTargetMissing');return;}
    const query=db.from(table).select(fields).order('created_at',{ascending:false}).limit(100);
    const {data:rows,error}=await (review?query.eq('status','pending'):query.eq('author_id',user.id));
@@ -40,7 +39,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
    root.innerHTML=`
    <div class="section-head"><h2>${E(t(review?'submissionReview':'submissionMine'))}</h2>
    ${admin?`<a href="${review?'#submissions':'#submissions?review'}">${E(t(review?'submissionTitle':'submissionReview'))}</a>`:''}</div>
-   ${!review&&invite?`<form class="card submission-form">
+   ${!review&&canSubmit?`<form class="card submission-form">
      <h3>${E(t(target?'submissionCorrection':'submissionNew'))}</h3>
      ${target?`<p>${E([target.date,meetLabel(target.meet),recordLabel(target.event),target.time].filter(Boolean).join(' · '))}</p>`:''}
      ${input('profile','athlete_name','text',120,target?.name,Boolean(target))}
