@@ -1,3 +1,4 @@
+import {HISTORICAL_EKIDEN,HAKONE_SECTION_RECORDS} from '../data/ekiden-official-history.js';
 import {EARLIER_ATHLETE_RESULTS,EARLIER_ATHLETE_CORRECTIONS,EARLIER_ATHLETE_PBS,EARLIER_SPECIALTY_PBS} from '../data/earlier-athlete-results.js';
 import {OFFICIAL_CLUB_ROSTER} from '../data/official-club-roster.js';
 import {ROSTER_AUDITED_RESULTS,ROSTER_RESULT_CORRECTIONS} from '../data/roster-race-audit.js';
@@ -144,7 +145,9 @@ export const schoolKey=row=>row._recordKey||row._legacyKey||legacySchoolKey(row)
 export function ekiden(){
  const old=state.official?
  [...(state.official.hakone||[]).map(x=>({...x,race:'hak'})),...(state.official.otherEkiden||[]).map(x=>({...x,race:x.type}))]:RECENT_EKIDEN;
- let rows=legacyPatch('ekiden',old,ekidenKey);
+ const existing=new Set(old.map(row=>`race:${row.race}:${row.year}`));
+ const historical=HISTORICAL_EKIDEN.filter(row=>!existing.has(ekidenKey(row)));
+ let rows=legacyPatch('ekiden',[...old,...historical],ekidenKey);
  rows=applyManaged('ekiden',rows,ekidenKey);
  return rows.filter(x=>x?.year && ['hak','izu','zen','other'].includes(x.race)).map(x=>({...x,legs:typeof x.legs_text==='string'?parseLegs(x.legs_text):x.legs||[]})).sort((a,b)=>b.year-a.year||['hak','izu','zen','other'].indexOf(a.race)-['hak','izu','zen','other'].indexOf(b.race));
 }
@@ -216,7 +219,9 @@ export function specialtyPbs(name){
    .filter(x=>!name||nameSearch(x.name)===nameSearch(name));
 }
 export function sectionRecords(){
- return applyManaged('section_record',state.official?.sectionRecords||[],x=>x.id);
+ const records=new Map(HAKONE_SECTION_RECORDS.map(row=>[row.id,row]));
+ for(const row of state.official?.sectionRecords||[])records.set(row.id,row);
+ return applyManaged('section_record',[...records.values()],x=>x.id);
 }
 export function legHonors(race,leg){
  if(!leg.name||!leg.time||!race.source)return [];
