@@ -17,7 +17,8 @@ function athletePicker(results,t,E){
  }
  const options=[...names.values()].sort((a,b)=>officialAthleteName(a).localeCompare(officialAthleteName(b),'ja'))
    .map(name=>`<option value="${E(name)}">${E(officialAthleteName(name))}</option>`).join('');
- return `<label class="field">${E(t('submissionAthlete'))}<select name="athlete_name" required>
+ return `<label class="field"><span id="submission-athlete-label">${E(t('submissionAthlete'))}</span>
+ <select name="athlete_name" aria-labelledby="submission-athlete-label" required>
  <option value="" disabled selected>${E(t('submissionChooseAthlete'))}</option>${options}</select></label>`;
 }
 
