@@ -63,10 +63,10 @@ assert.equal(new Set(athletes().map(row=>nameSearch(row.name))).size,athletes().
 assert.deepEqual(athletes().filter(row=>row.clubSource).map(row=>row.clubSource).sort(),OFFICIAL_CLUB_ROSTER.map(row=>row.source_url).sort());
 assert.equal(athlete('佐々木 哲').high_school,'佐久長聖高等学校');
 const rows=personalResults();
-assert.equal(rows.length,962+EARLIER_ATHLETE_RESULTS.length+ADDITIONAL_RESULTS_2026.length);
+assert.equal(rows.length,993+EARLIER_ATHLETE_RESULTS.length+ADDITIONAL_RESULTS_2026.length);
 assert.equal(new Set(EARLIER_ATHLETE_RESULTS.map(row=>nameSearch(row.name))).size,18);
 assert.equal(new Set(rows.map(row=>row.id)).size,rows.length);
-for(const [year,count] of [[2023,44],[2024,336],[2025,255],[2026,248+ADDITIONAL_RESULTS_2026.length]]){
+for(const [year,count] of [[2023,55],[2024,343],[2025,257],[2026,248+ADDITIONAL_RESULTS_2026.length]]){
  assert.equal(rows.filter(row=>row.year===year).length,count+EARLIER_ATHLETE_RESULTS.filter(row=>row.year===year).length);
 }
 const results2026=rows.filter(row=>row.year===2026);
@@ -190,7 +190,7 @@ assert.equal(honorsAt('山口 竣平','zen',7),undefined);
 console.log('PASS: section winners, tied winners, course records and Japanese bests.');
 
 const schoolRows=rows.filter(row=>['middleSchool','highSchool'].includes(row.status));
-assert.equal(schoolRows.length,164+EARLIER_ATHLETE_RESULTS.filter(row=>['middleSchool','highSchool'].includes(row.status)).length);
+assert.equal(schoolRows.length,195+EARLIER_ATHLETE_RESULTS.filter(row=>['middleSchool','highSchool'].includes(row.status)).length);
 assert.equal(schoolRows.filter(row=>row.status==='middleSchool').length,45+EARLIER_ATHLETE_RESULTS.filter(row=>row.status==='middleSchool').length);
 assert.ok(schoolRows.every(row=>row.unit&&(row.source||row.gradeSource).startsWith('https://')));
 assert.equal(schoolRows.find(row=>row.id==='school-kudo-2019-3000').rank,10);
