@@ -1,3 +1,4 @@
+import {renderWatchPage,watchStar,toggleWatched,setCompared,setWatchEvent} from './athlete-watch.js';
 import {CLUB_DIARIES} from '../data/club-diaries.js';
 import {fanBoardLink,renderFanBoard} from './fan-board.js';
 import {bindFeedback} from './feedback.js';
@@ -200,7 +201,7 @@ function rosterSources(athlete){
  const links=[...new Set(Object.values(athlete._pbSources||{}))].map(url=>sourceLink(url)).filter(Boolean);
  return links.length?links.join('<br>'):sourceLink(athlete.source_url)||E(t('sourceFallback'));
 }
-function athleteRows(rows){return rows.map(a=>`<tr><td><a href="#athletes?name=${encodeURIComponent(a.name)}">${E(officialAthleteName(a.name))}</a><span class="subline">${blocks[a.block]?`${E(t(blocks[a.block]))} · `:''}${E(rosterDivisionLabel(a))} · ${E(t({女:'female',男:'male'}[a.gender]||'notRecorded'))}</span></td><td class="mono">${E(a.pb1500||'—')}</td><td class="mono">${E(a.pb5000||'—')}</td><td class="mono">${E(a.pb10000||'—')}</td><td class="mono">${E(a.pbHalf||'—')}</td><td>${rosterSources(a)}</td></tr>`).join('');}
+function athleteRows(rows){return rows.map(a=>`<tr><td><a href="#athletes?name=${encodeURIComponent(a.name)}">${E(officialAthleteName(a.name))}</a> ${watchStar(a.name,t,E)}<span class="subline">${blocks[a.block]?`${E(t(blocks[a.block]))} · `:''}${E(rosterDivisionLabel(a))} · ${E(t({女:'female',男:'male'}[a.gender]||'notRecorded'))}</span></td><td class="mono">${E(a.pb1500||'—')}</td><td class="mono">${E(a.pb5000||'—')}</td><td class="mono">${E(a.pb10000||'—')}</td><td class="mono">${E(a.pbHalf||'—')}</td><td>${rosterSources(a)}</td></tr>`).join('');}
 const ekidenRosterNames=new Set(SPOLIVE_EKIDEN_ROSTER.map(nameSearch));
 let filter={q:'',grade:'all',gender:'all',metric:'pb5000'};
 function renderAthleteTable(){
@@ -305,20 +306,25 @@ function renderAthleteHonors(rows){
  </tr></thead><tbody>${rows.map(row=>`<tr><td>${E(row.year)}</td><td>${E(raceName(row.race))}</td>
  <td>${E(row.leg)}</td><td class="mono">${E(row.time)}</td><td>${honorBadges(row.honors)}</td></tr>`).join('')}</tbody></table></div></section>`;
 }
-function renderAthletes(){const params=new URLSearchParams(location.hash.split('?')[1]||'');const name=params.get('name');if(name){
+function renderAthletes(){
+ const params=new URLSearchParams(location.hash.split('?')[1]||'');
+ if(params.has('watch'))return `<section id="athlete-watch" class="wrap section">${renderWatchPage({t,E,sourceLink,raceName})}</section>`;
+ const name=params.get('name');
+ const watchLink=`<a class="btn btn-sm" href="#athletes?watch=1">${E(t('watchTitle'))} →</a>`;
+ if(name){
  const matches=athletes().filter(row=>nameSearch(row.name)===nameSearch(name));
  const known=athlete(name)||(matches.length===1?matches[0]:null);
  const canonical=known?.name||name;
  const records=athleteResultRows(canonical);
  const honors=athleteEkidenHonors(canonical);
- return `<section class="wrap section"><a class="btn btn-sm" href="#athletes">← ${E(t('navAthletes'))}</a>
+ return `<section class="wrap section"><a class="btn btn-sm" href="#athletes">← ${E(t('navAthletes'))}</a> ${known?watchStar(canonical,t,E):''} ${watchLink}
  ${known||records.length||honors.length?profileDetail(canonical,records):`<p role="status">${E(t(dataLoaded?'empty':'loading'))}</p>`}
  ${known||records.length||honors.length?renderAthleteMedia(canonical)+renderAthleteDiaries(officialAthleteName(canonical)):''}
  ${renderAthleteHonors(honors)}
  ${known||records.length||honors.length?`<section class="section"><h2>${E(t('athleteResults'))}</h2>${resultPanel(records,false)}</section>`:''}
  </section>`;
  }
- return pageIntro('navTitleAthletes','athletesDesc')+`<div class="wrap section"><div class="filterbar"><label class="field">${E(t('search'))}<input id="filter-q" type="search" value="${E(filter.q)}" placeholder="${E(t('searchPlace'))}"></label><label class="field">${E(t('filterRosterDivision'))}<select id="filter-grade"><option value="all">${E(t('all'))}</option>${[1,2,3,4].map(n=>`<option value="${n}" ${filter.grade===String(n)?'selected':''}>${E(gradeName(n))}</option>`).join('')}<option value="graduate" ${filter.grade==='graduate'?'selected':''}>${E(t('graduateStudent'))}</option><option value="alumni" ${filter.grade==='alumni'?'selected':''}>${E(t('alumni'))}</option></select></label><label class="field">${E(t('filterGender'))}<select id="filter-gender"><option value="all">${E(t('all'))}</option><option value="男">${E(t('male'))}</option><option value="女">${E(t('female'))}</option></select></label><label class="field">${E(t('filterEvent'))}<select id="filter-metric">${[['pb5000','5000m'],['pb10000','10000m'],['pb1500','1500m'],['pbHalf','ハーフマラソン']].map(([v,l])=>`<option value="${v}" ${filter.metric===v?'selected':''}>${l}</option>`).join('')}</select></label></div><p>${E(t('athleteRosterBasis'))} ${sourceLink(SPOLIVE_ROSTER_SOURCE,'SpoLive')}</p>${rosterSection('athlete','currentClubAthletes')}${rosterSection('ob','alumni')}<p id="athlete-empty" role="status" hidden></p><div class="note">${E(t('sourceFallback'))} · ${E(t('rankDisclosure'))}</div></div>`;}
+ return pageIntro('navTitleAthletes','athletesDesc')+`<div class="wrap section">${watchLink}<div class="filterbar"><label class="field">${E(t('search'))}<input id="filter-q" type="search" value="${E(filter.q)}" placeholder="${E(t('searchPlace'))}"></label><label class="field">${E(t('filterRosterDivision'))}<select id="filter-grade"><option value="all">${E(t('all'))}</option>${[1,2,3,4].map(n=>`<option value="${n}" ${filter.grade===String(n)?'selected':''}>${E(gradeName(n))}</option>`).join('')}<option value="graduate" ${filter.grade==='graduate'?'selected':''}>${E(t('graduateStudent'))}</option><option value="alumni" ${filter.grade==='alumni'?'selected':''}>${E(t('alumni'))}</option></select></label><label class="field">${E(t('filterGender'))}<select id="filter-gender"><option value="all">${E(t('all'))}</option><option value="男">${E(t('male'))}</option><option value="女">${E(t('female'))}</option></select></label><label class="field">${E(t('filterEvent'))}<select id="filter-metric">${[['pb5000','5000m'],['pb10000','10000m'],['pb1500','1500m'],['pbHalf','ハーフマラソン']].map(([v,l])=>`<option value="${v}" ${filter.metric===v?'selected':''}>${l}</option>`).join('')}</select></label></div><p>${E(t('athleteRosterBasis'))} ${sourceLink(SPOLIVE_ROSTER_SOURCE,'SpoLive')}</p>${rosterSection('athlete','currentClubAthletes')}${rosterSection('ob','alumni')}<p id="athlete-empty" role="status" hidden></p><div class="note">${E(t('sourceFallback'))} · ${E(t('rankDisclosure'))}</div></div>`;}
 function renderSectionRecords(){
  const records=sectionRecords().filter(row=>raceFilters.race==='all'||row.race===raceFilters.race);
  if(!records.length)return '';
@@ -577,8 +583,37 @@ loadData().finally(()=>{
  render();
 });
 
+function refreshWatch(selector){
+ const panel=document.querySelector('#athlete-watch');
+ if(!panel)return;
+ panel.innerHTML=renderWatchPage({t,E,sourceLink,raceName});
+ (panel.querySelector(selector)||panel.querySelector('a'))?.focus({preventScroll:true});
+}
+document.addEventListener('change',event=>{
+ const input=event.target;
+ if(input.matches('[data-compare-name]')){
+   setCompared(input.dataset.compareName,input.checked);
+   refreshWatch(`[data-compare-name="${CSS.escape(input.dataset.compareName)}"]`);
+ }
+ if(input.id==='watch-event'){
+   setWatchEvent(input.value);
+   refreshWatch('#watch-event');
+ }
+});
 document.addEventListener('click',e=>{
- const id=e.target.closest('button')?.id;
+ const button=e.target.closest('button');
+ const id=button?.id;
+ if(button?.dataset.watchName){
+   toggleWatched(button.dataset.watchName);
+   if(button.closest('#athlete-watch'))refreshWatch('[data-watch-name]');
+   else{
+     const replacement=document.createElement('template');
+     replacement.innerHTML=watchStar(button.dataset.watchName,t,E);
+     const star=replacement.content.firstElementChild;
+     button.replaceWith(star);
+     star.focus({preventScroll:true});
+   }
+ }
  if(id==='result-prev'||id==='result-next'){
    resultsPage+=id==='result-next'?1:-1;
    updateResults();
