@@ -1,4 +1,6 @@
 const zh={
+athleteRosterBasis:"现役名单依据 SpoLive 早稻田驿传部选手栏，并补充竞走部官网中距离组。",
+officialMiddleRoster:"中距离组官方名册",
 clubIntroTitle:"早稻田大学竞走部・长距离组",
 clubIntroBody:"长距离组隶属早稻田大学竞走部。根据驿传监督花田胜彦在竞走部官网的寄语，团队以同一赛季赢得出云、全日本和箱根三场大学驿传为目标，个人则力争跻身日本学生顶尖行列，并迈向世界赛场。",
 clubIntroSource:"长距离组官方名册",
@@ -193,6 +195,8 @@ adminConfirmDelete:'确定软删除这条资料？该操作可恢复。',adminSa
 footerData:'资料快照 2026-11-18 · 早稻田跑步资料独立整理',copyright:'数据属于事实信息；网站的原创排版与解释由本站制作。',
 },
 ja={
+athleteRosterBasis:"現役選手は、SpoLiveの駅伝部門選手一覧と競走部公式サイトの中距離ブロック名簿に基づいて掲載しています。",
+officialMiddleRoster:"中距離ブロック公式部員名簿",
 clubIntroTitle:"早稲田大学競走部 長距離ブロック",
 clubIntroBody:"長距離ブロックは早稲田大学競走部に所属します。公式の入部案内で花田勝彦駅伝監督は、出雲・全日本・箱根の大学駅伝三冠をチームの目標に掲げ、選手個人には学生の頂点から世界へと挑戦することを期待しています。",
 clubIntroSource:"長距離ブロック公式部員名簿",
