@@ -1,4 +1,10 @@
 const zh={
+clubIntroTitle:"早稻田大学竞走部简介",
+clubIntroBody:"早稻田大学竞走部是学校的田径队，设有短跑、中距离、长距离、跨栏、跳跃、投掷和全能七个竞技组。选手参加日本大学田径锦标赛等场地赛事，长距离组选手也参加箱根、出云和全日本大学驿传。",
+clubIntroSource:"竞走部官方介绍",
+feedbackTitle:"使用反馈",
+feedbackDesc:"欢迎反馈使用不便或页面显示问题。反馈通过 GitHub 提交，需要登录，提交后公开可见。",
+feedbackLink:"在 GitHub 提交反馈 ↗",
 currentClubAthletes:"现役选手",
 filterBlock:"竞技组",
 blockSprint:"短跑",
@@ -186,6 +192,12 @@ adminConfirmDelete:'确定软删除这条资料？该操作可恢复。',adminSa
 footerData:'资料快照 2026-11-18 · 早稻田跑步资料独立整理',copyright:'数据属于事实信息；网站的原创排版与解释由本站制作。',
 },
 ja={
+clubIntroTitle:"早稲田大学競走部について",
+clubIntroBody:"早稲田大学競走部は、短距離・中距離・長距離・ハードル・跳躍・投擲・混成の7つの競技ブロックで構成されています。部員は日本インカレなどの陸上競技大会に出場し、長距離ブロックは箱根・出雲・全日本大学駅伝にも出場します。",
+clubIntroSource:"競走部公式のチーム紹介",
+feedbackTitle:"サイトへのご意見",
+feedbackDesc:"使いにくい点や表示の不具合をお知らせください。GitHub へのログインが必要で、投稿は公開されます。",
+feedbackLink:"GitHub で意見を送る ↗",
 currentClubAthletes:"現役選手",
 filterBlock:"競技ブロック",
 blockSprint:"短距離",

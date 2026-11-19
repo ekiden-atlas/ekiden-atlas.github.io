@@ -51,6 +51,8 @@ export async function loadData(){
   return state;
 }
 export const nameSearch=name=>String(name??'').normalize('NFC').replace(/\s/g,'').toLowerCase();
+const officialByName=new Map(OFFICIAL_CLUB_ROSTER.map(row=>[nameSearch(row.name),row]));
+export const officialAthleteName=name=>officialByName.get(nameSearch(name))?.name??name;
 function basicProfile(name){
  const exact=state.profiles.find(x=>x.athlete_name===name);
  const matches=state.profiles.filter(x=>nameSearch(x.athlete_name)===nameSearch(name));
@@ -70,7 +72,6 @@ export function athletes(){
  const extraByName=new Map(extras.map(x=>[x.name,x]));
  const baseline=[...ROSTER.map(x=>({...x,...extraByName.get(x.name)})),
    ...extras.filter(x=>!ROSTER.some(row=>row.name===x.name))];
- const officialByName=new Map(OFFICIAL_CLUB_ROSTER.map(row=>[nameSearch(row.name),row]));
  const rosterNames=new Set(baseline.map(row=>nameSearch(row.name)));
  for(const row of baseline){
    const member=officialByName.get(nameSearch(row.name));
