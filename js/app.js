@@ -1,3 +1,4 @@
+import {fanBoardLink,renderFanBoard} from './fan-board.js';
 import {bindFeedback} from './feedback.js';
 import {SPOLIVE_ROSTER_SOURCE,SPOLIVE_EKIDEN_ROSTER} from '../data/spolive-ekiden-roster.js';
 import {renderSubmissions} from './submissions.js';
@@ -162,7 +163,7 @@ function renderHome(){
  <h3><a href="${raceArchiveLink(r.race,r.year)}">${E(t('raceEditionLink',{race:raceName(r.race),year:r.year}))} →</a></h3>
  <div class="big">${E(r.total)}</div><p>${E(t('teamRank'))} · ${E(r.rank??t('notRecorded'))}</p>${sourceLink(r.source)}
  </article>`).join('')||`<p>${E(t(dataLoaded?'empty':'historyBusy'))}</p>`}</div></div></section>
- <div class="wrap">${renderOfficialLinks(false)}</div><div class="wrap statusbar">${E(t('sourceFallback'))} · ${E(DATA_SNAPSHOT)}</div>`;
+ <div class="wrap">${fanBoardLink(t,E)}${renderOfficialLinks(false)}</div><div class="wrap statusbar">${E(t('sourceFallback'))} · ${E(DATA_SNAPSHOT)}</div>`;
 }
 const rosterDivision=a=>a.graduation_year?'alumni':a.officialGrade==='大学院'?'graduate':String(a.grade??'');
 function rosterDivisionLabel(a){
@@ -456,8 +457,17 @@ function historyTable(tab){
  <td>${E(row.date||row.year||'—')}</td><td>${sourceLink(row.source)}</td></tr>`).join('')||
  `<tr><td colspan="${headers.length}">${E(t(state.officialOnline?'empty':'historyFailed'))}</td></tr>`}</tbody></table></div>`;
 }
-function renderGuide(){const keys=['PB','Leg','Student','World','Team','Source'];return pageIntro('aboutTitle','guideIntro')+`<section class="wrap section"><div class="guide-grid">${keys.map(k=>`<article class="card"><span class="micro">GLOSSARY / ${E(k.toUpperCase())}</span><h3>${E(t('term'+k))}</h3><p>${E(t('term'+k+'Desc'))}</p></article>`).join('')}</div><article class="intro-panel" style="margin-top:20px"><h3>${E(t('legalTitle'))}</h3><p>${E(t('independent'))}</p><p>${E(t('legalNote'))}</p><p>${sourceLink('https://waseda-ac.jp/record/',t('sourceLabel'))}</p></article>${renderOfficialLinks(true)}</section>`;}
-async function render(){detachAdmin();const path=decodeURIComponent((location.hash.slice(1).split('?')[0]||'home'));const tab=archiveTab(path);const current=tab?'archive':['home','athletes','results','schedule','guide','admin','submissions'].includes(path)?path:'home';document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('active',a.dataset.nav===current));document.querySelector('#mobile-nav').hidden=true;document.querySelector('#menu-btn').setAttribute('aria-expanded','false');document.documentElement.lang=language()==='ja'?'ja':'zh-CN';translateStatic(document);document.querySelectorAll('[data-submission-link]').forEach(link=>{link.hidden=!state.submissionsReady;});if(!dataLoaded&&['results','archive','schedule','submissions'].includes(current)){app.innerHTML=`<p class="wrap section" role="status">${E(t('historyBusy'))}</p>`;return;}if(current==='submissions'){
+function renderGuide(){const keys=['PB','Leg','Student','World','Team','Source'];return pageIntro('aboutTitle','guideIntro')+`<section class="wrap section"><div class="guide-grid">${keys.map(k=>`<article class="card"><span class="micro">GLOSSARY / ${E(k.toUpperCase())}</span><h3>${E(t('term'+k))}</h3><p>${E(t('term'+k+'Desc'))}</p></article>`).join('')}</div><article class="intro-panel" style="margin-top:20px"><h3>${E(t('legalTitle'))}</h3><p>${E(t('independent'))}</p><p>${E(t('legalNote'))}</p><p>${sourceLink('https://waseda-ac.jp/record/',t('sourceLabel'))}</p></article>${fanBoardLink(t,E)}${renderOfficialLinks(true)}</section>`;}
+async function render(){detachAdmin();const path=decodeURIComponent((location.hash.slice(1).split('?')[0]||'home'));const tab=archiveTab(path);const current=tab?'archive':['home','athletes','results','schedule','guide','admin','submissions','fans'].includes(path)?path:'home';document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('active',a.dataset.nav===current));document.querySelector('#mobile-nav').hidden=true;document.querySelector('#menu-btn').setAttribute('aria-expanded','false');document.documentElement.lang=language()==='ja'?'ja':'zh-CN';translateStatic(document);document.querySelectorAll('[data-submission-link]').forEach(link=>{link.hidden=!state.submissionsReady;});if(!dataLoaded&&['results','archive','schedule','submissions'].includes(current)){app.innerHTML=`<p class="wrap section" role="status">${E(t('historyBusy'))}</p>`;return;}if(current==='fans'){
+ const review=new URLSearchParams(location.hash.split('?')[1]).has('review');
+ app.innerHTML=pageIntro(review?'fanReview':'fanTitle','fanIntro')+`<section class="wrap section fan-board" id="fan-board">
+ ${review?`<label class="field">${E(t('fanReviewStatus'))}<select data-fan-status hidden>
+ <option value="pending">${E(t('fanPending'))}</option><option value="published">${E(t('fanPublished'))}</option></select></label>`:'<div data-fan-composer></div>'}
+ <p role="status">${E(t('loading'))}</p><div class="fan-posts" data-fan-posts></div>
+ <button class="btn" type="button" data-fan-more hidden>${E(t('feedbackMore'))}</button></section>`;
+ await renderFanBoard(document.querySelector('#fan-board'),{t,E},review);
+ return;
+}if(current==='submissions'){
  app.innerHTML=pageIntro('submissionTitle','submissionIntro')+`<section class="wrap section" id="submission-root"><p role="status">${E(t('loading'))}</p></section>`;
  await renderSubmissions(document.querySelector('#submission-root'),{t,E,sourceLink});
  return;
@@ -509,7 +519,7 @@ if(id==='history-gender'||id==='history-event'){
 });
 window.addEventListener('hashchange',event=>{
  render();
- if(event.newURL.includes('#athletes?name=')||event.oldURL.includes('#athletes?name=')||event.newURL.includes('#archive?race=')||event.newURL.includes('#schedule')){
+ if(event.newURL.includes('#athletes?name=')||event.oldURL.includes('#athletes?name=')||event.newURL.includes('#archive?race=')||event.newURL.includes('#schedule')||event.newURL.includes('#fans')){
    window.scrollTo({top:0,behavior:'instant'});
  }
 });
@@ -520,7 +530,7 @@ loadData().finally(()=>{
    const destination=sessionStorage.getItem('atlas-submission-return');
    sessionStorage.removeItem('atlas-submission-return');
    url.searchParams.delete('atlas-submissions');
-   url.hash=destination?.startsWith('#submissions')?destination:'#submissions';
+   url.hash=destination==='#fans'||destination?.startsWith('#submissions')?destination:'#submissions';
    history.replaceState(history.state,'',url);
  }
  dataLoaded=true;
