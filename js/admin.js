@@ -1,3 +1,4 @@
+import {bindFeedbackInbox} from './feedback.js';
 import {raceFields,bindRelayLegs,racePayload} from './admin-result-forms.js';
 import {meetLabel,recordLabel} from './record-names.js';
 import {getDb,checkAdmin,state,loadData,athletes,ekiden,schoolRecords,alltimeRankings,personalResults,specialtyPbs,sectionRecords,worldRankings,worldRankKey,comparisonRankings,ekidenKey,alltimeKey,schoolKey} from './data.js';
@@ -25,7 +26,13 @@ export async function renderAdminPage(root,ctx){adminRoot=root;context=ctx;
    <div class="admin-actions">
    ${state.submissionsReady?`<a class="btn" href="#submissions?review">${E(t('submissionReview'))}</a>`:''}
    <button class="btn" type="button" id="google-logout">${E(t('logout'))}</button></div>
-   <p id="admin-status" role="status">${E(t('adminYes'))}</p><div id="admin-work"></div>`;
+   <p id="admin-status" role="status">${E(t('adminYes'))}</p>
+   <details class="ekiden-help" id="feedback-inbox">
+     <summary>${E(t('feedbackInbox'))}</summary>
+     <p role="status"></p><div data-feedback-items></div>
+     <button class="btn btn-sm" type="button" hidden>${E(t('feedbackMore'))}</button>
+   </details><div id="admin-work"></div>`;
+   bindFeedbackInbox(root.querySelector('#feedback-inbox'),db,E);
    root.querySelector('#google-logout').addEventListener('click',async()=>{
      const {error}=await db.auth.signOut({scope:'local'});
      if(error){status(t('adminFailed'));return;}
