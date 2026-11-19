@@ -174,3 +174,15 @@
 
 .club-diary { padding-block: 28px; }
 .club-diary a { text-decoration: underline; text-underline-offset: 3px; }
+
+.watch-star[aria-pressed="true"] { color: var(--wine); background: #f7e9ec; }
+.watch-list { display: flex; flex-wrap: wrap; gap: 10px; list-style: none; padding: 0; }
+.watch-list li { padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: white; }
+.watch-list a { text-decoration: underline; }
+.watch-event { max-width: 240px; margin-block: 20px 12px; }
+.watch-table { margin-block: 12px 24px; }
+.watch-table .data-table { min-width: 560px; }
+.watch-table caption { padding: 12px 16px; font-weight: 700; text-align: start; }
+.watch-table td { vertical-align: top; }
+.watch-table ul { margin: 0; padding: 0; list-style: none; }
+.watch-table li + li { margin-top: 9px; }
