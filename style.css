@@ -162,7 +162,6 @@
 .fan-post header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .fan-post header strong { overflow-wrap: anywhere; }
 .fan-post time { color: var(--muted); font-size: 12px; margin-inline-start: auto; }
-.fan-post img, .fan-current-avatar { border-radius: 50%; object-fit: cover; }
 .fan-post p { font-size: inherit; white-space: pre-wrap; overflow-wrap: anywhere; }
 .fan-board [hidden] { display: none; }
 
