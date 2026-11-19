@@ -194,3 +194,9 @@
   .roster-heading-actions { gap: 8px; }
   #roster-watch-link { padding-inline: 10px; }
 }
+
+.brand-signature {
+  margin-top: 2px;
+  color: var(--wine2);
+  font: italic 12px/1.15 Georgia, serif;
+}
