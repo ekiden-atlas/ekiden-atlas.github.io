@@ -148,7 +148,7 @@ function renderHome(){
  <div class="section-head"><h2 id="club-intro-title">${E(t('clubIntroTitle'))}</h2></div>
  <div class="intro-panel"><p>${E(t('clubIntroBody'))}</p>
  <div class="actions"><a class="btn btn-sm" href="#athletes">${E(t('navAthletes'))}</a>
- ${sourceLink('https://waseda-ac.jp/team/',t('clubIntroSource'))}</div></div>
+ ${sourceLink('https://waseda-ac.jp/team/member/block/3',t('clubIntroSource'))}</div></div>
  </section>
  ${renderCompetitionList(true)}
  ${beginner?`<div class="wrap">${renderEkidenIntro()}</div>`:''}
@@ -179,7 +179,7 @@ function renderAthleteTable(){
  const rows=athletes().filter(a=>(!query||nameSearch(a.name).includes(query))&&
    (filter.grade==='all'||rosterDivision(a)===filter.grade)&&(filter.gender==='all'||a.gender===filter.gender)&&(!filter.block||a.block===filter.block));
  rows.sort((a,b)=>parseTime(a[filter.metric])-parseTime(b[filter.metric]));
- const students=rows.filter(a=>rosterDivision(a)!=='alumni');
+ const students=rows.filter(a=>rosterDivision(a)!=='alumni'&&a.block!=='中距離');
  const alumni=rows.filter(a=>rosterDivision(a)==='alumni');
  for(const [prefix,body,entries] of [['athlete',studentBody,students],['ob',document.querySelector('#ob-rows'),alumni]]){
    document.querySelector(`#${prefix}-section`).hidden=!entries.length;
@@ -187,8 +187,9 @@ function renderAthleteTable(){
    body.innerHTML=athleteRows(entries);
  }
  const empty=document.querySelector('#athlete-empty');
- empty.textContent=rows.length?'':t('empty');
- empty.hidden=Boolean(rows.length);
+ const hasVisibleRows=students.length+alumni.length>0;
+ empty.textContent=hasVisibleRows?'':t('empty');
+ empty.hidden=hasVisibleRows;
 }
 function rosterSection(prefix,title){
  const columns=[t('profile'),'1500m · PB','5000m · PB','10000m · PB','ハーフマラソン · PB',t('source')];
@@ -271,7 +272,7 @@ function renderAthletes(){const params=new URLSearchParams(location.hash.split('
  ${known||records.length||honors.length?`<section class="section"><h2>${E(t('athleteResults'))}</h2>${resultPanel(records,false)}</section>`:''}
  </section>`;
  }
- return pageIntro('navTitleAthletes','athletesDesc')+`<div class="wrap section"><div class="filterbar"><label class="field">${E(t('search'))}<input id="filter-q" type="search" value="${E(filter.q)}" placeholder="${E(t('searchPlace'))}"></label><label class="field">${E(t('filterRosterDivision'))}<select id="filter-grade"><option value="all">${E(t('all'))}</option>${[1,2,3,4].map(n=>`<option value="${n}" ${filter.grade===String(n)?'selected':''}>${E(gradeName(n))}</option>`).join('')}<option value="graduate" ${filter.grade==='graduate'?'selected':''}>${E(t('graduateStudent'))}</option><option value="alumni" ${filter.grade==='alumni'?'selected':''}>${E(t('alumni'))}</option></select></label><label class="field">${E(t('filterGender'))}<select id="filter-gender"><option value="all">${E(t('all'))}</option><option value="男">${E(t('male'))}</option><option value="女">${E(t('female'))}</option></select></label><label class="field">${E(t('filterBlock'))}<select id="filter-block"><option value="">${E(t('all'))}</option>${Object.entries(blocks).map(([value,key])=>`<option value="${E(value)}" ${filter.block===value?'selected':''}>${E(t(key))}</option>`).join('')}</select></label><label class="field">${E(t('filterEvent'))}<select id="filter-metric">${[['pb5000','5000m'],['pb10000','10000m'],['pb1500','1500m'],['pbHalf','ハーフマラソン']].map(([v,l])=>`<option value="${v}" ${filter.metric===v?'selected':''}>${l}</option>`).join('')}</select></label></div>${rosterSection('athlete','currentClubAthletes')}${rosterSection('ob','alumni')}<p id="athlete-empty" role="status" hidden></p><div class="note">${E(t('sourceFallback'))} · ${E(t('rankDisclosure'))}</div></div>`;}
+ return pageIntro('navTitleAthletes','athletesDesc')+`<div class="wrap section"><div class="filterbar"><label class="field">${E(t('search'))}<input id="filter-q" type="search" value="${E(filter.q)}" placeholder="${E(t('searchPlace'))}"></label><label class="field">${E(t('filterRosterDivision'))}<select id="filter-grade"><option value="all">${E(t('all'))}</option>${[1,2,3,4].map(n=>`<option value="${n}" ${filter.grade===String(n)?'selected':''}>${E(gradeName(n))}</option>`).join('')}<option value="graduate" ${filter.grade==='graduate'?'selected':''}>${E(t('graduateStudent'))}</option><option value="alumni" ${filter.grade==='alumni'?'selected':''}>${E(t('alumni'))}</option></select></label><label class="field">${E(t('filterGender'))}<select id="filter-gender"><option value="all">${E(t('all'))}</option><option value="男">${E(t('male'))}</option><option value="女">${E(t('female'))}</option></select></label><label class="field">${E(t('filterBlock'))}<select id="filter-block"><option value="">${E(t('all'))}</option>${Object.entries(blocks).filter(([value])=>value!=='中距離').map(([value,key])=>`<option value="${E(value)}" ${filter.block===value?'selected':''}>${E(t(key))}</option>`).join('')}</select></label><label class="field">${E(t('filterEvent'))}<select id="filter-metric">${[['pb5000','5000m'],['pb10000','10000m'],['pb1500','1500m'],['pbHalf','ハーフマラソン']].map(([v,l])=>`<option value="${v}" ${filter.metric===v?'selected':''}>${l}</option>`).join('')}</select></label></div>${rosterSection('athlete','currentClubAthletes')}${rosterSection('ob','alumni')}<p id="athlete-empty" role="status" hidden></p><div class="note">${E(t('sourceFallback'))} · ${E(t('rankDisclosure'))}</div></div>`;}
 function renderSectionRecords(){
  const records=sectionRecords().filter(row=>raceFilters.race==='all'||row.race===raceFilters.race);
  if(!records.length)return '';
