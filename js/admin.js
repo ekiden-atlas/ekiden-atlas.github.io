@@ -25,6 +25,7 @@ export async function renderAdminPage(root,ctx){adminRoot=root;context=ctx;
    root.innerHTML=`<h1>${E(t('adminTitle'))}</h1><p>${E(t('adminDesc'))}</p>
    <div class="admin-actions">
    ${state.submissionsReady?`<a class="btn" href="#submissions?review">${E(t('submissionReview'))}</a>`:''}
+   <a class="btn" href="#fans?review">${E(t('fanReview'))}</a>
    <button class="btn" type="button" id="google-logout">${E(t('logout'))}</button></div>
    <p id="admin-status" role="status">${E(t('adminYes'))}</p>
    <details class="ekiden-help" id="feedback-inbox">

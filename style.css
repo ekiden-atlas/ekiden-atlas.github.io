@@ -153,3 +153,15 @@
 .footer-feedback textarea { min-height: 80px; font-family: inherit; }
 .footer-feedback button { margin-block: 8px 4px; }
 .feedback-message { margin-block: 6px 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.fan-board-link { padding-block: 28px; }
+.fan-board-link h2 { margin: 0; }
+.fan-board-link p { color: var(--muted); }
+.fan-board { padding-block: 28px; }
+.fan-board [data-fan-more] { margin-top: 14px; }
+.fan-posts { display: grid; gap: 12px; }
+.fan-post header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.fan-post header strong { overflow-wrap: anywhere; }
+.fan-post time { color: var(--muted); font-size: 12px; margin-inline-start: auto; }
+.fan-post img, .fan-current-avatar { border-radius: 50%; object-fit: cover; }
+.fan-post p { font-size: inherit; white-space: pre-wrap; overflow-wrap: anywhere; }
+.fan-board [hidden] { display: none; }
