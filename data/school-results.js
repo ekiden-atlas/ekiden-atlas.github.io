@@ -9,7 +9,32 @@ const suzukiHighSchool = (id,date,grade,meet,event,time,rank,stage,source,extra=
   status:'highSchool',unit:'八千代松陰高等学校',verification:'primary',meet,event,time,rank,stage,source,...extra
 });
 
+const masukoSchool = (id,date,gradeAtRace,status,unit,meet,event,time,rank,stage,source,verification='primary')=>({
+  id:'school-masuko-'+id,date,year:Number(date.slice(0,4)),name:'増子 陽太',gradeAtRace,
+  status,unit,meet,event,time,rank,stage,source,verification
+});
+
 export const SCHOOL_RESULTS = [
+  masukoSchool('2020-fukushima-cities','2020-11-15',1,'middleSchool','鏡石町','第32回市町村対抗福島県縦断駅伝競走大会','駅伝2区','9:40',5,'3km・町の部区間賞','https://ekiden.fukushima.jp/wp-content/uploads/2026/11/494fadfa416fbf52324fd902803a2342.pdf','cited'),
+  masukoSchool('2021-fukushima-cities','2021-11-21',2,'middleSchool','鏡石町','第33回市町村対抗福島県縦断駅伝競走大会','駅伝3区','17:59',5,'5.8km・町の部区間賞','https://gold.jaic.org/fukushima/kekka/2021/1121/20211121-r.pdf'),
+  masukoSchool('2022-fukushima-middle','2022-10-05',3,'middleSchool','鏡石町立鏡石中学校','第65回福島県中学校体育大会駅伝競走大会','駅伝1区','9:08',1,'区間賞','https://gold.jaic.org/fukushima/kekka/2022/20221005-r.pdf'),
+  masukoSchool('2022-tochigi','2022-10-10',3,'middleSchool','鏡石町立鏡石中学校','第77回国民体育大会（栃木大会）','3000m','8:11.12',3,'少年男子B・決勝・当時の日本中学新記録','https://gold.jaic.org/gunma/menu/results/r_22/r221006/records.pdf'),
+  masukoSchool('2022-kagamiishi','2022-11-06',3,'middleSchool','鏡石町駅伝チームA','第16回鏡石駅伝・ロードレース大会','駅伝5区','15:03',1,'5km・駅伝競走第1部・区間賞','https://www.town.kagamiishi.fukushima.jp/kurashi/files/2022/11/09/4d7aea6cbc4b0f5c2292921d01d413e4.pdf'),
+  masukoSchool('2022-fukushima-cities','2022-11-20',3,'middleSchool','鏡石町','第34回市町村対抗福島県縦断駅伝競走大会','駅伝3区','17:19',1,'5.8km・区間賞','https://gold.jaic.org/fukushima/kekka/2022/1120/rel00103.html'),
+  masukoSchool('2023-kagoshima','2023-10-17',1,'highSchool','学法石川','特別国民体育大会（鹿児島大会）','3000m','8:05.32',1,'少年男子B・決勝','https://worldathletics.org/records/toplists/middlelong/3000-metres/all/men/u20/2023?page=7'),
+  masukoSchool('2023-fukushima-high','2023-10-26',1,'highSchool','学法石川','第68回福島県高等学校駅伝競走大会','駅伝1区','30:22',2,'10km・区間順位','https://koukou-rikujou.info/data/2023/2023_ekiden_fukushima_result.pdf'),
+  masukoSchool('2023-nittai','2023-11-12',1,'highSchool','学法石川','第309回日本体育大学長距離競技会','5000m','13:54.16',5,'24組・当時の高1歴代2位','https://www.rikujyokyogi.co.jp/archives/119517','cited'),
+  masukoSchool('2023-fukushima-cities','2023-11-19',1,'highSchool','鏡石町','第35回市町村対抗福島県縦断駅伝競走大会','駅伝6区','25:00',1,'8.3km・区間賞','https://newsdig.tbs.co.jp/articles/-/843200?page=2','cited'),
+  masukoSchool('2024-ina','2024-03-24',1,'highSchool','学法石川','第47回春の高校伊那駅伝','駅伝2区','22:28',1,'7.52km・区間新記録','https://nrk-dir.jp/pdf/2024/24170541m.pdf'),
+  masukoSchool('2024-nittai','2024-04-13',2,'highSchool','学法石川','第312回日本体育大学長距離競技会','5000m','13:34.60',6,'最終組・当時の高2最高記録','https://www.rikujyokyogi.co.jp/archives/132981','cited'),
+  masukoSchool('2024-asian-u20','2024-04-27',2,'highSchool','日本代表（学法石川）','第21回U20アジア陸上競技選手権大会','3000m','8:16.06',1,'決勝・大会新記録','https://worldathletics.org/competition/calendar-results/results/7206245?eventId=10229607'),
+  masukoSchool('2024-fukushima-high','2024-10-24',2,'highSchool','学法石川','第69回福島県高等学校駅伝競走大会','駅伝3区','24:05',1,'8.1075km・区間賞','https://koukou-rikujou.info/data/2024/2024_ekiden_fukushima_result.pdf'),
+  masukoSchool('2024-fukushima-cities','2024-11-17',2,'highSchool','鏡石町','第36回市町村対抗福島県縦断駅伝競走大会','駅伝2区','24:02',1,'8.2km・区間賞','https://newsdig.tbs.co.jp/articles/-/1556631?page=2','cited'),
+  masukoSchool('2025-cross','2025-02-22',2,'highSchool','学法石川','第40回U20日本陸上競技選手権大会クロスカントリー競走','8km','23:24',2,'U20男子・クロスカントリー','https://www.jaaf.or.jp/competition/detail/1916/'),
+  masukoSchool('2025-ina','2025-03-23',2,'highSchool','学法石川','第48回春の高校伊那駅伝','駅伝4区','30:53',75,'9.1km・区間順位','https://nrk-dir.jp/pdf/2025/25170541m.pdf'),
+  masukoSchool('2025-mdc','2025-09-23',3,'highSchool','学法石川','ミドルディスタンスサーキット アドバンス東北','2000m','5:10.47',1,'決勝・当時の高校最高記録','https://www.rikujyokyogi.co.jp/archives/185007','cited'),
+  masukoSchool('2025-fukushima-high','2025-10-23',3,'highSchool','学法石川','第70回福島県高等学校駅伝競走大会','駅伝1区','28:20',1,'10km・区間新記録','https://gold.jaic.org/fukushima/kekka/2025/1023/rel00101.html'),
+  masukoSchool('2025-nittai','2025-11-16',3,'highSchool','学法石川','第324回日本体育大学長距離競技会 兼 第18回日体大チャレンジゲームズ','5000m','13:27.26',4,'チャレンジゲームズ','https://tasukikeifu.com/ja/players/person-e5a297e5ad9020e999bde5a4','cited'),
   {id:'school-yamaguchi-2022-nittai-294',name:'山口 竣平',year:2022,date:'2022-04-24',
     gradeAtRace:2,status:'highSchool',unit:'佐久長聖高校',meet:'第294回日本体育大学長距離競技会',
     event:'5000m',time:'14:14.56',rank:3,stage:'12組',verification:'cited',
