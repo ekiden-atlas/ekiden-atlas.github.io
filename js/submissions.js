@@ -1,3 +1,4 @@
+import {SPOLIVE_EKIDEN_ROSTER} from '../data/spolive-ekiden-roster.js';
 import {getDb,personalResults,state,loadData,athletes,nameSearch,officialAthleteName} from './data.js';
 import {meetLabel,recordLabel} from './record-names.js';
 
@@ -10,12 +11,10 @@ function adminLinks(t,E,review){
  <a href="#admin">${E(t('navAdmin'))}</a></div>`;
 }
 
-function athletePicker(results,t,E){
- const names=new Map();
- for(const {name} of [...athletes(),...results]){
-   if(name&&!names.has(nameSearch(name)))names.set(nameSearch(name),name);
- }
- const options=[...names.values()].sort((a,b)=>officialAthleteName(a).localeCompare(officialAthleteName(b),'ja'))
+function athletePicker(t,E){
+ const names=new Map(athletes().map(({name})=>[nameSearch(name),name]));
+ const options=SPOLIVE_EKIDEN_ROSTER.map(name=>names.get(nameSearch(name))??name)
+   .sort((a,b)=>officialAthleteName(a).localeCompare(officialAthleteName(b),'ja'))
    .map(name=>`<option value="${E(name)}">${E(officialAthleteName(name))}</option>`).join('');
  return `<label class="field"><span id="submission-athlete-label">${E(t('submissionAthlete'))}</span>
  <select name="athlete_name" aria-labelledby="submission-athlete-label" required>
@@ -69,7 +68,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
    ${!review&&canSubmit?`<form class="card submission-form">
      <h3>${E(t(target?'submissionCorrection':'submissionNew'))}</h3>
      ${target?`<p>${E([target.date,meetLabel(target.meet),recordLabel(target.event),target.time].filter(Boolean).join(' · '))}</p>`:''}
-     ${target?input('submissionAthlete','athlete_name','text',120,target.name,true):athletePicker(results,t,E)}
+     ${target?input('submissionAthlete','athlete_name','text',120,target.name,true):athletePicker(t,E)}
      ${input('meet','meet','text',240,meetLabel(target?.meet),Boolean(target))}
      ${input('event','event','text',80,recordLabel(target?.event),Boolean(target))}
      ${!target?input('date','race_date','date',10):''}
