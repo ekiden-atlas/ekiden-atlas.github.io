@@ -1,3 +1,4 @@
+import {RACE_DATE_CORRECTIONS_2026,ADDITIONAL_RESULTS_2026} from '../data/race-date-audit-2026.js';
 import {HISTORICAL_EKIDEN,HAKONE_SECTION_RECORDS} from '../data/ekiden-official-history.js';
 import {EARLIER_ATHLETE_RESULTS,EARLIER_ATHLETE_CORRECTIONS,EARLIER_ATHLETE_PBS,EARLIER_SPECIALTY_PBS} from '../data/earlier-athlete-results.js';
 import {OFFICIAL_CLUB_ROSTER} from '../data/official-club-roster.js';
@@ -188,7 +189,7 @@ export function resultGrade(row){
  return value==='4'&&row.status!=='student'?'':value;
 }
 export function personalResults(){
- const rows=new Map([...SCHOOL_RESULTS,...KUDO_UNIVERSITY_RESULTS,...ROSTER_AUDITED_RESULTS,...EARLIER_ATHLETE_RESULTS].map(row=>[row.id,row]));
+ const rows=new Map([...SCHOOL_RESULTS,...KUDO_UNIVERSITY_RESULTS,...ROSTER_AUDITED_RESULTS,...EARLIER_ATHLETE_RESULTS,...ADDITIONAL_RESULTS_2026].map(row=>[row.id,row]));
  const legacy=new Map();
  for(const row of state.official?.results||[]){
    rows.set(row.id,{...row,...RESULT_CORRECTIONS[row.id],...ROSTER_RESULT_CORRECTIONS[row.id],...EARLIER_ATHLETE_CORRECTIONS[row.id]});
@@ -196,6 +197,10 @@ export function personalResults(){
      const key=legacyResultKey(row);
      legacy.set(key,[...(legacy.get(key)||[]),row.id]);
    }
+ }
+ for(const [id,correction] of Object.entries(RACE_DATE_CORRECTIONS_2026)){
+   const row=rows.get(id);
+   if(Number(row?.year)===2026)rows.set(id,{...row,...correction});
  }
  for(const edit of state.legacyEdits.filter(x=>x.entity_type==='ob_result')){
    const keys=legacy.get(edit.record_key)||[];
