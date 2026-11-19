@@ -1,3 +1,4 @@
+import {bindFeedback} from './feedback.js';
 import {SPOLIVE_ROSTER_SOURCE,SPOLIVE_EKIDEN_ROSTER} from '../data/spolive-ekiden-roster.js';
 import {renderSubmissions} from './submissions.js';
 import {ATHLETE_HIGHLIGHTS} from '../data/athlete-highlights.js';
@@ -534,3 +535,5 @@ document.addEventListener('click',e=>{
  }
  if(id==='ekiden-start')document.querySelector('#ekiden-intro-title').focus();
 });
+
+bindFeedback(document.querySelector('#feedback-form'));
