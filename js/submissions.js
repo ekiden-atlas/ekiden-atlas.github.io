@@ -1,4 +1,4 @@
-import {getDb,personalResults,state,loadData} from './data.js';
+import {getDb,personalResults,state,loadData,athletes,nameSearch,officialAthleteName} from './data.js';
 import {meetLabel,recordLabel} from './record-names.js';
 
 const table='wsd_atlas_result_submissions';
@@ -8,6 +8,17 @@ function adminLinks(t,E,review){
  return `<div class="admin-actions">
  <a href="${review?'#submissions':'#submissions?review'}">${E(t(review?'submissionTitle':'submissionReview'))}</a>
  <a href="#admin">${E(t('navAdmin'))}</a></div>`;
+}
+
+function athletePicker(results,t,E){
+ const names=new Map();
+ for(const {name} of [...athletes(),...results]){
+   if(name&&!names.has(nameSearch(name)))names.set(nameSearch(name),name);
+ }
+ const options=[...names.values()].sort((a,b)=>officialAthleteName(a).localeCompare(officialAthleteName(b),'ja'))
+   .map(name=>`<option value="${E(name)}">${E(officialAthleteName(name))}</option>`).join('');
+ return `<label class="field">${E(t('submissionAthlete'))}<select name="athlete_name" required>
+ <option value="" disabled selected>${E(t('submissionChooseAthlete'))}</option>${options}</select></label>`;
 }
 
 export async function renderSubmissions(root,{t,E,sourceLink}){
@@ -57,7 +68,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
    ${!review&&canSubmit?`<form class="card submission-form">
      <h3>${E(t(target?'submissionCorrection':'submissionNew'))}</h3>
      ${target?`<p>${E([target.date,meetLabel(target.meet),recordLabel(target.event),target.time].filter(Boolean).join(' · '))}</p>`:''}
-     ${input('profile','athlete_name','text',120,target?.name,Boolean(target))}
+     ${target?input('submissionAthlete','athlete_name','text',120,target.name,true):athletePicker(results,t,E)}
      ${input('meet','meet','text',240,meetLabel(target?.meet),Boolean(target))}
      ${input('event','event','text',80,recordLabel(target?.event),Boolean(target))}
      ${!target?input('date','race_date','date',10):''}
