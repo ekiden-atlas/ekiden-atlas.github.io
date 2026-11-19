@@ -5,6 +5,14 @@ const kudoHighSchool = (id,date,grade,meet,event,time,rank,stage,source,extra={}
 });
 
 export const SCHOOL_RESULTS = [
+  {id:'school-yamaguchi-2022-nittai-294',name:'山口 竣平',year:2022,date:'2022-04-24',
+    gradeAtRace:2,status:'highSchool',unit:'佐久長聖高校',meet:'第294回日本体育大学長距離競技会',
+    event:'5000m',time:'14:14.56',rank:3,stage:'12組',verification:'cited',
+    source:'https://soka-ekiden.com/play/?p=11925'},
+  {id:'school-yamaguchi-2022-nittai-301',name:'山口 竣平',year:2022,date:'2022-11-26',
+    gradeAtRace:2,status:'highSchool',unit:'佐久長聖高校',meet:'第301回日本体育大学長距離競技会',
+    event:'5000m',time:'13:57.79',rank:2,stage:'25組',verification:'primary',
+    source:'https://ld.nssu-athletic.com/uploads/2022/2022-11-26_result.pdf'},
   {"id":"school-kudo-2019-chiba-rookie-ekiden","verification":"cited","name":"工藤 慎作","year":2019,"date":"2019-02-09","grade":2,"status":"middleSchool","unit":"船橋市立三田中学校","meet":"第8回千葉県中学校新人駅伝大会","event":"駅伝3区","time":"9:19","rank":null,"stage":"3.08km","source":"https://blog.neet-shikakugets.com/chiba-chugaku-shinjin-ekiden-m-2019"},
   kudoHighSchool('2020-chiba-ekiden','2020-10-31',1,'第75回千葉県高等学校駅伝競走大会','駅伝6区','15:09',2,'5km','https://yanbaruekiden.com/chiba-koukou-ekiden-danshi/#y2020',{verification:'cited'}),
   kudoHighSchool('2020-ekiden','2020-12-20',1,'第71回全国高等学校駅伝競走大会','駅伝6区','14:48',14,'5km','https://gold.jaic.org/jaic/member/okayama/2020/1220/2020M71-ekiden.pdf'),
