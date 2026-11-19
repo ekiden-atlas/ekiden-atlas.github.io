@@ -49,6 +49,7 @@ export const SCHOOL_RESULTS = [
   suzukiHighSchool('2022-tochigi-heat','2022-10-09',1,'第77回国民体育大会（栃木大会）','3000m','8:19.33',1,'少年男子B・予選1組・決勝進出','https://gold.jaic.org/gunma/menu/results/r_22/r221006/records.pdf'),
   suzukiHighSchool('2022-chiba-ekiden','2022-10-29',1,'第77回千葉県高等学校駅伝競走大会','駅伝2区','8:19',1,'3km・区間新記録','https://koukou-rikujou.info/data/2022/2022_ekiden_chiba_result.pdf'),
   suzukiHighSchool('2022-kanto-ekiden','2022-11-19',1,'第75回関東高等学校男子駅伝競走大会','駅伝3区','23:32',1,'区間賞','https://gold.jaic.org/gunma/menu/results/r_22/r221119HS/records.pdf'),
+  suzukiHighSchool('2023-akabane-trial','2023-02-25',1,'第39回赤羽トライアル','10km','30:07',1,'男子10kmロード','https://www.yachiyoshoin.ac.jp/post-shs/blog-shs/23177/'),
   suzukiHighSchool('2023-juntendo-march','2023-03-23',1,'第11回順天堂大学競技会','5000m','14:34.65',4,'タイムレース2組','https://www.iiwanet.jp/j_trackfield/wp-content/uploads/ec1509104c03590bda3c3ad88a4d14dc-2.pdf'),
   suzukiHighSchool('2023-chiba-meet-5000','2023-04-08',2,'第57回千葉県陸上競技記録会','5000m','14:27.73',1,'タイムレース総合','https://www.jaaf-chiba.jp/pages/main/result/past/2023/010-kirokukai/010_kessyo.pdf'),
   suzukiHighSchool('2023-chiba-meet-1500','2023-04-09',2,'第57回千葉県陸上競技記録会','1500m','3:53.06',1,'タイムレース総合','https://www.jaaf-chiba.jp/pages/main/result/past/2023/010-kirokukai/010_kessyo.pdf'),
