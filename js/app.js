@@ -148,7 +148,8 @@ function renderHome(){
  <div class="section-head"><h2 id="club-intro-title">${E(t('clubIntroTitle'))}</h2></div>
  <div class="intro-panel"><p>${E(t('clubIntroBody'))}</p>
  <div class="actions"><a class="btn btn-sm" href="#athletes">${E(t('navAthletes'))}</a>
- ${sourceLink('https://waseda-ac.jp/team/member/block/3',t('clubIntroSource'))}</div></div>
+ ${sourceLink('https://waseda-ac.jp/team/member/block/3',t('clubIntroSource'))}
+ ${sourceLink('https://waseda-ac.jp/recruit/',t('clubIntroCoachSource'))}</div></div>
  </section>
  ${renderCompetitionList(true)}
  ${beginner?`<div class="wrap">${renderEkidenIntro()}</div>`:''}
