@@ -4,6 +4,7 @@ import {SPOLIVE_ROSTER_SOURCE,SPOLIVE_EKIDEN_ROSTER} from '../data/spolive-ekide
 import {renderSubmissions} from './submissions.js';
 import {ATHLETE_HIGHLIGHTS} from '../data/athlete-highlights.js';
 import {COMPETITIONS} from '../data/competition-schedule.js';
+import {ATHLETE_MEDIA} from '../data/athlete-media.js';
 import {ATHLETE_SOCIAL_LINKS} from '../data/athlete-social-links.js';
 import {OFFICIAL_LINK_GROUPS} from '../data/official-links.js';
 import {t,language,setLanguage,translateStatic} from './i18n.js';
@@ -206,6 +207,20 @@ function rosterSection(prefix,title){
  ${columns.map(column=>`<th scope="col">${E(column)}</th>`).join('')}
  </tr></thead><tbody id="${prefix}-rows"></tbody></table></div></section>`;
 }
+function renderAthleteMedia(name){
+ const normalized=nameSearch(name);
+ const items=ATHLETE_MEDIA.filter(row=>row.athletes.some(athlete=>nameSearch(athlete)===normalized)&&validUrl(row.url));
+ const locale=language()==='zh'?0:1;
+ return `<section class="section athlete-media" aria-labelledby="athlete-media-title">
+ <h2 id="athlete-media-title">${E(t('athleteMediaTitle'))}</h2>
+ ${items.length?`<ul class="athlete-media-list">${items.map(row=>`<li class="card">
+ <span class="tag">${E(t('athleteMedia'+row.kind))}</span>
+ <h3>${sourceLink(row.url,row.title[locale])}</h3>
+ <dl><dt>${E(t('athleteMediaPublisher'))}</dt><dd>${E(row.publisher[locale])}</dd>
+ <dt>${E(t('athleteMediaDate'))}</dt><dd><time datetime="${E(row.date)}">${E(row.date)}</time></dd>
+ <dt>${E(t('meet'))}</dt><dd>${E(row.meet[locale])}</dd></dl></li>`).join('')}</ul>`
+ :`<p>${E(t('athleteMediaEmpty'))}</p>`}</section>`;
+}
 function renderAthleteSocialLinks(name){
  const match=Object.keys(ATHLETE_SOCIAL_LINKS).find(key=>nameSearch(key)===nameSearch(name));
  if(!match)return '';
@@ -274,6 +289,7 @@ function renderAthletes(){const params=new URLSearchParams(location.hash.split('
  const honors=athleteEkidenHonors(canonical);
  return `<section class="wrap section"><a class="btn btn-sm" href="#athletes">← ${E(t('navAthletes'))}</a>
  ${known||records.length||honors.length?profileDetail(canonical,records):`<p role="status">${E(t(dataLoaded?'empty':'loading'))}</p>`}
+ ${known||records.length||honors.length?renderAthleteMedia(canonical):''}
  ${renderAthleteHonors(honors)}
  ${known||records.length||honors.length?`<section class="section"><h2>${E(t('athleteResults'))}</h2>${resultPanel(records,false)}</section>`:''}
  </section>`;
