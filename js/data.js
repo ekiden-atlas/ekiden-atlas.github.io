@@ -166,8 +166,19 @@ export function schoolRecords(){
  });
  return applyManaged('school_record',legacyPatch('school_record',rows,legacySchoolKey),schoolKey);
 }
+// The imported snapshot can omit continuation rows from the official tied rankings.
+const tiedRoadRankings=[
+ {event:'5km',rank:2,athlete:'吉倉 ナヤブ直希',performance:'13分38秒',year:2026},
+ {event:'5km',rank:6,athlete:'山口 竣平',performance:'13分49秒',year:2026},
+ {event:'5km',rank:9,athlete:'上杉 敦史',performance:'13分55秒',year:2026},
+ {event:'5km',rank:9,athlete:'瀬間 元輔',performance:'13分55秒',year:2026},
+ {event:'ハーフマラソン',rank:6,athlete:'宮岡 凛太',performance:'1時間01分59秒',year:2025}
+].map(row=>({...row,gender:'男',source:'https://waseda-ac.jp/record/detail/2'}));
 export function alltimeRankings(){
- return applyManaged('alltime_rank',legacyPatch('alltime_rank',state.official?.rankings||[],alltimeKey),alltimeKey);
+ const snapshot=state.official?.rankings||[];
+ const known=new Set(snapshot.map(row=>[row.gender,row.event,nameSearch(row.athlete)].join(':')));
+ const rows=[...snapshot,...tiedRoadRankings.filter(row=>!known.has([row.gender,row.event,nameSearch(row.athlete)].join(':')))];
+ return applyManaged('alltime_rank',legacyPatch('alltime_rank',rows,alltimeKey),alltimeKey);
 }
 export function comparisonRankings(){
  const rows=Object.entries(VERIFIED_5000M).flatMap(([name,row])=>[

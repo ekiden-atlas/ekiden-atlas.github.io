@@ -51,6 +51,10 @@ assert.equal(historicalRaces.find(row=>row.race==='zen'&&row.year===2003)?.statu
 assert.ok(ekiden().flatMap(x=>x.legs).length>=966);
 assert.ok(schoolRecords().length>=66);
 assert.ok(alltimeRankings().length>=497);
+const roadRanks=alltimeRankings().filter(row=>row.gender==='男'&&row.event==='5km');
+assert.equal(roadRanks.length,11);
+assert.deepEqual(roadRanks.filter(row=>row.rank===2).map(row=>[row.athlete,row.performance]),
+ [['鈴木 琉胤','13分38秒'],['吉倉 ナヤブ直希','13分38秒']]);
 assert.equal(sectionRecords().filter(row=>row.race!=='hak').length,15);
 for(const school of [true,false]){
  const rows=sectionRecords().filter(row=>row.race==='hak'&&(row.scope==='school')===school);
