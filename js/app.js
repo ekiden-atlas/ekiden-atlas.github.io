@@ -1,3 +1,4 @@
+import {CLUB_DIARIES} from '../data/club-diaries.js';
 import {fanBoardLink,renderFanBoard} from './fan-board.js';
 import {bindFeedback} from './feedback.js';
 import {SPOLIVE_ROSTER_SOURCE,SPOLIVE_EKIDEN_ROSTER} from '../data/spolive-ekiden-roster.js';
@@ -28,20 +29,24 @@ function toast(s){const x=document.querySelector('#toast');x.textContent=s;x.hid
 function pageIntro(k,desc){return `<header class="page-intro"><div class="wrap"><span class="eyebrow">EKIDEN ATLAS · DATA</span><h1>${E(t(k))}</h1><p>${E(t(desc))}</p></div></header>`;}
 function yearOption(years){return [...new Set(years)].filter(Boolean).sort((a,b)=>b-a).map(y=>`<option value="${E(y)}">${E(y)}</option>`).join('');}
 const clubDiary='https://waseda-ac.jp/diary/';
-const diaryEntries=[
- ['2026-11-18','冨田 拓臣',1688],
- ['2026-11-17','高橋 優喜',1687],
- ['2026-11-16','谷川 航太',1685],
- ['2026-11-06','本田 桜二郎',1670],
- ['2026-11-05','堀野 正太',1666]
-];
+const featuredDiaryIds=new Set([1688,1687,1685,1670,1666]);
+function renderDiaryList(entries,labels){
+ return `<ul class="official-link-list">${entries.map(([date,author,id])=>`<li>
+ <time datetime="${E(date)}">${E(date)}</time> · ${sourceLink(clubDiary+'detail/'+id,labels?author:t('clubDiaryRead',{date}))}</li>`).join('')}</ul>`;
+}
 function renderClubDiary(){
  return `<section class="section club-diary" aria-labelledby="club-diary-title">
  <div class="section-head"><div><h2 id="club-diary-title">${E(t('clubDiaryTitle'))}</h2>
  <p>${E(t('clubDiaryDesc'))}</p></div></div>
- <div class="card"><ul class="official-link-list">${diaryEntries.map(([date,author,id])=>`<li>
- <time datetime="${date}">${date}</time> · ${sourceLink(clubDiary+'detail/'+id,author)}</li>`).join('')}</ul>
+ <div class="card">${renderDiaryList(CLUB_DIARIES.filter(([, ,id])=>featuredDiaryIds.has(id)),true)}
  ${sourceLink(clubDiary+'category/1',t('clubDiaryAll'))}</div></section>`;
+}
+function renderAthleteDiaries(name){
+ const entries=CLUB_DIARIES.filter(([,author])=>nameSearch(author)===nameSearch(name));
+ if(!entries.length)return '';
+ return `<section class="section club-diary" aria-labelledby="athlete-diary-title">
+ <h2 id="athlete-diary-title">${E(t('clubDiaryTitle'))}</h2>
+ <div class="card">${renderDiaryList(entries,false)}</div></section>`;
 }
 function renderOfficialLinks(showUniversity){
  const groups=showUniversity?OFFICIAL_LINK_GROUPS:OFFICIAL_LINK_GROUPS.slice(0,2);
@@ -305,7 +310,7 @@ function renderAthletes(){const params=new URLSearchParams(location.hash.split('
  const honors=athleteEkidenHonors(canonical);
  return `<section class="wrap section"><a class="btn btn-sm" href="#athletes">← ${E(t('navAthletes'))}</a>
  ${known||records.length||honors.length?profileDetail(canonical,records):`<p role="status">${E(t(dataLoaded?'empty':'loading'))}</p>`}
- ${known||records.length||honors.length?renderAthleteMedia(canonical):''}
+ ${known||records.length||honors.length?renderAthleteMedia(canonical)+renderAthleteDiaries(officialAthleteName(canonical)):''}
  ${renderAthleteHonors(honors)}
  ${known||records.length||honors.length?`<section class="section"><h2>${E(t('athleteResults'))}</h2>${resultPanel(records,false)}</section>`:''}
  </section>`;
