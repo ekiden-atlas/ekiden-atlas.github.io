@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {VERIFIED_ROSTER_PROFILES} from '../data/roster-verified-profiles.js';
+import {EARLIER_ATHLETE_RESULTS,EARLIER_SPECIALTY_PBS} from '../data/earlier-athlete-results.js';
 import {ROSTER} from '../data/roster.js';
 import {OFFICIAL_CLUB_ROSTER} from '../data/official-club-roster.js';
 import {RECENT_EKIDEN} from '../data/recent-ekiden.js';
@@ -43,15 +44,18 @@ assert.ok(ekiden().flatMap(x=>x.legs).length>=966);
 assert.ok(schoolRecords().length>=66);
 assert.ok(alltimeRankings().length>=497);
 assert.equal(sectionRecords().length,15);
-assert.equal(specialtyPbs().length,4);
+assert.equal(specialtyPbs().length,4+EARLIER_SPECIALTY_PBS.length);
+assert.equal(specialtyPbs("広瀬 夏希").find(row=>row.event==="5000mW")?.time,"22:51.61");
+assert.equal(athlete("髙久 拓己").pb5000,"14:31.56");
 assert.equal(new Set(athletes().map(row=>nameSearch(row.name))).size,athletes().length);
 assert.deepEqual(athletes().filter(row=>row.clubSource).map(row=>row.clubSource).sort(),OFFICIAL_CLUB_ROSTER.map(row=>row.source_url).sort());
 assert.equal(athlete('佐々木 哲').high_school,'佐久長聖高等学校');
 const rows=personalResults();
-assert.equal(rows.length,960);
+assert.equal(rows.length,960+EARLIER_ATHLETE_RESULTS.length);
+assert.equal(new Set(EARLIER_ATHLETE_RESULTS.map(row=>nameSearch(row.name))).size,18);
 assert.equal(new Set(rows.map(row=>row.id)).size,rows.length);
 for(const [year,count] of [[2023,44],[2024,336],[2025,255],[2026,248]]){
- assert.equal(rows.filter(row=>row.year===year).length,count);
+ assert.equal(rows.filter(row=>row.year===year).length,count+EARLIER_ATHLETE_RESULTS.filter(row=>row.year===year).length);
 }
 for(const [name,profile] of Object.entries(VERIFIED_ROSTER_PROFILES)){
  assert.ok(Object.keys(profile._pbSources).length>=2);
@@ -169,8 +173,8 @@ assert.equal(honorsAt('山口 竣平','zen',7),undefined);
 console.log('PASS: section winners, tied winners, course records and Japanese bests.');
 
 const schoolRows=rows.filter(row=>['middleSchool','highSchool'].includes(row.status));
-assert.equal(schoolRows.length,162);
-assert.equal(schoolRows.filter(row=>row.status==='middleSchool').length,45);
+assert.equal(schoolRows.length,162+EARLIER_ATHLETE_RESULTS.filter(row=>['middleSchool','highSchool'].includes(row.status)).length);
+assert.equal(schoolRows.filter(row=>row.status==='middleSchool').length,45+EARLIER_ATHLETE_RESULTS.filter(row=>row.status==='middleSchool').length);
 assert.ok(schoolRows.every(row=>row.unit&&(row.source||row.gradeSource).startsWith('https://')));
 assert.equal(schoolRows.find(row=>row.id==='school-kudo-2019-3000').rank,10);
 assert.equal(schoolRows.find(row=>row.id==='school-suzuki-2021-zenchu').time,'8:35.54');

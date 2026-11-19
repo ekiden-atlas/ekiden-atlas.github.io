@@ -80,7 +80,11 @@ const meetLabels = new Map([
 ]);
 
 export function meetLabel(value) {
-  return meetLabels.get(value) ?? value;
+  return meetLabels.get(value) ?? String(value??'')
+    .replace(/NITTAIDAI Challenge Games/gi,'日体大チャレンジゲームズ')
+    .replace(/(\d+)st 日体大チャレンジゲームズ/g,'第$1回日体大チャレンジゲームズ')
+    .replace(/^The Road of WASEDA$/i,'ザ・ロード・オブ・早稲田')
+    .replace(/^トラックゲームズ in TOKOROZAWA$/i,'トラックゲームズ・イン・所沢');
 }
 
 const terminology = [

@@ -1,3 +1,4 @@
+import {EARLIER_ATHLETE_RESULTS,EARLIER_ATHLETE_CORRECTIONS,EARLIER_ATHLETE_PBS,EARLIER_SPECIALTY_PBS} from '../data/earlier-athlete-results.js';
 import {OFFICIAL_CLUB_ROSTER} from '../data/official-club-roster.js';
 import {ROSTER_AUDITED_RESULTS,ROSTER_RESULT_CORRECTIONS} from '../data/roster-race-audit.js';
 import {RESULT_CORRECTIONS,KUDO_UNIVERSITY_RESULTS} from '../data/result-verifications.js';
@@ -81,6 +82,10 @@ export function athletes(){
    const key=nameSearch(member.name);
    if(!rosterNames.has(key))baseline.push({...member,clubSource:member.source_url});
    rosterNames.add(key);
+ }
+ for(const row of baseline){
+   const verified=EARLIER_ATHLETE_PBS[row.name];
+   if(verified)Object.assign(row,verified,{_pbSources:{...row._pbSources,...verified._pbSources}});
  }
  const profiles=state.profiles.filter(x=>!rosterNames.has(nameSearch(x.athlete_name)))
    .map(x=>({...x,name:x.athlete_name}));
@@ -180,10 +185,10 @@ export function resultGrade(row){
  return value==='4'&&row.status!=='student'?'':value;
 }
 export function personalResults(){
- const rows=new Map([...SCHOOL_RESULTS,...KUDO_UNIVERSITY_RESULTS,...ROSTER_AUDITED_RESULTS].map(row=>[row.id,row]));
+ const rows=new Map([...SCHOOL_RESULTS,...KUDO_UNIVERSITY_RESULTS,...ROSTER_AUDITED_RESULTS,...EARLIER_ATHLETE_RESULTS].map(row=>[row.id,row]));
  const legacy=new Map();
  for(const row of state.official?.results||[]){
-   rows.set(row.id,{...row,...RESULT_CORRECTIONS[row.id],...ROSTER_RESULT_CORRECTIONS[row.id]});
+   rows.set(row.id,{...row,...RESULT_CORRECTIONS[row.id],...ROSTER_RESULT_CORRECTIONS[row.id],...EARLIER_ATHLETE_CORRECTIONS[row.id]});
    if(/^(?:workbook-|selected-|ob2026-)/.test(row.id)){
      const key=legacyResultKey(row);
      legacy.set(key,[...(legacy.get(key)||[]),row.id]);
@@ -207,7 +212,7 @@ export function personalResults(){
    .sort((a,b)=>Number(b.year)-Number(a.year)||String(b.date||'').localeCompare(String(a.date||'')));
 }
 export function specialtyPbs(name){
- return applyManaged('specialty_pb',state.official?.specialtyPb||[],x=>x.id)
+ return applyManaged('specialty_pb',[...(state.official?.specialtyPb||[]),...EARLIER_SPECIALTY_PBS],x=>x.id)
    .filter(x=>!name||nameSearch(x.name)===nameSearch(name));
 }
 export function sectionRecords(){
