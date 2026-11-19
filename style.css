@@ -200,3 +200,7 @@
   color: var(--wine2);
   font: italic 12px/1.15 Georgia, serif;
 }
+
+html:not([lang="zh-CN"]) .sharing-note {
+  display: none;
+}
