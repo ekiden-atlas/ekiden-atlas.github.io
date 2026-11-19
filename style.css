@@ -72,7 +72,7 @@
 .home-hero-results:after { content: none; }
 
 .ekiden-intro { padding-block: 42px; }
-#ekiden-intro-title { scroll-margin-top: 100px; }
+#ekiden-intro-title, #schedule-heading { scroll-margin-top: 100px; }
 .ekiden-season {
   list-style: none;
   margin: 0;

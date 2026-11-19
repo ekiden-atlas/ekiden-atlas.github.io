@@ -79,7 +79,8 @@ function renderEkidenIntro(){
  <a class="btn btn-sm" href="${raceArchiveLink(race)}">${E(t('raceResultsLink',{race:raceName(race)}))} →</a>
  <div class="season-source">${sourceLink(source,t('officialWebsite'))}</div>
  </li>`).join('')}</ol>
- <details class="ekiden-help"><summary>${E(t('ekidenGlossary'))}</summary>${ekidenTerms()}</details></section>`;
+ <details class="ekiden-help"><summary>${E(t('ekidenGlossary'))}</summary>${ekidenTerms()}</details>
+ <div class="actions"><button class="btn" id="home-next-meet" type="button">${E(t('homeNextMeet'))} ↓</button></div></section>`;
 }
 function competitionHref(meet){
  return `#schedule?meet=${encodeURIComponent(meet.id)}`;
@@ -112,11 +113,12 @@ function renderCompetitionList(home=false){
  const next=calendar.filter(meet=>['scheduleDateOnly','entriesAnnounced','entriesProvisional','entriesFinal'].includes(meet.phase)).sort((a,b)=>a.start.localeCompare(b.start));
  const past=calendar.filter(meet=>!next.includes(meet)).sort((a,b)=>b.start.localeCompare(a.start));
  return `<section class="wrap section schedule-list" aria-labelledby="schedule-heading">
- <div class="section-head"><h2 id="schedule-heading">${E(t('scheduleUpcoming'))}</h2>
+ <div class="section-head"><h2 id="schedule-heading" tabindex="-1">${E(t('scheduleUpcoming'))}</h2>
  ${home?`<a class="btn btn-sm" href="#schedule">${E(t('navSchedule'))} →</a>`:''}</div>
  <div class="results-mini">${competitionCards(home?next.slice(0,3):next)||`<p>${E(t('scheduleNoUpcoming'))}</p>`}</div>
  <div class="section-head schedule-past"><h2>${E(t('schedulePast'))}</h2></div>
- <div class="results-mini">${competitionCards(home?past.slice(0,2):past)||`<p>${E(t('empty'))}</p>`}</div></section>`;
+ <div class="results-mini">${competitionCards(home?past.slice(0,2):past)||`<p>${E(t('empty'))}</p>`}</div>
+ ${home&&language()==='zh'?`<div class="actions"><a class="btn" href="#athletes">${E(t('homeMeetAthletes'))} →</a></div>`:''}</section>`;
 }
 function competitionAthlete(name){
  const match=athlete(name) || athletes().find(row=>nameSearch(row.name)===nameSearch(name));
@@ -166,10 +168,19 @@ function renderHome(){
  <div class="wrap hero-inner"><div class="hero-copy"><h1>${E(t('heroTitle'))}</h1><p>${E(t('heroDesc'))}</p>
  <div class="actions">${beginner
    ?`<button class="btn btn-on-dark" id="ekiden-start" type="button">${E(t('heroAction'))} ↓</button>
-     <a class="btn btn-outline-dark" href="#archive">${E(t('navEkiden'))} →</a>`
-   :`<a class="btn btn-on-dark" href="#archive">${E(t('navEkiden'))} →</a>
-     <a class="btn btn-outline-dark" href="#athletes">${E(t('navAthletes'))} →</a>
-     <a class="btn btn-outline-dark" href="#archive/alltime">${E(t('allTime'))} →</a>`}</div></div></div></section>
+     <a class="btn btn-outline-dark" href="#schedule">${E(t('navSchedule'))} →</a>
+     <a class="btn btn-outline-dark" href="#athletes">${E(t('navAthletes'))} →</a>`
+   :`<a class="btn btn-on-dark" href="#schedule">${E(t('navSchedule'))} →</a>
+     <a class="btn btn-outline-dark" href="#archive">${E(t('navEkiden'))} →</a>
+     <a class="btn btn-outline-dark" href="#athletes">${E(t('navAthletes'))} →</a>`}</div></div></div></section>
+ ${beginner?`<div class="wrap">${renderEkidenIntro()}</div>`:''}
+ ${renderCompetitionList(true)}
+ <section class="section ${beginner?'soft-section':''}" aria-labelledby="latest-heading"><div class="wrap">
+ <div class="section-head"><h2 id="latest-heading">${E(t('latest'))}</h2><a class="btn btn-sm" href="#archive">${E(t('navEkiden'))} →</a></div>
+ <div class="results-mini">${recent.map(r=>`<article class="result-card">
+ <h3><a href="${raceArchiveLink(r.race,r.year)}">${E(t('raceEditionLink',{race:raceName(r.race),year:r.year}))} →</a></h3>
+ <div class="big">${E(r.total)}</div><p>${E(t('teamRank'))} · ${E(r.rank??t('notRecorded'))}</p>${sourceLink(r.source)}
+ </article>`).join('')||`<p>${E(t(dataLoaded?'empty':'historyBusy'))}</p>`}</div></div></section>
  <section class="wrap section" aria-labelledby="club-intro-title">
  <div class="section-head"><h2 id="club-intro-title">${E(t('clubIntroTitle'))}</h2></div>
  <div class="intro-panel"><p>${E(t('clubIntroBody'))}</p>
@@ -177,14 +188,6 @@ function renderHome(){
  ${sourceLink('https://waseda-ac.jp/team/member/block/3',t('clubIntroSource'))}
  ${sourceLink('https://waseda-ac.jp/recruit/',t('clubIntroCoachSource'))}</div></div>
  </section>
- ${renderCompetitionList(true)}
- ${beginner?`<div class="wrap">${renderEkidenIntro()}</div>`:''}
- <section class="section ${beginner?'soft-section':''}" aria-labelledby="latest-heading"><div class="wrap">
- <div class="section-head"><h2 id="latest-heading">${E(t('latest'))}</h2><a class="btn btn-sm" href="#archive">${E(t('navEkiden'))} →</a></div>
- <div class="results-mini">${recent.map(r=>`<article class="result-card">
- <h3><a href="${raceArchiveLink(r.race,r.year)}">${E(t('raceEditionLink',{race:raceName(r.race),year:r.year}))} →</a></h3>
- <div class="big">${E(r.total)}</div><p>${E(t('teamRank'))} · ${E(r.rank??t('notRecorded'))}</p>${sourceLink(r.source)}
- </article>`).join('')||`<p>${E(t(dataLoaded?'empty':'historyBusy'))}</p>`}</div></div></section>
  <div class="wrap">${fanBoardLink(t,E)}${renderClubDiary()}${renderOfficialLinks(false)}</div><div class="wrap statusbar">${E(t('sourceFallback'))} · ${E(DATA_SNAPSHOT)}</div>`;
 }
 const rosterDivision=a=>a.graduation_year?'alumni':a.officialGrade==='大学院'?'graduate':String(a.grade??'');
@@ -581,6 +584,7 @@ document.addEventListener('click',e=>{
    updateResults();
  }
  if(id==='ekiden-start')document.querySelector('#ekiden-intro-title').focus();
+ if(id==='home-next-meet')document.querySelector('#schedule-heading').focus();
 });
 
 bindFeedback(document.querySelector('#feedback-form'));
