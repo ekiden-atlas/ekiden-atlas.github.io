@@ -2,25 +2,8 @@ import {getDb} from './data.js';
 
 const posts='wsd_atlas_fan_posts';
 const profiles='wsd_atlas_fan_profiles';
-const postFields='id,nickname,avatar,message,created_at,status';
+const postFields='id,nickname,message,created_at,status';
 const googleUser=user=>user?.app_metadata?.provider==='google'||user?.app_metadata?.providers?.includes('google');
-const safeAvatar=value=>typeof value==='string'&&value.length<=32768&&/^data:image\/webp;base64,UklGR[A-Za-z0-9+/]*={0,2}$/.test(value);
-
-async function encodeAvatar(file){
- if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024)throw new Error('avatar');
- const image=await createImageBitmap(file);
- try{
-   const canvas=document.createElement('canvas');
-   const size=96;
-   canvas.width=canvas.height=size;
-   const crop=Math.min(image.width,image.height);
-   canvas.getContext('2d').drawImage(image,(image.width-crop)/2,(image.height-crop)/2,crop,crop,0,0,size,size);
-   const avatar=canvas.toDataURL('image/webp',.72);
-   if(!safeAvatar(avatar))throw new Error('avatar');
-   return avatar;
- }finally{image.close();}
-}
-
 export function fanBoardLink(t,E){
  return `<section class="section fan-board-link" aria-labelledby="fan-board-link-title">
  <h2 id="fan-board-link-title">${E(t('fanTitle'))}</h2><p>${E(t('fanIntro'))}</p>
@@ -29,7 +12,7 @@ export function fanBoardLink(t,E){
 
 function postMarkup(row,t,E,review){
  return `<article class="card fan-post"><header>
- ${safeAvatar(row.avatar)?`<img src="${E(row.avatar)}" alt="" width="40" height="40">`:''}<strong>${E(row.nickname)}</strong>
+ <strong>${E(row.nickname)}</strong>
  <time datetime="${E(row.created_at)}">${E(new Date(row.created_at).toLocaleDateString(document.documentElement.lang))}</time></header>
  <p>${E(row.message)}</p>${review?`<div class="admin-actions">
  ${row.status==='pending'?`<button type="button" class="btn btn-sm" data-id="${E(row.id)}" data-decision="published">${E(t('fanPublish'))}</button>`:''}
@@ -112,14 +95,12 @@ export async function renderFanBoard(root,{t,E},review){
      };
      return;
    }
-   const {data:profile,error}=await db.from(profiles).select('nickname,avatar').eq('owner_id',user.id).maybeSingle();
+   const {data:profile,error}=await db.from(profiles).select('nickname').eq('owner_id',user.id).maybeSingle();
    if(error)throw error;
    if(!root.isConnected)return;
    composer.innerHTML=`<form class="card admin-form fan-composer" method="post">
    <p>${E(t('fanPrivacy'))}</p>
    <label class="field">${E(t('fanNickname'))}<input name="nickname" maxlength="24" required value="${E(profile?.nickname)}"></label>
-   <label class="field">${E(t('fanAvatar'))}<input name="avatar" type="file" accept="image/jpeg,image/png,image/webp"></label>
-   ${safeAvatar(profile?.avatar)?`<img class="fan-current-avatar" src="${E(profile.avatar)}" alt="" width="40" height="40"><label><input name="remove" type="checkbox"> ${E(t('fanRemoveAvatar'))}</label>`:''}
    <label class="field">${E(t('fanMessage'))}<textarea name="message" maxlength="1000" required></textarea></label>
    <div class="admin-actions"><button class="btn btn-primary" type="submit">${E(t('fanSend'))}</button>
    <button class="btn" type="button" data-fan-logout>${E(t('logout'))}</button></div><p role="status"></p></form>`;
@@ -129,7 +110,6 @@ export async function renderFanBoard(root,{t,E},review){
      const {error:logoutError}=await db.auth.signOut({scope:'local'});
      if(logoutError)notice.textContent=t('fanUnavailable');else location.reload();
    };
-   let savedAvatar=profile?.avatar||null;
    form.onsubmit=async event=>{
      event.preventDefault();
      const controls=[...form.elements];
@@ -137,27 +117,13 @@ export async function renderFanBoard(root,{t,E},review){
      const nickname=String(values.get('nickname')).trim();
      const message=String(values.get('message')).trim();
      if(!nickname||!message){notice.textContent=t('fanRequired');return;}
-     const file=values.get('avatar');
      controls.forEach(control=>control.disabled=true);
-     let avatar=values.has('remove')?null:savedAvatar;
-     try{
-       if(file.size)avatar=await encodeAvatar(file);
-     }catch{
-       notice.textContent=t('fanAvatarError');
-       controls.forEach(control=>control.disabled=false);
-       return;
-     }
      try{
        const {error:sendError}=await db.rpc('wsd_atlas_submit_fan_post',{
-         public_name:nickname,public_avatar:avatar,body:message
+         public_name:nickname,public_avatar:null,body:message
        });
        if(sendError)throw sendError;
-       savedAvatar=avatar;
        form.elements.message.value='';
-       form.elements.avatar.value='';
-       if(form.elements.remove)form.elements.remove.checked=false;
-       const previous=form.querySelector('.fan-current-avatar');
-       if(previous){previous.hidden=!avatar;if(avatar)previous.src=avatar;}
        notice.textContent=t('fanSent');
      }catch{notice.textContent=t('fanUnavailable');}
      finally{controls.forEach(control=>control.disabled=false);}
