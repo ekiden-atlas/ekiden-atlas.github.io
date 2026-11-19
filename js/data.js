@@ -1,3 +1,4 @@
+import {VERIFIED_ALLTIME_TIES} from '../data/alltime-ranking-ties.js';
 import {RACE_DATE_CORRECTIONS_2026,ADDITIONAL_RESULTS_2026} from '../data/race-date-audit-2026.js';
 import {HISTORICAL_EKIDEN,HAKONE_SECTION_RECORDS} from '../data/ekiden-official-history.js';
 import {EARLIER_ATHLETE_RESULTS,EARLIER_ATHLETE_CORRECTIONS,EARLIER_ATHLETE_PBS,EARLIER_SPECIALTY_PBS} from '../data/earlier-athlete-results.js';
@@ -166,19 +167,11 @@ export function schoolRecords(){
  });
  return applyManaged('school_record',legacyPatch('school_record',rows,legacySchoolKey),schoolKey);
 }
-// The imported snapshot can omit continuation rows from the official tied rankings.
-const tiedRoadRankings=[
- {event:'5km',rank:2,athlete:'吉倉 ナヤブ直希',performance:'13分38秒',year:2026},
- {event:'5km',rank:6,athlete:'山口 竣平',performance:'13分49秒',year:2026},
- {event:'5km',rank:9,athlete:'上杉 敦史',performance:'13分55秒',year:2026},
- {event:'5km',rank:9,athlete:'瀬間 元輔',performance:'13分55秒',year:2026},
- {event:'ハーフマラソン',rank:6,athlete:'宮岡 凛太',performance:'1時間01分59秒',year:2025}
-].map(row=>({...row,gender:'男',source:'https://waseda-ac.jp/record/detail/2'}));
 export function alltimeRankings(){
  const snapshot=state.official?.rankings||[];
  const known=new Set(snapshot.map(row=>[row.gender,row.event,nameSearch(row.athlete)].join(':')));
  const rows=[...snapshot];
- for(const row of tiedRoadRankings){
+ for(const row of VERIFIED_ALLTIME_TIES){
    if(known.has([row.gender,row.event,nameSearch(row.athlete)].join(':')))continue;
    const tie=rows.findLastIndex(item=>item.gender===row.gender&&item.event===row.event&&Number(item.rank)===row.rank);
    rows.splice(tie<0?rows.length:tie+1,0,row);

@@ -1,3 +1,4 @@
+import {VERIFIED_ALLTIME_TIES} from '../data/alltime-ranking-ties.js';
 import assert from 'node:assert/strict';
 import {VERIFIED_ROSTER_PROFILES} from '../data/roster-verified-profiles.js';
 import {EARLIER_ATHLETE_RESULTS,EARLIER_SPECIALTY_PBS} from '../data/earlier-athlete-results.js';
@@ -50,8 +51,15 @@ assert.equal(historicalRaces.find(row=>row.race==='izu'&&row.year===2010)?.total
 assert.equal(historicalRaces.find(row=>row.race==='zen'&&row.year===2003)?.status,'途中棄権');
 assert.ok(ekiden().flatMap(x=>x.legs).length>=966);
 assert.ok(schoolRecords().length>=66);
-assert.ok(alltimeRankings().length>=497);
-const roadRanks=alltimeRankings().filter(row=>row.gender==='男'&&row.event==='5km');
+const auditedRankings=alltimeRankings();
+assert.ok(auditedRankings.length>=497);
+for(const tie of VERIFIED_ALLTIME_TIES){
+ const group=auditedRankings.filter(row=>row.gender===tie.gender&&row.event===tie.event&&row.rank===tie.rank);
+ assert.ok(group.length>=2, tie.athlete);
+ assert.equal(group.find(row=>row.athlete===tie.athlete)?.performance,tie.performance);
+}
+
+const roadRanks=auditedRankings.filter(row=>row.gender==='男'&&row.event==='5km');
 assert.deepEqual(roadRanks.map(row=>row.rank),[1,2,2,4,5,6,6,8,9,9,9]);
 assert.deepEqual(roadRanks.filter(row=>row.rank===2).map(row=>[row.athlete,row.performance]),
  [['鈴木 琉胤','13分38秒'],['吉倉 ナヤブ直希','13分38秒']]);
