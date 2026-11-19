@@ -347,6 +347,7 @@ export const ROSTER_AUDITED_RESULTS = [
   {"id":"school-audit-takadate-kanto","name":"高舘 友杜","year":2024,"date":"2024-10","gradeAtRace":2,"status":"highSchool","unit":"千葉県立船橋東高等学校","meet":"第28回関東高等学校選抜新人陸上競技大会","event":"3000mSC","time":"9:22.96","rank":4,"stage":"決勝","source":"https://cms1.chiba-c.ed.jp/funabashieast-h/blogs/blog_entries/view/72/3be67fa42c8b90cc53b417287274c1c8?frame_id=97","verification":"primary"}
 ];
 export const ROSTER_RESULT_CORRECTIONS = {
+  "primary-wa-7190594-10230007-64":{"status":"highSchool","gradeAtRace":2,"unit":"佐久長聖高等学校","gradeSource":"https://nagano-rk.com/download/2025NAA_AW-Panf02.pdf","stage":"決勝"},
   "annual-14":{"status":"student","source":"https://waseda-ac.jp/competition/detail/1003","verification":"primary","rank":4,"gradeAtRace":3,"date":"2026-09"},
   "special-3":{"status":"student","source":"https://waseda-ac.jp/competition/detail/1003","verification":"primary","rank":1,"gradeAtRace":2,"stage":"決勝"},
   "annual-34":{"status":"student","source":"https://waseda-ac.jp/competition/detail/1003","verification":"primary","rank":1,"gradeAtRace":2,"date":"2026-09"},
@@ -448,7 +449,7 @@ export const ROSTER_RESULT_CORRECTIONS = {
   "annual-29":{"status":"student","source":"https://waseda-ac.jp/competition/detail/800","verification":"primary","rank":10,"gradeAtRace":2,"date":"2026-04-11"},
   "annual-13":{"status":"student","source":"https://waseda-ac.jp/competition/detail/816","verification":"primary","rank":1,"gradeAtRace":3,"date":"2026-04-24","pb":true,"stage":"決勝"},
   "annual-21":{"status":"student","source":"https://waseda-ac.jp/competition/detail/816","verification":"primary","rank":3,"gradeAtRace":3,"date":"2026-04-24","pb":true,"stage":"決勝"},
-  "annual-28":{"status":"student","source":"https://waseda-ac.jp/competition/detail/819","verification":"primary","rank":11,"gradeAtRace":2,"date":"2026-04","stage":"1組"},
+  "annual-28":{"status":"student","source":"https://waseda-ac.jp/competition/detail/819","verification":"primary","rank":11,"gradeAtRace":2,"date":"2026-04-25","precision":"日","stage":"1組"},
   "annual-8":{"status":"student","source":"https://waseda-ac.jp/competition/detail/819","verification":"primary","rank":11,"gradeAtRace":4,"date":"2026-04","pb":true},
   "annual-43":{"status":"student","source":"https://waseda-ac.jp/competition/detail/842","verification":"primary","rank":10,"gradeAtRace":2,"date":"2026-05-04"},
   "annual-69":{"status":"student","source":"https://waseda-ac.jp/competition/detail/842","verification":"primary","rank":16,"gradeAtRace":3,"date":"2026-05-04"},
