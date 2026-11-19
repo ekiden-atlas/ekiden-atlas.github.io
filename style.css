@@ -200,16 +200,3 @@
   color: var(--wine2);
   font: italic 12px/1.15 Georgia, serif;
 }
-
-.footer-sharing {
-  grid-column: 1 / -1;
-  padding: 18px 20px;
-  border: 1px solid #b58b9a;
-  border-radius: 12px;
-  background: #fff1f4;
-  color: #42192b;
-}
-.footer-sharing h2 { margin: 0 0 6px; font-size: 1.125rem; }
-.footer-sharing .sharing-note { margin: 0; max-width: 72ch; }
-.footer-sharing .footer-contact { margin: 10px 0 0; }
-.footer-sharing a { color: #6b2440; text-decoration: underline; overflow-wrap: anywhere; }
