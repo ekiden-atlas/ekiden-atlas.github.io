@@ -1,5 +1,12 @@
 // Factual records verified against the linked public sources.
+const masukoNationalsFinal={
+  id:'annual-50',name:'増子 陽太',year:2026,date:'2026-06-14',precision:'日',
+  gradeAtRace:1,status:'student',meet:'第110回日本陸上競技選手権大会',
+  event:'5000m',time:'13:27.08',rank:7,stage:'決勝',pb:false,
+  source:'https://www.jaaf.or.jp/files/upload/202606/result3.pdf',verification:'primary'
+};
 export const ROSTER_AUDITED_RESULTS = [
+  masukoNationalsFinal,
   {"id":"waseda-verified-1003-2","name":"高舘 友杜","year":2026,"date":"2026-09","gradeAtRace":1,"status":"student","meet":"天皇賜盃第95回日本学生陸上競技対校選手権大会","event":"3000mSC","time":"9:14.89","rank":17,"stage":"決勝","source":"https://waseda-ac.jp/competition/detail/1003","verification":"primary"},
   {"id":"waseda-verified-1067-0","name":"高舘 友杜","year":2026,"date":"2026-10","gradeAtRace":1,"status":"student","meet":"第42回U20日本陸上競技選手権大会","event":"3000mSC","time":"9:01.31","rank":5,"stage":"決勝","source":"https://waseda-ac.jp/competition/detail/1067","verification":"primary","pb":true},
   {"id":"waseda-verified-113-0","name":"武田 知典","year":2023,"date":"2023-11","gradeAtRace":1,"status":"student","meet":"令和5年第309回日本体育大学長距離競技会 兼 第5回日体大チャレンジゲームズ","event":"5000m","time":"14:41.21","rank":2,"stage":"11組","source":"https://waseda-ac.jp/competition/detail/113","verification":"primary"},
@@ -203,7 +210,7 @@ export const ROSTER_AUDITED_RESULTS = [
   {"id":"waseda-verified-888-0","name":"本田 桜二郎","year":2026,"date":"2026-06","gradeAtRace":1,"status":"student","meet":"第110回日本陸上競技選手権大会 兼 愛知・名古屋2026アジア競技大会 日本代表選手選考競技会","event":"1500m","time":"3:37.53","rank":1,"stage":"予選・2組","source":"https://waseda-ac.jp/competition/detail/888","verification":"primary","pb":true},
   {"id":"waseda-verified-888-2","name":"山口 竣平","year":2026,"date":"2026-06","gradeAtRace":3,"status":"student","meet":"第110回日本陸上競技選手権大会 兼 愛知・名古屋2026アジア競技大会 日本代表選手選考競技会","event":"5000m","time":"13:34.82","rank":1,"stage":"予選・1組","source":"https://waseda-ac.jp/competition/detail/888","verification":"primary"},
   {"id":"waseda-verified-888-4","name":"鈴木 琉胤","year":2026,"date":"2026-06","gradeAtRace":2,"status":"student","meet":"第110回日本陸上競技選手権大会 兼 愛知・名古屋2026アジア競技大会 日本代表選手選考競技会","event":"5000m","time":"13:27.80","rank":3,"stage":"予選・2組","source":"https://waseda-ac.jp/competition/detail/888","verification":"primary"},
-  {"id":"waseda-verified-888-5","name":"増子 陽太","year":2026,"date":"2026-06","gradeAtRace":1,"status":"student","meet":"第110回日本陸上競技選手権大会 兼 愛知・名古屋2026アジア競技大会 日本代表選手選考競技会","event":"5000m","time":"13:28.02","rank":5,"stage":"予選・2組","source":"https://waseda-ac.jp/competition/detail/888","verification":"primary"},
+  {"id":"waseda-verified-888-5","name":"増子 陽太","year":2026,"date":"2026-06-12","precision":"日","gradeAtRace":1,"status":"student","meet":"第110回日本陸上競技選手権大会","event":"5000m","time":"13:28.02","rank":5,"stage":"予選・2組","source":"https://www.jaaf.or.jp/files/upload/202606/result1.pdf","verification":"primary"},
   {"id":"waseda-verified-90-0","name":"武田 知典","year":2023,"date":"2023-10","gradeAtRace":1,"status":"student","meet":"ところざわアスレチックフェスティバル","event":"5000m","time":"14:37.43","rank":5,"stage":"決勝","source":"https://waseda-ac.jp/competition/detail/90","verification":"primary"},
   {"id":"waseda-verified-971-0","name":"本田 桜二郎","year":2026,"date":"2026-08","gradeAtRace":1,"status":"student","meet":"オレゴン2026 U20世界陸上競技選手権大会","event":"1500m","time":"3:46.85","rank":2,"stage":"予選・3組","source":"https://waseda-ac.jp/competition/detail/971","verification":"primary"},
   {"id":"high-school-national-72-山口竣平","name":"山口 竣平","year":2021,"date":"2021-12-26","gradeAtRace":1,"status":"highSchool","unit":"佐久長聖","meet":"第72回全国高等学校駅伝競走大会","event":"駅伝7区","time":"14:32","rank":5,"stage":"区間順位","source":"https://koukouekiden-record.mainichi.jp/record/archive/m_72/all_record.html","gradeSource":"https://waseda-ac.jp/team/member/detail/277","verification":"primary"},
@@ -462,7 +469,7 @@ export const ROSTER_RESULT_CORRECTIONS = {
   "annual-63":{"status":"student","source":"https://waseda-ac.jp/competition/detail/888","verification":"primary","rank":2,"gradeAtRace":1,"date":"2026-06"},
   "annual-54":{"status":"student","source":"https://waseda-ac.jp/competition/detail/888","verification":"primary","rank":17,"gradeAtRace":1,"date":"2026-06"},
   "annual-39":{"status":"student","source":"https://waseda-ac.jp/competition/detail/888","verification":"primary","rank":4,"gradeAtRace":2,"date":"2026-06"},
-  "annual-50":{"status":"student","source":"https://waseda-ac.jp/competition/detail/888","verification":"primary","rank":7,"gradeAtRace":1,"date":"2026-06"},
+  'annual-50':masukoNationalsFinal,
   "annual-16":{"status":"student","source":"https://waseda-ac.jp/competition/detail/888","verification":"primary","rank":13,"gradeAtRace":3,"date":"2026-06"},
   "special-1":{"status":"student","source":"https://waseda-ac.jp/competition/detail/888","verification":"primary","rank":5,"gradeAtRace":2,"stage":"決勝"},
   "annual-32":{"status":"student","source":"https://waseda-ac.jp/competition/detail/888","verification":"primary","rank":5,"gradeAtRace":2,"date":"2026-06"},
