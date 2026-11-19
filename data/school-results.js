@@ -14,7 +14,19 @@ const masukoSchool = (id,date,gradeAtRace,status,unit,meet,event,time,rank,stage
   status,unit,meet,event,time,rank,stage,source,verification
 });
 
+const uesugiHighSchool = (id,date,gradeAtRace,meet,event,time,rank,stage,source,verification='primary')=>({
+  id:'school-uesugi-'+id,date,year:Number(date.slice(0,4)),name:'上杉 敦史',gradeAtRace,
+  status:'highSchool',unit:'八千代松陰高等学校',meet,event,time,rank,stage,source,verification
+});
+
 export const SCHOOL_RESULTS = [
+  uesugiHighSchool('2023-kanto-ekiden','2023-11-18',1,'第76回関東高等学校男子駅伝競走大会','駅伝5区','8:41',1,'3km・区間賞','https://koukou-rikujou.info/data/2023/2023_ekiden_kantou_result.pdf'),
+  uesugiHighSchool('2024-chiba-ekiden','2024-10-26',2,'第79回千葉県高等学校駅伝競走大会','駅伝5区','8:39',1,'3km・区間賞','https://koukou-rikujou.info/data/2024/2024_ekiden_chiba_result.pdf'),
+  uesugiHighSchool('2024-kanto-ekiden','2024-11-16',2,'第77回関東高等学校男子駅伝競走大会','駅伝1区','30:38',9,'10km・区間順位','https://gold.jaic.org/gunma/menu/results/r_24/r241116HS/records.pdf'),
+  uesugiHighSchool('2025-chiba-track','2025-05-18',3,'第78回千葉県高等学校総合体育大会（陸上競技）','5000m','14:49.92',5,'タイムレース決勝1組','https://www.jaaf-chiba.jp/mobile/2025ken_koukousoutai/RS6_0_6_1_0_0.html'),
+  uesugiHighSchool('2025-interhigh','2025-07-27',3,'第78回全国高等学校陸上競技対校選手権大会','5000m','14:18.72',14,'タイムレース決勝3組','https://gold.jaic.org/jaic/member/okayama/2025/78IH/78m-results.pdf'),
+  uesugiHighSchool('2025-chiba-ekiden','2025-10-25',3,'第80回千葉県高等学校駅伝競走大会','駅伝1区','29:23',1,'10km・区間賞','https://www5c.biglobe.ne.jp/~iwa-m/results/2025/ekiden/M-1K.pdf'),
+  uesugiHighSchool('2025-kanto-ekiden','2025-11-22',3,'第78回関東高等学校男子駅伝競走大会','駅伝1区','29:26',1,'10km・区間賞','https://blog.neet-shikakugets.com/kanto-koukou-ekiden-2025','cited'),
   masukoSchool('2020-fukushima-cities','2020-11-15',1,'middleSchool','鏡石町','第32回市町村対抗福島県縦断駅伝競走大会','駅伝2区','9:40',5,'3km・町の部区間賞','https://ekiden.fukushima.jp/wp-content/uploads/2026/11/494fadfa416fbf52324fd902803a2342.pdf','cited'),
   masukoSchool('2021-fukushima-cities','2021-11-21',2,'middleSchool','鏡石町','第33回市町村対抗福島県縦断駅伝競走大会','駅伝3区','17:59',5,'5.8km・町の部区間賞','https://gold.jaic.org/fukushima/kekka/2021/1121/20211121-r.pdf'),
   masukoSchool('2022-fukushima-middle','2022-10-05',3,'middleSchool','鏡石町立鏡石中学校','第65回福島県中学校体育大会駅伝競走大会','駅伝1区','9:08',1,'区間賞','https://gold.jaic.org/fukushima/kekka/2022/20221005-r.pdf'),
