@@ -12,7 +12,7 @@ function chart({points,ticks,xLabels,yLabel,label,line},E){
  ${ticks.map(({y,text})=>`<line class="analysis-grid" x1="${left}" x2="${right}" y1="${y}" y2="${y}"/><text x="${left-7}" y="${y}" text-anchor="end" dominant-baseline="middle">${E(text)}</text>`).join('')}
  ${xLabels.map(({x,text})=>`<text x="${x}" y="${bottom+25}" text-anchor="middle">${E(text)}</text>`).join('')}
  <polyline class="analysis-line" points="${coords(line)}"/>
- ${points.map(({x,y,tip,value})=>`<circle class="analysis-point" cx="${x}" cy="${y}" r="4"><title>${E(tip)}</title></circle>
+ ${points.map(({x,y,tip,value,muted})=>`<circle class="analysis-point${muted?' analysis-point-muted':''}" cx="${x}" cy="${y}" r="4"><title>${E(tip)}</title></circle>
  ${value==null?'':`<text class="analysis-value" x="${x}" y="${y+17}" text-anchor="middle">${E(value)}</text>`}`).join('')}
  </svg>`;
 }
@@ -44,15 +44,16 @@ export function renderGrowthChart(name,records,{t,E,sourceLink}){
    return {x:x(`${year}-01-01`),text:String(year)};
  });
  const points=rows.map((row,index)=>({x:x(row.date),y:y(times[index]),tip:`${row.date} · ${meetLabel(row.meet)} · ${row.time}`}));
- const line=[points[0]];
- for(const point of points.slice(1)){
-   const current=line.at(-1);
-   if(point.y<current.y)line.push({x:point.x,y:current.y},point);
+ const line=[];
+ for(const point of points){
+   point.muted=line.length>0&&point.y>=line.at(-1).y;
+   if(!point.muted)line.push(point);
  }
- line.push({x:points.at(-1).x,y:line.at(-1).y});
+ const best=rows[points.indexOf(line.at(-1))];
  const title=t('growthChartTitle');
  return `<section class="card analysis-card" aria-labelledby="growth-chart-title">
  <h2 id="growth-chart-title">${E(title)}</h2>
+ <p class="analysis-best">${E(t('growthChartBest'))} <strong class="mono">${E(best.time)}</strong> <span>${E(best.date)}</span></p>
  <p>${E(t('growthChartNote'))}</p>
  ${chart({points,ticks,xLabels,yLabel:t('resultMark'),label:`${officialAthleteName(name)} · ${title}`,line},E)}
  <details><summary>${E(t('chartSources'))}</summary><ul class="analysis-sources">

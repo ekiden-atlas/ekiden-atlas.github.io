@@ -213,3 +213,7 @@
 .analysis-card summary { cursor: pointer; font-weight: 700; }
 .analysis-sources { padding-inline-start: 1.4em; }
 .analysis-sources li { margin-block: 6px; }
+
+.analysis-point-muted { fill: #a48a95; }
+.analysis-best strong { margin-inline: 4px; color: var(--wine); font-size: 1.35rem; }
+.analysis-best span { color: var(--muted); }
