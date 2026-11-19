@@ -186,3 +186,11 @@
 .watch-table td { vertical-align: top; }
 .watch-table ul { margin: 0; padding: 0; list-style: none; }
 .watch-table li + li { margin-top: 9px; }
+
+.roster-heading-actions { display: flex; align-items: center; gap: 12px; }
+#roster-watch-link { flex-shrink: 0; white-space: nowrap; }
+@media (max-width: 620px) {
+  .roster-section .section-head { align-items: center; gap: 10px; }
+  .roster-heading-actions { gap: 8px; }
+  #roster-watch-link { padding-inline: 10px; }
+}
