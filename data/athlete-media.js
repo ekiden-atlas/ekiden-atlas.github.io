@@ -1,3 +1,5 @@
+import {NUMBER_ATHLETE_MEDIA} from './athlete-media-number.js';
+
 // Dates refer to publication. Group interviews are listed only for athletes
 // who speak in the source. Titles are concise editorial labels.
 const waseda=['早稻田大学竞技体育中心','早稲田大学競技スポーツセンター'];
@@ -42,5 +44,6 @@ export const ATHLETE_MEDIA=[
     athletes:['鈴木 琉胤'], title:['铃木琉胤谈箱根第4区区间赏','箱根4区区間賞の鈴木琉胤に聞く'],
     publisher:['文化放送','文化放送'], date:'2026-01-02', meet:['第102届箱根驿传','第102回箱根駅伝'],
     kind:'Interview', url:'https://www.joqr.co.jp/qr/article/167508/'
-  }
-];
+  },
+  ...NUMBER_ATHLETE_MEDIA
+].sort((left,right)=>right.date.localeCompare(left.date));
