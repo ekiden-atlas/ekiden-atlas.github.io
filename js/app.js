@@ -214,11 +214,11 @@ function renderAthleteMedia(name){
  return `<section class="section athlete-media" aria-labelledby="athlete-media-title">
  <h2 id="athlete-media-title">${E(t('athleteMediaTitle'))}</h2>
  ${items.length?`<ul class="athlete-media-list">${items.map(row=>`<li class="card">
- <span class="tag">${E(t('athleteMedia'+row.kind))}</span>
+ <span class="tag">${E(t('athleteMedia'+row.kind))}</span> ${row.paid?`<span class="tag">${E(t('athleteMediaPaid'))}</span>`:''}
  <h3>${sourceLink(row.url,row.title[locale])}</h3>
  <dl><dt>${E(t('athleteMediaPublisher'))}</dt><dd>${E(row.publisher[locale])}</dd>
  <dt>${E(t('athleteMediaDate'))}</dt><dd><time datetime="${E(row.date)}">${E(row.date)}</time></dd>
- <dt>${E(t('meet'))}</dt><dd>${E(row.meet[locale])}</dd></dl></li>`).join('')}</ul>`
+ <dt>${E(t('meet'))}</dt><dd>${E(row.meet?.[locale]||t('athleteMediaGeneral'))}</dd></dl></li>`).join('')}</ul>`
  :`<p>${E(t('athleteMediaEmpty'))}</p>`}</section>`;
 }
 function renderAthleteSocialLinks(name){
