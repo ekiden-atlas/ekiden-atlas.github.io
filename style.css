@@ -200,3 +200,16 @@
   color: var(--wine2);
   font: italic 12px/1.15 Georgia, serif;
 }
+
+.analysis-card { margin: 22px 0; }
+.analysis-card h2 { margin: 0; }
+.analysis-card p { margin: 6px 0 12px; }
+.analysis-plot { display: block; width: 100%; max-width: 640px; height: auto; overflow: visible; }
+.analysis-plot text { fill: var(--ink); font-size: 14px; }
+.analysis-grid { stroke: #d9cbd0; }
+.analysis-line { stroke: var(--wine); fill: none; stroke-width: 2.5; }
+.analysis-point { fill: var(--wine); stroke: var(--paper); stroke-width: 1.5; }
+.analysis-value { font-weight: 700; }
+.analysis-card summary { cursor: pointer; font-weight: 700; }
+.analysis-sources { padding-inline-start: 1.4em; }
+.analysis-sources li { margin-block: 6px; }
