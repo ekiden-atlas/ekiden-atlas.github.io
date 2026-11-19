@@ -464,10 +464,11 @@ export const ROSTER_RESULT_CORRECTIONS = {
   "annual-62":{"status":"student","source":"https://waseda-ac.jp/competition/detail/871","verification":"primary","rank":5,"gradeAtRace":1,"date":"2026-05-30","pb":true,"stage":"2組"},
   "annual-70":{"status":"student","source":"https://waseda-ac.jp/competition/detail/873","verification":"primary","rank":17,"gradeAtRace":3,"date":"2026-05","stage":"17組"},
   "annual-44":{"status":"student","source":"https://waseda-ac.jp/competition/detail/873","verification":"primary","rank":18,"gradeAtRace":2,"date":"2026-05","stage":"17組"},
-  "annual-53":{"status":"student","source":"https://waseda-ac.jp/competition/detail/876","verification":"primary","rank":5,"gradeAtRace":1,"date":"2026-05"},
+  "annual-53":{"source":"https://liveresults.hkaaa.com/api/uploads/2026/Asian_U20_Athletics_2026_Results_Summary.pdf","verification":"primary","rank":5,"gradeAtRace":1,"status":"student","date":"2026-05-30","precision":"日"},
   "annual-49":{"status":"student","source":"https://waseda-ac.jp/competition/detail/876","verification":"primary","rank":3,"gradeAtRace":1,"date":"2026-05"},
   "annual-63":{"status":"student","source":"https://waseda-ac.jp/competition/detail/888","verification":"primary","rank":2,"gradeAtRace":1,"date":"2026-06"},
-  "annual-54":{"status":"student","source":"https://waseda-ac.jp/competition/detail/888","verification":"primary","rank":17,"gradeAtRace":1,"date":"2026-06"},
+  "annual-54":{"source":"https://www.jaaf.or.jp/files/upload/202606/result1.pdf","verification":"primary","rank":17,"gradeAtRace":1,"status":"student","date":"2026-06-12","precision":"日"},
+  "annual-55":{"source":"https://races.1mile.or.jp/ginzamile/results","verification":"primary","rank":29,"gradeAtRace":1,"status":"student","date":"2026-06-20","precision":"日"},
   "annual-39":{"status":"student","source":"https://waseda-ac.jp/competition/detail/888","verification":"primary","rank":4,"gradeAtRace":2,"date":"2026-06"},
   'annual-50':masukoNationalsFinal,
   "annual-16":{"status":"student","source":"https://waseda-ac.jp/competition/detail/888","verification":"primary","rank":13,"gradeAtRace":3,"date":"2026-06"},
@@ -498,5 +499,5 @@ export const ROSTER_RESULT_CORRECTIONS = {
   "annual-33":{"status":"student","source":"https://waseda-ac.jp/competition/detail/936","verification":"primary","rank":2,"gradeAtRace":2,"date":"2026-07"},
   "annual-66":{"status":"student","source":"https://waseda-ac.jp/competition/detail/971","verification":"primary","rank":14,"gradeAtRace":1,"date":"2026-08"},
   "annual-65":{"status":"student","source":"https://waseda-ac.jp/competition/detail/971","verification":"primary","rank":3,"gradeAtRace":1,"date":"2026-08","pb":true},
-  "annual-56":{"status":"student","source":"https://waseda-ac.jp/competition/detail/971","verification":"primary","rank":11,"gradeAtRace":1,"date":"2026-08","pb":true}
+  "annual-56":{"source":"https://worldathletics.org/competitions/world-athletics-u20-championships/oregon26/results/men/3000-metres/finals/results","verification":"primary","rank":11,"gradeAtRace":1,"status":"student","date":"2026-08-07","precision":"日","pb":true}
 };
