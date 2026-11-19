@@ -27,6 +27,22 @@ function verifiedContext(name){
 function toast(s){const x=document.querySelector('#toast');x.textContent=s;x.hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>x.hidden=true,4700);}
 function pageIntro(k,desc){return `<header class="page-intro"><div class="wrap"><span class="eyebrow">EKIDEN ATLAS · DATA</span><h1>${E(t(k))}</h1><p>${E(t(desc))}</p></div></header>`;}
 function yearOption(years){return [...new Set(years)].filter(Boolean).sort((a,b)=>b-a).map(y=>`<option value="${E(y)}">${E(y)}</option>`).join('');}
+const clubDiary='https://waseda-ac.jp/diary/';
+const diaryEntries=[
+ ['2026-11-18','冨田 拓臣',1688],
+ ['2026-11-17','高橋 優喜',1687],
+ ['2026-11-16','谷川 航太',1685],
+ ['2026-11-06','本田 桜二郎',1670],
+ ['2026-11-05','堀野 正太',1666]
+];
+function renderClubDiary(){
+ return `<section class="section club-diary" aria-labelledby="club-diary-title">
+ <div class="section-head"><div><h2 id="club-diary-title">${E(t('clubDiaryTitle'))}</h2>
+ <p>${E(t('clubDiaryDesc'))}</p></div></div>
+ <div class="card"><ul class="official-link-list">${diaryEntries.map(([date,author,id])=>`<li>
+ <time datetime="${date}">${date}</time> · ${sourceLink(clubDiary+'detail/'+id,author)}</li>`).join('')}</ul>
+ ${sourceLink(clubDiary+'category/1',t('clubDiaryAll'))}</div></section>`;
+}
 function renderOfficialLinks(showUniversity){
  const groups=showUniversity?OFFICIAL_LINK_GROUPS:OFFICIAL_LINK_GROUPS.slice(0,2);
  return `<section class="section" aria-labelledby="official-links-title">
@@ -164,7 +180,7 @@ function renderHome(){
  <h3><a href="${raceArchiveLink(r.race,r.year)}">${E(t('raceEditionLink',{race:raceName(r.race),year:r.year}))} →</a></h3>
  <div class="big">${E(r.total)}</div><p>${E(t('teamRank'))} · ${E(r.rank??t('notRecorded'))}</p>${sourceLink(r.source)}
  </article>`).join('')||`<p>${E(t(dataLoaded?'empty':'historyBusy'))}</p>`}</div></div></section>
- <div class="wrap">${fanBoardLink(t,E)}${renderOfficialLinks(false)}</div><div class="wrap statusbar">${E(t('sourceFallback'))} · ${E(DATA_SNAPSHOT)}</div>`;
+ <div class="wrap">${fanBoardLink(t,E)}${renderClubDiary()}${renderOfficialLinks(false)}</div><div class="wrap statusbar">${E(t('sourceFallback'))} · ${E(DATA_SNAPSHOT)}</div>`;
 }
 const rosterDivision=a=>a.graduation_year?'alumni':a.officialGrade==='大学院'?'graduate':String(a.grade??'');
 function rosterDivisionLabel(a){
@@ -473,7 +489,7 @@ function historyTable(tab){
  <td>${E(row.date||row.year||'—')}</td><td>${sourceLink(row.source)}</td></tr>`).join('')||
  `<tr><td colspan="${headers.length}">${E(t(state.officialOnline?'empty':'historyFailed'))}</td></tr>`}</tbody></table></div>`;
 }
-function renderGuide(){const keys=['PB','Leg','Student','World','Team','Source'];return pageIntro('aboutTitle','guideIntro')+`<section class="wrap section"><div class="guide-grid">${keys.map(k=>`<article class="card"><span class="micro">GLOSSARY / ${E(k.toUpperCase())}</span><h3>${E(t('term'+k))}</h3><p>${E(t('term'+k+'Desc'))}</p></article>`).join('')}</div><article class="intro-panel" style="margin-top:20px"><h3>${E(t('legalTitle'))}</h3><p>${E(t('independent'))}</p><p>${E(t('legalNote'))}</p><p>${sourceLink('https://waseda-ac.jp/record/',t('sourceLabel'))}</p></article>${fanBoardLink(t,E)}${renderOfficialLinks(true)}</section>`;}
+function renderGuide(){const keys=['PB','Leg','Student','World','Team','Source'];return pageIntro('aboutTitle','guideIntro')+`<section class="wrap section"><div class="guide-grid">${keys.map(k=>`<article class="card"><span class="micro">GLOSSARY / ${E(k.toUpperCase())}</span><h3>${E(t('term'+k))}</h3><p>${E(t('term'+k+'Desc'))}</p></article>`).join('')}</div><article class="intro-panel" style="margin-top:20px"><h3>${E(t('legalTitle'))}</h3><p>${E(t('independent'))}</p><p>${E(t('legalNote'))}</p><p>${sourceLink('https://waseda-ac.jp/record/',t('sourceLabel'))}</p></article>${fanBoardLink(t,E)}${renderClubDiary()}${renderOfficialLinks(true)}</section>`;}
 async function render(){detachAdmin();const path=decodeURIComponent((location.hash.slice(1).split('?')[0]||'home'));const tab=archiveTab(path);const current=tab?'archive':['home','athletes','results','schedule','guide','admin','submissions','fans'].includes(path)?path:'home';document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('active',a.dataset.nav===current));document.querySelector('#mobile-nav').hidden=true;document.querySelector('#menu-btn').setAttribute('aria-expanded','false');document.documentElement.lang=language()==='ja'?'ja':'zh-CN';translateStatic(document);document.querySelectorAll('[data-submission-link]').forEach(link=>{link.hidden=!state.submissionsReady;});if(!dataLoaded&&['results','archive','schedule','submissions'].includes(current)){app.innerHTML=`<p class="wrap section" role="status">${E(t('historyBusy'))}</p>`;return;}if(current==='fans'){
  const review=new URLSearchParams(location.hash.split('?')[1]).has('review');
  app.innerHTML=pageIntro(review?'fanReview':'fanTitle','fanIntro')+`<section class="wrap section fan-board" id="fan-board">

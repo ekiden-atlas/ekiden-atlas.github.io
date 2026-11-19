@@ -171,3 +171,6 @@
 .athlete-media dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 3px 12px; margin: 12px 0 0; font-size: 13px; }
 .athlete-media dt { color: var(--muted); }
 .athlete-media dd { margin: 0; }
+
+.club-diary { padding-block: 28px; }
+.club-diary a { text-decoration: underline; text-underline-offset: 3px; }
