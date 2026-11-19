@@ -177,7 +177,12 @@ const tiedRoadRankings=[
 export function alltimeRankings(){
  const snapshot=state.official?.rankings||[];
  const known=new Set(snapshot.map(row=>[row.gender,row.event,nameSearch(row.athlete)].join(':')));
- const rows=[...snapshot,...tiedRoadRankings.filter(row=>!known.has([row.gender,row.event,nameSearch(row.athlete)].join(':')))];
+ const rows=[...snapshot];
+ for(const row of tiedRoadRankings){
+   if(known.has([row.gender,row.event,nameSearch(row.athlete)].join(':')))continue;
+   const tie=rows.findLastIndex(item=>item.gender===row.gender&&item.event===row.event&&Number(item.rank)===row.rank);
+   rows.splice(tie<0?rows.length:tie+1,0,row);
+ }
  return applyManaged('alltime_rank',legacyPatch('alltime_rank',rows,alltimeKey),alltimeKey);
 }
 export function comparisonRankings(){
