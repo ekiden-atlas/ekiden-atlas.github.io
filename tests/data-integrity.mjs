@@ -39,11 +39,22 @@ state.legacyEdits=[];
 state.managed=[];
 state.official=JSON.parse(readFileSync(new URL('../data/official-records.json',import.meta.url)));
 assert.ok(ekiden().filter(x=>x.race==='hak').length>=102);
-assert.ok(ekiden().filter(x=>x.race!=='hak').length>=8);
+const historicalRaces=ekiden();
+for(const [race,count] of [['izu',30],['zen',32]]){
+ const rows=historicalRaces.filter(row=>row.race===race);
+ assert.ok(rows.length>=count);
+ assert.equal(new Set(rows.map(row=>row.year)).size,rows.length);
+}
+assert.equal(historicalRaces.find(row=>row.race==='izu'&&row.year===2010)?.total,'2:10:05');
+assert.equal(historicalRaces.find(row=>row.race==='zen'&&row.year===2003)?.status,'途中棄権');
 assert.ok(ekiden().flatMap(x=>x.legs).length>=966);
 assert.ok(schoolRecords().length>=66);
 assert.ok(alltimeRankings().length>=497);
-assert.equal(sectionRecords().length,15);
+assert.equal(sectionRecords().filter(row=>row.race!=='hak').length,15);
+for(const school of [true,false]){
+ const rows=sectionRecords().filter(row=>row.race==='hak'&&(row.scope==='school')===school);
+ assert.deepEqual(rows.map(row=>row.leg),[1,2,3,4,5,6,7,8,9,10]);
+}
 assert.equal(specialtyPbs().length,4+EARLIER_SPECIALTY_PBS.length);
 assert.equal(specialtyPbs("広瀬 夏希").find(row=>row.event==="5000mW")?.time,"22:51.61");
 assert.equal(athlete("髙久 拓己").pb5000,"14:31.56");
