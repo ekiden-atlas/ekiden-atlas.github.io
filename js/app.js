@@ -36,9 +36,9 @@ function renderOfficialLinks(showUniversity){
  </div>`).join('')}</div></section>`;
 }
 const ekidenSeason=[
- {race:'izu',key:'Izu',source:'https://www.izumo-ekiden.jp/'},
- {race:'zen',key:'Zen',source:'https://daigaku-ekiden.com/'},
- {race:'hak',key:'Hak',source:'https://www.hakone-ekiden.jp/'}
+ {race:'izu',key:'Izu',source:'https://www.izumo-ekiden.jp/outline/index.html'},
+ {race:'zen',key:'Zen',source:'https://daigaku-ekiden.com/about/index.html'},
+ {race:'hak',key:'Hak',source:'https://www.hakone-ekiden.jp/about/'}
 ];
 const raceArchiveLink=(race,year)=>`#archive?race=${encodeURIComponent(race)}${year?`&year=${encodeURIComponent(year)}`:''}`;
 function ekidenTerms(){
@@ -51,6 +51,7 @@ function renderEkidenIntro(){
  <ol class="ekiden-season">${ekidenSeason.map(({race,key,source})=>`<li>
  <span class="season-month">${E(t('intro'+key+'Month'))}</span>
  <h3>${E(raceName(race))}</h3><p>${E(t('intro'+key+'Desc'))}</p>
+ <p>${E(t('intro'+key+'Watch'))}</p>
  <a class="btn btn-sm" href="${raceArchiveLink(race)}">${E(t('raceResultsLink',{race:raceName(race)}))} →</a>
  <div class="season-source">${sourceLink(source,t('officialWebsite'))}</div>
  </li>`).join('')}</ol>
