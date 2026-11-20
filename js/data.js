@@ -102,13 +102,9 @@ export function athletes(){
    const guide=printProfilesByName.get(nameSearch(athlete.name));
    if(!guide)return profile;
    const missing=Object.entries(guide).filter(([key,value])=>value!=null&&(profile[key]==null||profile[key]===''));
-   return {...profile,...Object.fromEntries(missing),_printProfileFields:missing.map(([key])=>key)};
+   return {...profile,...Object.fromEntries(missing)};
  });
  const rows=applyManaged('athlete',[...withProfiles,...profiles],x=>x.name);
- for(const row of rows){
-   const guide=printProfilesByName.get(nameSearch(row.name));
-   row._printProfileFields=row._printProfileFields?.filter(key=>row[key]===guide?.[key]);
- }
  const byKey=new Map(rows.map(x=>[x.name,x]));
  state.managed.filter(x=>x.kind==='pb').forEach(r=>{
   const x=r.payload||{};const name=x.name,field=x.field;
