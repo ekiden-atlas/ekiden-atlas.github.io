@@ -58,7 +58,8 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
    }
    if(review&&!admin){say('submissionReviewDenied');return;}
    if(params.has('result')&&!target){say('submissionTargetMissing');return;}
-   const query=db.from(table).select(fields).order('created_at',{ascending:false}).limit(100);
+   const selfEdit=(await db.rpc('wsd_atlas_submitter_edits_ready')).data===true;
+   const query=db.from(table).select(selfEdit?fields+',revision':fields).order('created_at',{ascending:false}).limit(100);
    const {data:rows,error}=await (review?query.eq('status','pending'):query.eq('author_id',user.id));
    if(error)throw error;
    if(!root.isConnected)return;
@@ -83,12 +84,13 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
    <div class="submission-list">${rows.map(row=>{
      const original=row.target_key&&results.find(result=>result.id===row.target_key);
      const current=original?`${original.name} · ${meetLabel(original.meet)} · ${recordLabel(original.event)} · ${original.time}`:'';
+     const canEdit=selfEdit&&!review&&canSubmit&&row.status==='pending';
      return `<article class="card"><h3>${E(original?.name||row.athlete_name)} · ${E(meetLabel(original?.meet||row.meet))}</h3>
      <p>${E(t(row.target_key?'submissionCorrection':'submissionNew'))} · ${E(t('submissionStatus.'+row.status))}</p>
      ${row.target_key?`<p>${E(t('submissionCurrent'))} · ${E(current||t('submissionTargetMissing'))}</p>`:''}
      <p>${E([row.race_date,recordLabel(original?.event||row.event),row.mark].filter(Boolean).join(' · '))} ${sourceLink(row.source_url)}</p>
-     ${review?`<form data-review-form data-id="${E(row.id)}">
-     ${upgraded?`<div class="submission-edit">
+     ${review||canEdit?`<form data-review-form data-id="${E(row.id)}">
+     ${upgraded||canEdit?`<div class="submission-edit">
        ${!row.target_key?[
          input('submissionAthlete','athlete_name','text',120,row.athlete_name),
          input('meet','meet','text',240,row.meet),
@@ -98,8 +100,10 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
        ${input('resultMark','mark','text',20,row.mark)}
        ${input('source','source_url','url',600,row.source_url)}
      </div>`:''}
+     ${canEdit?`<button class="btn btn-sm" type="submit" value="pending">${E(t('submissionSaveEdit'))}</button>
+     <button class="btn btn-sm" type="submit" value="withdrawn" formnovalidate>${E(t('submissionWithdraw'))}</button>`:`
      <button class="btn btn-sm" type="submit" value="published" ${row.target_key&&!original?'disabled':''}>${E(t(upgraded?'submissionReviewSubmit':'submissionPublish'))}</button>
-     <button class="btn btn-sm" type="submit" value="rejected" formnovalidate>${E(t('submissionReject'))}</button></form>`:''}</article>`;
+     <button class="btn btn-sm" type="submit" value="rejected" formnovalidate>${E(t('submissionReject'))}</button>`}</form>`:''}</article>`;
    }).join('')||`<p>${E(t('empty'))}</p>`}</div>
    ${upgraded&&!target?'<section data-other-submissions></section>':''}`;
    const status=root.querySelector('[role=status]');
@@ -121,16 +125,19 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
    root.querySelectorAll('[data-review-form]').forEach(form=>{form.onsubmit=async event=>{
      event.preventDefault();
      const decision=event.submitter?.value;
-     if(!['published','rejected'].includes(decision))return;
+     if(!(review?['published','rejected']:['pending','withdrawn']).includes(decision))return;
+     if(decision==='withdrawn'&&!confirm(t('submissionConfirmWithdraw')))return;
      const row=rows.find(item=>item.id===form.dataset.id);
      const version=state.managed.find(item=>item.kind==='result'&&item.record_key===row.target_key)?.updated_at||null;
      const buttons=form.querySelectorAll('button:not(:disabled)');
      buttons.forEach(item=>{item.disabled=true;});
      try{
-       const changes=upgraded&&decision==='published'
+       const changes=(upgraded&&decision==='published')||decision==='pending'
          ?Object.fromEntries([...new FormData(form)].map(([key,value])=>[key,value.trim()])):{};
-       const {data,error}=await db.from(table).update({...changes,status:decision,expected_version:version})
-         .eq('id',row.id).eq('status','pending').select('id').maybeSingle();
+       const update=db.from(table).update({...changes,status:decision,...(review?{expected_version:version}:{})})
+         .eq('id',row.id).eq('status','pending');
+       if(selfEdit)update.eq('revision',row.revision);
+       const {data,error}=await update.select('id').maybeSingle();
        if(error||!data)throw error||new Error('Already reviewed');
        await loadData();
        await renderSubmissions(root,{t,E,sourceLink});
@@ -138,7 +145,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
      finally{buttons.forEach(item=>{item.disabled=false;});}
    };});
    const other=root.querySelector('[data-other-submissions]');
-   if(other)await renderOtherSubmissions(other,{db,user,review,t,E}).catch(()=>{
+   if(other)await renderOtherSubmissions(other,{db,user,review,selfEdit,t,E}).catch(()=>{
      other.textContent=t('submissionUnavailable');
    });
  }catch{say('submissionUnavailable');}
