@@ -1,3 +1,4 @@
+import {submissionBadgeMarkup,watchSubmissionBadge} from './submission-badge.js';
 import {OFFICIAL_LONG_DISTANCE_ROSTER} from '../data/official-club-roster.js';
 import {KINDS,KIND_LABELS} from './admin-content-types.js';
 import {bindFeedbackInbox} from './feedback.js';
@@ -40,7 +41,7 @@ export async function renderAdminPage(root,ctx){adminRoot=root;context=ctx;
    adminDb=db;
    root.innerHTML=`<h1>${E(t('adminTitle'))}</h1><p>${E(t('adminDesc'))}</p>
    <div class="admin-actions">
-   ${state.submissionsReady?`<a class="btn" href="#submissions?review">${E(t('submissionReview'))}</a>`:''}
+   ${state.submissionsReady?`<a class="btn" href="#submissions?review">${E(t('submissionReview'))}${submissionBadgeMarkup}</a>`:''}
    <a class="btn" href="#fans?review">${E(t('fanReview'))}</a>
    <button class="btn" type="button" id="google-logout">${E(t('logout'))}</button></div>
    ${submission?`<details class="card" open><summary>${E(t('otherSubmission'))} · ${E(submission.title)}</summary>
@@ -52,6 +53,7 @@ export async function renderAdminPage(root,ctx){adminRoot=root;context=ctx;
      <p role="status"></p><div data-feedback-items></div>
      <button class="btn btn-sm" type="button" hidden>${E(t('feedbackMore'))}</button>
    </details><div id="admin-work"></div>`;
+   watchSubmissionBadge(root,db,t);
    bindFeedbackInbox(root.querySelector('#feedback-inbox'),db,E);
    root.querySelector('#google-logout').addEventListener('click',async()=>{
      const {error}=await db.auth.signOut({scope:'local'});

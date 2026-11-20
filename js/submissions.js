@@ -1,3 +1,4 @@
+import {submissionBadgeMarkup,watchSubmissionBadge} from './submission-badge.js';
 import {renderOtherSubmissions} from './other-submissions.js';
 import {OFFICIAL_LONG_DISTANCE_ROSTER} from '../data/official-club-roster.js';
 import {getDb,personalResults,state,loadData,athletes,nameSearch,officialAthleteName} from './data.js';
@@ -8,7 +9,7 @@ const fields='id,target_key,athlete_name,meet,event,race_date,mark,source_url,st
 
 function adminLinks(t,E,review){
  return `<div class="admin-actions">
- <a href="${review?'#submissions':'#submissions?review'}">${E(t(review?'submissionTitle':'submissionReview'))}</a>
+ <a href="${review?'#submissions':'#submissions?review'}">${E(t(review?'submissionTitle':'submissionReview'))}${review?'':submissionBadgeMarkup}</a>
  <a href="#admin">${E(t('navAdmin'))}</a></div>`;
 }
 
@@ -40,6 +41,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
      <button class="btn" type="button">${E(t(user?'submissionSwitchGoogle':'submissionLogin'))}</button>
      ${admin?adminLinks(t,E,false):''}
      <p role="status"></p>`;
+     watchSubmissionBadge(root,db,t);
      const button=root.querySelector('button');
      button.onclick=async()=>{
        button.disabled=true;
@@ -106,6 +108,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
      <button class="btn btn-sm" type="submit" value="rejected" formnovalidate>${E(t('submissionReject'))}</button>`}</form>`:''}</article>`;
    }).join('')||`<p>${E(t('empty'))}</p>`}</div>
    ${upgraded&&!target?'<section data-other-submissions></section>':''}`;
+   watchSubmissionBadge(root,db,t);
    const status=root.querySelector('[role=status]');
    const form=root.querySelector('.submission-form');
    if(form)form.onsubmit=async event=>{

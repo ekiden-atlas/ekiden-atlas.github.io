@@ -280,3 +280,14 @@
   font-family: "Noto Serif JP Readings", "Yu Mincho", serif;
   letter-spacing: .05em;
 }
+
+.submission-badge:not([hidden]) {
+  display: inline-block;
+  margin-inline-start: .5em;
+  padding: .15em .55em;
+  border-radius: 1em;
+  background: var(--wine);
+  color: var(--white);
+  font-size: .85em;
+  white-space: nowrap;
+}
