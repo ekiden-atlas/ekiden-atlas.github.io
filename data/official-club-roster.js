@@ -72,7 +72,7 @@ export const OFFICIAL_CLUB_ROSTER = [
   {"name":"金野 真綾","block":"長距離","source_url":"https://waseda-ac.jp/team/member/detail/343","gender":"女","grade":2,"high_school":"日立第一高等学校"},
   {"name":"斉藤 天紀","block":"長距離","source_url":"https://waseda-ac.jp/team/member/detail/344","gender":"男","grade":2,"high_school":"川越東高等学校"},
   {"name":"佐々木 哲","block":"長距離","source_url":"https://waseda-ac.jp/team/member/detail/346","gender":"男","grade":2,"high_school":"佐久長聖高等学校"},
-  {"name":"鈴木 琉胤","block":"長距離","source_url":"https://waseda-ac.jp/team/member/detail/347","gender":"男","grade":2,"high_school":"八千代松陰高等学校"},
+  {"name":"鈴木 琉胤","block":"長距離","source_url":"https://waseda-ac.jp/team/member/detail/347","gender":"男","grade":2,"high_school":"八千代松陰高等学校","height_cm":176,"weight_kg":59,"hometown":"千葉県松戸市","_profileSources":{"height_cm":"https://www.nikkansports.com/m/sports/athletics/news/amp/202601020001011.html","weight_kg":"https://takiyamashinji.com/?p=14996","hometown":"https://www.city.matsudo.chiba.jp/shisei/matsudo_kouhou/kouhou/spotlight/spotlight2025/20250315.html"}},
   {"name":"多田 真","block":"長距離","source_url":"https://waseda-ac.jp/team/member/detail/350","gender":"男","grade":2,"high_school":"洛北高等学校"},
   {"name":"谷川 航太","block":"長距離","source_url":"https://waseda-ac.jp/team/member/detail/402","gender":"男","grade":2,"high_school":"早稲田大学本庄高等学院"},
   {"name":"冨田 拓臣","block":"長距離","source_url":"https://waseda-ac.jp/team/member/detail/352","gender":"男","grade":2,"high_school":"水城高等学校"},
