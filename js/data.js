@@ -1,3 +1,4 @@
+import {SASAKI_SCHOOL_RESULTS} from '../data/sasaki-school-results.js';
 import {ATHLETE_PRINT_PROFILES} from '../data/athlete-print-profiles.js';
 import {VERIFIED_ALLTIME_TIES} from '../data/alltime-ranking-ties.js';
 import {RACE_DATE_CORRECTIONS_2026,ADDITIONAL_RESULTS_2026} from '../data/race-date-audit-2026.js';
@@ -210,7 +211,7 @@ export function resultGrade(row){
  return value==='4'&&row.status!=='student'?'':value;
 }
 export function personalResults(){
- const rows=new Map([...SCHOOL_RESULTS,...KUDO_UNIVERSITY_RESULTS,...ROSTER_AUDITED_RESULTS,...EARLIER_ATHLETE_RESULTS,...ADDITIONAL_RESULTS_2026].map(row=>[row.id,row]));
+ const rows=new Map([...SCHOOL_RESULTS,...SASAKI_SCHOOL_RESULTS,...KUDO_UNIVERSITY_RESULTS,...ROSTER_AUDITED_RESULTS,...EARLIER_ATHLETE_RESULTS,...ADDITIONAL_RESULTS_2026].map(row=>[row.id,row]));
  const legacy=new Map();
  for(const row of state.official?.results||[]){
    rows.set(row.id,{...row,...RESULT_CORRECTIONS[row.id],...ROSTER_RESULT_CORRECTIONS[row.id],...EARLIER_ATHLETE_CORRECTIONS[row.id]});
