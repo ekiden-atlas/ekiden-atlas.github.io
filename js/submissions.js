@@ -1,4 +1,4 @@
-import {SPOLIVE_EKIDEN_ROSTER} from '../data/spolive-ekiden-roster.js';
+import {OFFICIAL_LONG_DISTANCE_ROSTER} from '../data/official-club-roster.js';
 import {getDb,personalResults,state,loadData,athletes,nameSearch,officialAthleteName} from './data.js';
 import {meetLabel,recordLabel} from './record-names.js';
 
@@ -13,7 +13,7 @@ function adminLinks(t,E,review){
 
 function athletePicker(t,E){
  const names=new Map(athletes().map(({name})=>[nameSearch(name),name]));
- const options=SPOLIVE_EKIDEN_ROSTER.map(name=>names.get(nameSearch(name))??name)
+ const options=OFFICIAL_LONG_DISTANCE_ROSTER.map(({name})=>names.get(nameSearch(name))??name)
    .sort((a,b)=>officialAthleteName(a).localeCompare(officialAthleteName(b),'ja'))
    .map(name=>`<option value="${E(name)}">${E(officialAthleteName(name))}</option>`).join('');
  return `<label class="field"><span id="submission-athlete-label">${E(t('submissionAthlete'))}</span>
