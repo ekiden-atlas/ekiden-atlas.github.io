@@ -239,6 +239,12 @@ export function personalResults(){
  }
  return applyManaged('result',[...rows.values()],x=>x.id)
    .map(row=>{
+     if(row.id==='submission-6d6f9c57-be4a-4916-b4ac-3c5b9daa5768'&&row.date==='2022-11-12'&&
+       nameSearch(row.name)==='本田桜二郎'&&row.event==='1区 (3.975km)'&&parseTime(row.time)===729){
+       return {...row,meet:'福岡県中学校駅伝競走大会',unit:row.unit||'宅峰中学校',
+         rank:row.rank??1,status:row.status||'middleSchool',gradeAtRace:row.gradeAtRace??row.grade??3,
+         stage:row.stage||'区間賞'};
+     }
      // Fill the verified fields for the original, incomplete Oku-Kuma submission.
      const verified=rows.get(row.id);
      if(row.id!=='submission-3cfa893c-91e8-4f5e-ab56-287f9d825735'||row.event!=='第7区 5.045km'||
