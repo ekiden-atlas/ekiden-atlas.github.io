@@ -130,3 +130,6 @@ export const OFFICIAL_CLUB_ROSTER = [
   {"name":"石原 佳篤","block":"混成","source_url":"https://waseda-ac.jp/team/member/detail/331","gender":"男","grade":2,"high_school":"早稲田大学本庄高等学院"},
   {"name":"坂本 一竜","block":"混成","source_url":"https://waseda-ac.jp/team/member/detail/403","gender":"男","grade":1,"high_school":"仙台育英学園高等学校"},
 ];
+
+export const OFFICIAL_LONG_DISTANCE_SOURCE = "https://waseda-ac.jp/team/member/block/3";
+export const OFFICIAL_LONG_DISTANCE_ROSTER = OFFICIAL_CLUB_ROSTER.filter(member => member.block === "長距離");
