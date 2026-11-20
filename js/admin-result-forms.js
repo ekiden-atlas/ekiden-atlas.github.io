@@ -9,7 +9,6 @@ export function raceFields(kind,payload,{t,E}){
  ${field('mainEvent','event',payload.mainEvent,'maxlength="80"')}
  ${field('middle_school','middleSchoolProfile',payload.middle_school,'maxlength="120"')}
  ${field('home_prefecture','homePrefecture',payload.home_prefecture,'maxlength="30"')}
- ${field('blood_type','bloodType',payload.blood_type,'pattern="A|B|AB|O" maxlength="2"')}
  ${field('high_school','school',payload.high_school,'maxlength="120"')}
  ${field('grade','filterGrade',payload.grade,'type="number" min="1" max="4"')}
  <label class="field">${E(t('filterGender'))}<select name="gender"><option value="">${E(t('notRecorded'))}</option>
@@ -75,7 +74,7 @@ export function racePayload(kind,form,base){
  if(kind==='athlete'){
    const name=value('name');
    if(!name)return null;
-   return {...base,name,...Object.fromEntries(['mainEvent','middle_school','high_school','home_prefecture','blood_type','gender','birthday','birthplace','hometown'].map(key=>[key,value(key)||null])),
+   return {...base,name,...Object.fromEntries(['mainEvent','middle_school','high_school','home_prefecture','gender','birthday','birthplace','hometown'].map(key=>[key,value(key)||null])),
      grade:Number(value('grade'))||null,height_cm:Number(value('height_cm'))||null,weight_kg:Number(value('weight_kg'))||null};
  }
  const date=value('date');

@@ -70,8 +70,8 @@ function sourceChoices(kind){
  const entry=(key,label,payload,source='')=>({key,label,payload,source:source||''});
  const content=r=>Object.fromEntries(Object.entries(r).filter(([key])=>!key.startsWith('_')));
  if(kind==='athlete')return athletes().map(a=>{
-   const {name,grade,gender,birthday,birthplace,hometown,middle_school,high_school,home_prefecture,blood_type,height_cm,weight_kg,mainEvent,graduation_year,graduation_source,officialGrade,block,clubSource}=a;
-   return entry(name,name,{name,grade,gender,birthday,birthplace,hometown,middle_school,high_school,home_prefecture,blood_type,height_cm,weight_kg,mainEvent,graduation_year,graduation_source,officialGrade,block,clubSource},a.source_url||clubSource);
+   const {name,grade,gender,birthday,birthplace,hometown,middle_school,high_school,home_prefecture,height_cm,weight_kg,mainEvent,graduation_year,graduation_source,officialGrade,block,clubSource}=a;
+   return entry(name,name,{name,grade,gender,birthday,birthplace,hometown,middle_school,high_school,home_prefecture,height_cm,weight_kg,mainEvent,graduation_year,graduation_source,officialGrade,block,clubSource},a.source_url||clubSource);
  });
  if(kind==='pb')return athletes().flatMap(a=>[['pb1500','1500m'],['pb5000','5000m'],['pb10000','10000m'],['pbHalf','Half Marathon']]
    .map(([field,label])=>entry(a.name+':'+label,a.name+' · '+recordLabel(label),{name:a.name,field,time:a[field]||''},a._pbSources?.[field])));
