@@ -1,3 +1,4 @@
+import {ATHLETE_PRINT_PROFILES} from '../data/athlete-print-profiles.js';
 import {VERIFIED_ALLTIME_TIES} from '../data/alltime-ranking-ties.js';
 import {RACE_DATE_CORRECTIONS_2026,ADDITIONAL_RESULTS_2026} from '../data/race-date-audit-2026.js';
 import {HISTORICAL_EKIDEN,HAKONE_SECTION_RECORDS} from '../data/ekiden-official-history.js';
@@ -55,6 +56,9 @@ export async function loadData(){
   return state;
 }
 export const nameSearch=name=>String(name??'').normalize('NFC').replace(/\s/g,'').toLowerCase();
+const printProfilesByName=new Map(ATHLETE_PRINT_PROFILES.map(([name,middle_school,high_school,height_cm,weight_kg,blood_type,birthday,home_prefecture])=>[
+ nameSearch(name),{middle_school,high_school,height_cm,weight_kg,blood_type,birthday,home_prefecture}
+]));
 const officialByName=new Map(OFFICIAL_CLUB_ROSTER.map(row=>[nameSearch(row.name),row]));
 export const officialAthleteName=name=>officialByName.get(nameSearch(name))?.name??name;
 function basicProfile(name){
@@ -92,7 +96,19 @@ export function athletes(){
  }
  const profiles=state.profiles.filter(x=>!rosterNames.has(nameSearch(x.athlete_name)))
    .map(x=>({...x,name:x.athlete_name}));
- const rows=applyManaged('athlete',[...baseline.map(x=>({...x,...Object.fromEntries(Object.entries(basicProfile(x.name)).filter(([,value])=>value!=null&&value!==''))})),...profiles],x=>x.name);
+ const withProfiles=baseline.map(athlete=>{
+   const basic=Object.fromEntries(Object.entries(basicProfile(athlete.name)).filter(([,value])=>value!=null&&value!==''));
+   const profile={...athlete,...basic};
+   const guide=printProfilesByName.get(nameSearch(athlete.name));
+   if(!guide)return profile;
+   const missing=Object.entries(guide).filter(([key,value])=>value!=null&&(profile[key]==null||profile[key]===''));
+   return {...profile,...Object.fromEntries(missing),_printProfileFields:missing.map(([key])=>key)};
+ });
+ const rows=applyManaged('athlete',[...withProfiles,...profiles],x=>x.name);
+ for(const row of rows){
+   const guide=printProfilesByName.get(nameSearch(row.name));
+   row._printProfileFields=row._printProfileFields?.filter(key=>row[key]===guide?.[key]);
+ }
  const byKey=new Map(rows.map(x=>[x.name,x]));
  state.managed.filter(x=>x.kind==='pb').forEach(r=>{
   const x=r.payload||{};const name=x.name,field=x.field;
