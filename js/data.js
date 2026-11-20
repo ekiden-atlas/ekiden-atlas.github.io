@@ -56,8 +56,8 @@ export async function loadData(){
   return state;
 }
 export const nameSearch=name=>String(name??'').normalize('NFC').replace(/\s/g,'').toLowerCase();
-const printProfilesByName=new Map(ATHLETE_PRINT_PROFILES.map(([name,middle_school,high_school,height_cm,weight_kg,blood_type,birthday,home_prefecture])=>[
- nameSearch(name),{middle_school,high_school,height_cm,weight_kg,blood_type,birthday,home_prefecture}
+const printProfilesByName=new Map(ATHLETE_PRINT_PROFILES.map(([name,middle_school,high_school,height_cm,weight_kg,birthday,home_prefecture])=>[
+ nameSearch(name),{middle_school,high_school,height_cm,weight_kg,birthday,home_prefecture}
 ]));
 const officialByName=new Map(OFFICIAL_CLUB_ROSTER.map(row=>[nameSearch(row.name),row]));
 export const officialAthleteName=name=>officialByName.get(nameSearch(name))?.name??name;
