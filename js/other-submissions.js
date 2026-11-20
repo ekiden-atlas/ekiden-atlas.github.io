@@ -6,9 +6,9 @@ const mimeTypes=[
  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 ];
 
-export async function renderOtherSubmissions(root,{db,user,review,t,E}){
+export async function renderOtherSubmissions(root,{db,user,review,selfEdit,t,E}){
  const bucket=db.storage.from('atlas-submission-files');
- const query=db.from(table).select('id,author_id,folder,title,body,status').order('created_at',{ascending:false}).limit(100);
+ const query=db.from(table).select('id,author_id,folder,title,body,status'+(selfEdit?',revision':'')).order('created_at',{ascending:false}).limit(100);
  const {data:rows,error}=await (review?query.eq('status','pending'):query.eq('author_id',user.id));
  if(error)throw error;
  if(!root.isConnected)return;
@@ -18,7 +18,9 @@ export async function renderOtherSubmissions(root,{db,user,review,t,E}){
  ${review?'':`<form class="card">${content()}
  <label class="field">${E(t('otherSubmissionFiles'))}<input name="files" type="file" accept="${mimeTypes.join(',')}" multiple></label>
  <button class="btn" type="submit">${E(t('submissionSend'))}</button></form>`}
- ${rows.map(row=>`<article class="card" data-id="${E(row.id)}"><p>${E(t('submissionStatus.'+row.status))}</p>
+ ${rows.map(row=>{
+ const canEdit=selfEdit&&!review&&row.status==='pending';
+ return `<article class="card" data-id="${E(row.id)}"><p>${E(t('submissionStatus.'+row.status))}</p>
  <ul></ul>${review?`<label class="field">${E(t('submissionDestination'))}
  <select data-destination><option value="">${E(t('adminSelectType'))}</option>
  ${Object.entries(KIND_LABELS).map(([kind,label])=>`<option value="${kind}">${E(t(label))}</option>`).join('')}
@@ -27,7 +29,10 @@ export async function renderOtherSubmissions(root,{db,user,review,t,E}){
  <form>${content(row)}
  <button class="btn" type="submit" value="accepted">${E(t('submissionReviewSubmit'))}</button>
  <button class="btn" type="submit" value="rejected" formnovalidate>${E(t('submissionReject'))}</button>
- </form>`:`<h4>${E(row.title)}</h4><p>${E(row.body)}</p>`}</article>`).join('')}`;
+ </form>`:canEdit?`<form>${content(row)}
+ <button class="btn" type="submit" value="pending">${E(t('submissionSaveEdit'))}</button>
+ <button class="btn" type="submit" value="withdrawn" formnovalidate>${E(t('submissionWithdraw'))}</button>
+ </form>`:`<h4>${E(row.title)}</h4><p>${E(row.body)}</p>`}</article>`;}).join('')}`;
  const status=root.querySelector('[role=status]');
  const values=form=>({title:form.elements.title.value.trim(),body:form.elements.body.value.trim()});
  const bind=(form,save)=>{form.onsubmit=async event=>{
@@ -36,8 +41,8 @@ export async function renderOtherSubmissions(root,{db,user,review,t,E}){
    buttons.forEach(button=>{button.disabled=true;});
    try{
      if(await save(event.submitter?.value)===false)return;
-     await renderOtherSubmissions(root,{db,user,review,t,E});
-     root.querySelector('[role=status]').textContent=t(review?'otherSubmissionReviewed':'submissionSent');
+     await renderOtherSubmissions(root,{db,user,review,selfEdit,t,E});
+     root.querySelector('[role=status]').textContent=t(review?'otherSubmissionReviewed':event.submitter?.value==='withdrawn'?'submissionStatus.withdrawn':event.submitter?.value==='pending'?'adminSaved':'submissionSent');
    }catch{status.textContent=t(review?'submissionReviewFailed':'submissionFailed');}
    finally{buttons.forEach(button=>{button.disabled=false;});}
  };};
@@ -77,11 +82,15 @@ export async function renderOtherSubmissions(root,{db,user,review,t,E}){
        if(destination.value)editor.href='#admin?'+new URLSearchParams({kind:destination.value,submission:row.id});
        else editor.removeAttribute('href');
      };
-     const form=article.querySelector('form');
-     bind(form,async decision=>{
-       const changes=decision==='accepted'?values(form):{};
-       const {data,error}=await db.from(table).update({...changes,status:decision})
-         .eq('id',row.id).eq('status','pending').select('id').maybeSingle();
+   }
+   const edit=article.querySelector('form');
+   if(edit){
+     bind(edit,async decision=>{
+       if(decision==='withdrawn'&&!confirm(t('submissionConfirmWithdraw')))return false;
+       const changes=['accepted','pending'].includes(decision)?values(edit):{};
+       const update=db.from(table).update({...changes,status:decision}).eq('id',row.id).eq('status','pending');
+       if(selfEdit)update.eq('revision',row.revision);
+       const {data,error}=await update.select('id').maybeSingle();
        if(error||!data)throw error||new Error('Already reviewed');
      });
    }
