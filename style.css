@@ -235,7 +235,7 @@
 .footer-credit strong {
   display: block;
   color: #fff;
-  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-size: clamp(1.25rem, 3.5vw, 1.625rem);
   line-height: 1.25;
 }
 .footer-credit span {
