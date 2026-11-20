@@ -1,4 +1,5 @@
-import {athleteSearchKey} from './athlete-search.js';
+import {HAKONE_GUIDE_SOURCE} from '../data/hakone-2027-athlete-guide.js';
+import {athleteGuide,matchesAthleteSearch} from './athlete-search.js';
 import {renderGrowthChart,renderEkidenRankChart} from './analysis-charts.js';
 import {renderWatchPage,watchStar,toggleWatched,setCompared,setWatchEvent} from './athlete-watch.js';
 import {CLUB_DIARIES} from '../data/club-diaries.js';
@@ -209,8 +210,8 @@ let filter={q:'',grade:'all',gender:'all',metric:'pb5000'};
 function renderAthleteTable(){
  const studentBody=document.querySelector('#athlete-rows');
  if(!studentBody)return;
- const query=athleteSearchKey(filter.q);
- const rows=athletes().filter(a=>(!query||athleteSearchKey(a.name).includes(query))&&
+ const query=filter.q;
+ const rows=athletes().filter(a=>(!query||matchesAthleteSearch(a.name,query))&&
    (filter.grade==='all'||rosterDivision(a)===filter.grade)&&(filter.gender==='all'||a.gender===filter.gender));
  rows.sort((a,b)=>parseTime(a[filter.metric])-parseTime(b[filter.metric]));
  const students=rows.filter(a=>rosterDivision(a)!=='alumni'&&longDistanceRosterNames.has(nameSearch(a.name)));
@@ -292,13 +293,14 @@ function renderAthleteHighlights(name,records){
 }
 function profileDetail(name,records){
  const a=athlete(name)||{name};
+ const reading=athleteGuide(name)?.[1];
  const basics=[['school','high_school'],['birthday','birthday'],['birthplace','birthplace'],['hometown','hometown'],['height','height_cm','cm'],['weight','weight_kg','kg']];
  const metrics=[['1500m','pb1500',1.5],['5000m','pb5000',5],['10000m','pb10000',10],['ハーフマラソン','pbHalf',21.0975]]
    .map(([title,key,km])=>({title,time:a[key],km,source:a._pbSources?.[key]}));
  const marathon=records.filter(row=>row.pb&&recordLabel(row.event)==='マラソン'&&validUrl(row.source)&&Number.isFinite(parseTime(row.time)))
    .sort((left,right)=>parseTime(left.time)-parseTime(right.time))[0];
  if(marathon)metrics.push({title:t('marathonPb'),time:marathon.time,km:42.195,source:marathon.source});
- const field=a.pb5000?'pb5000':a.pb10000?'pb10000':'pb1500';const valid=athletes().filter(x=>x.gender===a.gender&&Number.isFinite(parseTime(x[field]))).sort((x,y)=>parseTime(x[field])-parseTime(y[field]));const pos=valid.findIndex(x=>x.name===name)+1;const ranks=worldRankings(name);return `<div class="split" style="margin-top:22px"><article class="detail-panel"><span class="micro">ATHLETE PROFILE · ${E(t('snapshot'))}</span><h1>${E(officialAthleteName(name))}</h1><p>${E(rosterDivisionLabel(a))} · ${E(t({女:'female',男:'male'}[a.gender]||'notRecorded'))}</p>${a.graduation_year?`<p>${E(t('graduated'))} · ${E(a.graduation_year)} ${sourceLink(a.graduation_source)}</p>`:''}${blocks[a.block]?`<p>${E(t(blocks[a.block]))} ${sourceLink(a.clubSource)}</p>`:''}${a.mainEvent?`<p>${E(t('event'))} · ${E(recordLabel(a.mainEvent))}</p>`:''}${basics.map(([label,key,unit])=>`<div class="row-meta">${E(t(label))} · ${E(a[key]??t('notRecorded'))}${a[key]&&unit?' '+unit:''} ${a[key]?sourceLink(a._profileSources?.[key]):''}</div>`).join('')}
+ const field=a.pb5000?'pb5000':a.pb10000?'pb10000':'pb1500';const valid=athletes().filter(x=>x.gender===a.gender&&Number.isFinite(parseTime(x[field]))).sort((x,y)=>parseTime(x[field])-parseTime(y[field]));const pos=valid.findIndex(x=>x.name===name)+1;const ranks=worldRankings(name);return `<div class="split" style="margin-top:22px"><article class="detail-panel"><span class="micro">ATHLETE PROFILE · ${E(t('snapshot'))}</span><h1>${E(officialAthleteName(name))}</h1>${reading?`<p class="athlete-reading"><span lang="ja">${E(reading)}</span> ${sourceLink(HAKONE_GUIDE_SOURCE)}</p>`:''}<p>${E(rosterDivisionLabel(a))} · ${E(t({女:'female',男:'male'}[a.gender]||'notRecorded'))}</p>${a.graduation_year?`<p>${E(t('graduated'))} · ${E(a.graduation_year)} ${sourceLink(a.graduation_source)}</p>`:''}${blocks[a.block]?`<p>${E(t(blocks[a.block]))} ${sourceLink(a.clubSource)}</p>`:''}${a.mainEvent?`<p>${E(t('event'))} · ${E(recordLabel(a.mainEvent))}</p>`:''}${basics.map(([label,key,unit])=>`<div class="row-meta">${E(t(label))} · ${E(a[key]??t('notRecorded'))}${a[key]&&unit?' '+unit:''} ${a[key]?sourceLink(a._profileSources?.[key]):''}</div>`).join('')}
  <div class="row-meta">${E(t('dataUpdated'))} · ${E(a.updated_at?.slice(0,10)||DATA_SNAPSHOT)} ${sourceLink(a.source_url)}</div>${renderAthleteHighlights(name,records)}${renderAthleteSocialLinks(name)}<h3>${E(t('pb'))}</h3><div class="detail-grid">${metrics.map(({title,time,km,source})=>`<div><small>${E(title)} · PB</small><b class="mono">${E(time||'—')}</b><small>${time?E(t('pace')+' '+formatPace(time,km)):E(t('notRecorded'))}</small>${sourceLink(source)}</div>`).join('')}</div>${specialtyPbs(name).map(r=>`<p>${E(recordLabel(r.event))} · PB <b>${E(r.time)}</b> ${sourceLink(r.source)}</p>`).join('')}<p class="titleline">${E(t('athleteMetric'))}</p><p>${E(t('internalSort'))}</p>${verifiedContext(name)}${pos?`<div class="rank-badge">${E(t('internalTag',{rank:pos,total:valid.length}))}</div><div class="progress-track"><i style="width:${Math.max(4,100*(valid.length-pos+1)/valid.length)}%"></i></div>`:`<p>${E(t('notRanked'))}</p>`}</article><article class="detail-panel"><h3>${E(t('globalTitle'))}</h3><p>${E(t('globalNote'))}</p>${ranks.length?ranks.map(r=>`<div class="card" style="margin-top:11px;padding:16px"><div class="card-top"><strong>${E(recordLabel(r.event_name))}</strong><span class="tag">${E(t('worldRank'))} ${E(r.world_rank??'—')}</span></div><p>${E(t('asiaRank'))} · ${E(r.asia_rank??t('notRecorded'))}<br>
  ${E(t('rankingPoints'))} · ${E(r.ranking_points??t('notRecorded'))}<br>
  ${E(t('rankingDate'))} · ${E(r.ranking_date)}</p>
@@ -317,16 +319,21 @@ function renderAthleteHonors(rows){
 }
 function athleteRaceEntries(name){
  const key=nameSearch(name);
- return ekiden().flatMap(race=>race.legs.filter(leg=>leg.name&&nameSearch(leg.name)===key).map(leg=>({race,leg})));
+ const entries=ekiden().flatMap(race=>race.legs.filter(leg=>leg.name&&nameSearch(leg.name)===key).map(leg=>({race,leg,source:race.source})));
+ for(const [type,year,leg,rank] of athleteGuide(name)?.[2]||[]){
+   if(entries.some(entry=>entry.race.race===type&&Number(entry.race.year)===year))continue;
+   entries.push({race:{race:type,year},leg:{leg,rank},reserve:leg==null,source:HAKONE_GUIDE_SOURCE});
+ }
+ return entries.sort((a,b)=>b.race.year-a.race.year||['zen','izu','hak'].indexOf(a.race.race)-['zen','izu','hak'].indexOf(b.race.race));
 }
 function renderAthleteEkiden(entries){
  if(!entries.length)return '';
  return `<section class="section"><h2>${E(t('navEkiden'))}</h2>
  <div class="table-wrap"><table class="data-table"><thead><tr>
- ${['years','meet','section','resultMark','legRank'].map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}
- </tr></thead><tbody>${entries.map(({race,leg})=>`<tr><td>${E(race.year)}</td>
+ ${['years','meet','section','resultMark','legRank','source'].map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}
+ </tr></thead><tbody>${entries.map(({race,leg,reserve,source})=>`<tr><td>${E(race.year)}</td>
  <td><a href="${raceArchiveLink(race.race,race.year)}">${E(race.meet?meetLabel(race.meet):raceName(race.race))}</a></td>
- <td>${E(leg.leg)}</td><td class="mono">${E(leg.time)}</td><td>${E(leg.rank??'—')}</td></tr>`).join('')}</tbody></table></div></section>`;
+ <td>${E(reserve?t('relayReserve'):leg.leg??'—')}</td><td class="mono">${E(leg.time||'—')}</td><td>${E(leg.rank??'—')}</td><td>${sourceLink(source)}</td></tr>`).join('')}</tbody></table></div></section>`;
 }
 function renderAthletes(){
  const params=new URLSearchParams(location.hash.split('?')[1]||'');
@@ -423,7 +430,7 @@ function updateResults(reset=false){
  const group=document.querySelector('#result-group').value;
  const groups=new Map();
  const matching=records.filter(r=>(!event||recordLabel(r.event)===event)&&(!meet||meetLabel(r.meet)===meet)&&(!year||String(r.year)===year)&&(!status||r.status===status)&&(!grade||resultGrade(r)===grade)&&
-   (!q||athleteSearchKey(r.name).includes(athleteSearchKey(q))||[r.meet,r.meetAlias,r.event,r.unit,meetLabel(r.meet),recordLabel(r.event),r.location,recordLabel(r.location)].some(value=>nameSearch(value).includes(q))));
+   (!q||matchesAthleteSearch(r.name,q)||[r.meet,r.meetAlias,r.event,r.unit,meetLabel(r.meet),recordLabel(r.event),r.location,recordLabel(r.location)].some(value=>nameSearch(value).includes(q))));
  for(const row of matching){
    const key=(group==='meet'?meetLabel(row.meet):String(row.year||''))||t('notRecorded');
    if(!groups.has(key))groups.set(key,[]);
@@ -531,7 +538,7 @@ function historyTable(tab){
  const hasRank=tab==='alltime';
  const headers=[...(hasRank?['rank']:[]),'profile','event','resultMark',hasRank?'years':'date','source'];
  const rows=rankingRows(tab).filter(row=>(filter.gender==='all'||row.gender===filter.gender)&&
-   (!filter.event||recordLabel(row.event)===filter.event)&&athleteSearchKey(row.athlete).includes(athleteSearchKey(filter.name)));
+   (!filter.event||recordLabel(row.event)===filter.event)&&matchesAthleteSearch(row.athlete,filter.name));
  host.innerHTML=`<div class="table-wrap"><table class="data-table">
  <thead><tr>${headers.map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}</tr></thead>
  <tbody>${rows.map(row=>`<tr>${hasRank?`<td>${E(row.rank??'—')}</td>`:''}
