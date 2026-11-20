@@ -1,8 +1,7 @@
 import {nameSearch,officialAthleteName,parseTime} from './data.js';
 import {meetLabel,recordLabel} from './record-names.js';
 
-export const growthAthleteNames=['鈴木 琉胤','増子 陽太'];
-const growthAthletes=new Set(growthAthleteNames.map(nameSearch));
+const growthAthletes=new Set(['鈴木琉胤','増子陽太']);
 const dayPattern=/^\d{4}-\d{2}-\d{2}$/;
 const width=480,height=240,left=52,right=456,top=23,bottom=200;
 

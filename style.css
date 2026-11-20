@@ -218,13 +218,13 @@
 .analysis-best strong { margin-inline: 4px; color: var(--wine); font-size: 1.35rem; }
 .analysis-best span { color: var(--muted); }
 
-.archive-chart-grid {
+.analysis-chart-grid {
  display: grid;
  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
  gap: 24px;
  margin-block-start: 24px;
  align-items: start;
 }
-.archive-chart-grid article { min-width: 0; }
-.archive-chart-grid article > h2 { margin: 0; }
-.archive-chart-grid article > h2 a { text-decoration: underline; text-underline-offset: 3px; }
+.analysis-chart-grid article { min-width: 0; }
+.analysis-chart-grid article > h2 { margin: 0; }
+.analysis-chart-grid article > h2 a { text-decoration: underline; text-underline-offset: 3px; }
