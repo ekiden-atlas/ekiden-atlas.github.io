@@ -15,3 +15,9 @@ The optional contributor migration lets authors update or withdraw their own pen
 The migration adds two update policies, a withdrawn state and a revision column to each submission table. The existing administrator review policies and attachment permissions remain in effect. No records are deleted. Verify on an isolated database with an author, another contributor and a reviewer before enabling in production. Exercise editing, withdrawal, stale review, and attempts to modify a different author's or completed submission.
 
 To roll back the feature without losing history, revoke the readiness RPC from authenticated and drop the two contributor update policies. Retain the revision columns and withdrawn status constraints so previously withdrawn records stay readable. Coordinate removal of the revision checks with a frontend rollback.
+
+## Finish place and race-time grade
+
+The optional `optional-submission-rank-and-division.sql` migration adds two nullable fields to race submissions, exposes them through the existing author and staff policies, and includes the confirmed values when the administrator publishes. Existing submissions with blank fields work as before. For corrections, a blank field leaves the existing public result value intact.
+
+Before applying in production, verify that a signed-in contributor can submit values, another contributor cannot edit them, reviewers can revise and publish them, and a correction with blank fields preserves the current result. The form appears once the database readiness function returns true. To disable it, revoke authenticated execution of that function and restore the publication function from `optional-submission-review-and-attachments.sql`. Retain the two columns to preserve already submitted information. Published results remain independently editable through Content Management.

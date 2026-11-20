@@ -61,13 +61,32 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
    if(review&&!admin){say('submissionReviewDenied');return;}
    if(params.has('result')&&!target){say('submissionTargetMissing');return;}
    const selfEdit=(await db.rpc('wsd_atlas_submitter_edits_ready')).data===true;
-   const query=db.from(table).select(selfEdit?fields+',revision':fields).order('created_at',{ascending:false}).limit(100);
+   const detailsReady=(await db.rpc('wsd_atlas_submission_details_ready')).data===true;
+   const selectedFields=fields+(selfEdit?',revision':'')+(detailsReady?',finish_rank,race_division':'');
+   const query=db.from(table).select(selectedFields).order('created_at',{ascending:false}).limit(100);
    const {data:rows,error}=await (review?query.eq('status','pending'):query.eq('author_id',user.id));
    if(error)throw error;
    if(!root.isConnected)return;
    const upgraded=(await db.rpc('wsd_atlas_attachment_submissions_ready')).data===true;
    if(!root.isConnected)return;
    const input=(key,name,type,max,value='',readOnly=false)=>`<label class="field">${E(t(key))}<input name="${name}" type="${type}" maxlength="${max}" value="${E(value)}" required ${readOnly?'readonly':''}></label>`;
+   const divisions=['m1','m2','m3','h1','h2','h3','u1','u2','u3','u4'];
+   const divisionLabels=t('submissionDivisionOptions').split('|');
+   const divisionLabel=value=>divisionLabels[divisions.indexOf(value)];
+   const detailFields=(rank,division)=>detailsReady?`
+     <label class="field">${E(t('rank'))}<input name="finish_rank" type="number" min="1" max="2147483647" step="1" value="${E(rank??'')}"></label>
+     <label class="field">${E(t('resultStatus'))}<select name="race_division">
+     <option value="">${E(t('notRecorded'))}</option>
+     ${divisions.map(value=>`<option value="${value}" ${value===division?'selected':''}>${E(divisionLabel(value))}</option>`).join('')}
+     </select></label>`:'';
+   function formValues(form){
+     const values=Object.fromEntries([...new FormData(form)].map(([key,value])=>[key,value.trim()]));
+     if(detailsReady&&'finish_rank' in values){
+       values.finish_rank=values.finish_rank?Number(values.finish_rank):null;
+       values.race_division=values.race_division||null;
+     }
+     return values;
+   }
    root.innerHTML=`
    <div class="section-head"><h2>${E(t(review?'submissionReview':'submissionMine'))}</h2>
    ${admin?adminLinks(t,E,review):''}</div>
@@ -78,7 +97,8 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
      ${input('meet','meet','text',240,meetLabel(target?.meet),Boolean(target))}
      ${input('event','event','text',80,recordLabel(target?.event),Boolean(target))}
      ${!target?input('date','race_date','date',10):''}
-     ${input('resultMark','mark','text',20)}
+     ${input('resultMark','mark','text',20,target?.time)}
+     ${detailFields()}
      ${input('source','source_url','url',600)}
      <button class="btn" type="submit">${E(t('submissionSend'))}</button>
    </form>`:''}
@@ -90,7 +110,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
      return `<article class="card"><h3>${E(original?.name||row.athlete_name)} · ${E(meetLabel(original?.meet||row.meet))}</h3>
      <p>${E(t(row.target_key?'submissionCorrection':'submissionNew'))} · ${E(t('submissionStatus.'+row.status))}</p>
      ${row.target_key?`<p>${E(t('submissionCurrent'))} · ${E(current||t('submissionTargetMissing'))}</p>`:''}
-     <p>${E([row.race_date,recordLabel(original?.event||row.event),row.mark].filter(Boolean).join(' · '))} ${sourceLink(row.source_url)}</p>
+     <p>${E([row.race_date,recordLabel(original?.event||row.event),row.mark,row.finish_rank?`${t('rank')} ${row.finish_rank}`:'',divisionLabel(row.race_division)].filter(Boolean).join(' · '))} ${sourceLink(row.source_url)}</p>
      ${review||canEdit?`<form data-review-form data-id="${E(row.id)}">
      ${upgraded||canEdit?`<div class="submission-edit">
        ${!row.target_key?[
@@ -100,6 +120,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
          input('date','race_date','date',10,row.race_date)
        ].join(''):''}
        ${input('resultMark','mark','text',20,row.mark)}
+       ${detailFields(row.finish_rank,row.race_division)}
        ${input('source','source_url','url',600,row.source_url)}
      </div>`:''}
      ${canEdit?`<button class="btn btn-sm" type="submit" value="pending">${E(t('submissionSaveEdit'))}</button>
@@ -116,7 +137,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
      const button=form.querySelector('button');
      button.disabled=true;
      try{
-       const values=Object.fromEntries([...new FormData(form)].map(([key,value])=>[key,value.trim()]));
+       const values=formValues(form);
        const {error}=await db.from(table).insert({...values,target_key:target?.id||null});
        if(error)throw error;
        await renderSubmissions(root,{t,E,sourceLink});
@@ -136,7 +157,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
      buttons.forEach(item=>{item.disabled=true;});
      try{
        const changes=(upgraded&&decision==='published')||decision==='pending'
-         ?Object.fromEntries([...new FormData(form)].map(([key,value])=>[key,value.trim()])):{};
+         ?formValues(form):{};
        const update=db.from(table).update({...changes,status:decision,...(review?{expected_version:version}:{})})
          .eq('id',row.id).eq('status','pending');
        if(selfEdit)update.eq('revision',row.revision);
