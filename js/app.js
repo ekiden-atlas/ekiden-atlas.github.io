@@ -179,7 +179,8 @@ function renderHome(){
      <a class="btn btn-outline-dark" href="#athletes">${E(t('navAthletes'))} →</a>`
    :`<a class="btn btn-on-dark" href="#schedule">${E(t('navSchedule'))} →</a>
      <a class="btn btn-outline-dark" href="#archive">${E(t('navEkiden'))} →</a>
-     <a class="btn btn-outline-dark" href="#athletes">${E(t('navAthletes'))} →</a>`}</div></div></div></section>
+     <a class="btn btn-outline-dark" href="#athletes">${E(t('navAthletes'))} →</a>`}
+ ${state.submissionsReady?`<a class="btn btn-outline-dark" href="#submissions">${E(t('submissionTitle'))} →</a>`:''}</div></div></div></section>
  ${beginner?`<div class="wrap">${renderEkidenIntro()}</div>`:''}
  ${renderCompetitionList(true)}
  <section class="section ${beginner?'soft-section':''}" aria-labelledby="latest-heading"><div class="wrap">
