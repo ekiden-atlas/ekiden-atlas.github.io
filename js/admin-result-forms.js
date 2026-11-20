@@ -14,7 +14,8 @@ export function raceFields(kind,payload,{t,E}){
  ${field('birthday','birthday',payload.birthday,'maxlength="20"')}
  ${field('birthplace','birthplace',payload.birthplace,'maxlength="120"')}
  ${field('hometown','hometown',payload.hometown,'maxlength="120"')}
- ${field('height_cm','height',payload.height_cm,'type="number" min="1" max="300"')}`;
+ ${field('height_cm','height',payload.height_cm,'type="number" min="1" max="300"')}
+ ${field('weight_kg','weight',payload.weight_kg,'type="number" min="1" max="500" step="0.1"')}`;
  const options=values=>[...new Set(values)].filter(Boolean).sort((a,b)=>a.localeCompare(b,'ja',{numeric:true}))
    .map(value=>`<option value="${E(value)}"></option>`).join('');
  const names=`<datalist id="admin-athlete-options">${options(athletes().map(row=>row.name))}</datalist>`;
@@ -72,7 +73,7 @@ export function racePayload(kind,form,base){
    const name=value('name');
    if(!name)return null;
    return {...base,name,...Object.fromEntries(['mainEvent','high_school','gender','birthday','birthplace','hometown'].map(key=>[key,value(key)||null])),
-     grade:Number(value('grade'))||null,height_cm:Number(value('height_cm'))||null};
+     grade:Number(value('grade'))||null,height_cm:Number(value('height_cm'))||null,weight_kg:Number(value('weight_kg'))||null};
  }
  const date=value('date');
  if(date!==base.date){

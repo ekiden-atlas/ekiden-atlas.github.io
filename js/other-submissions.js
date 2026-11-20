@@ -1,3 +1,4 @@
+import {KIND_LABELS} from './admin-content-types.js';
 const table='wsd_atlas_other_submissions';
 const mimeTypes=[
  'image/jpeg','image/png','image/webp','application/pdf','text/plain','text/csv',
@@ -18,7 +19,12 @@ export async function renderOtherSubmissions(root,{db,user,review,t,E}){
  <label class="field">${E(t('otherSubmissionFiles'))}<input name="files" type="file" accept="${mimeTypes.join(',')}" multiple></label>
  <button class="btn" type="submit">${E(t('submissionSend'))}</button></form>`}
  ${rows.map(row=>`<article class="card" data-id="${E(row.id)}"><p>${E(t('submissionStatus.'+row.status))}</p>
- <ul></ul>${review?`<form>${content(row)}
+ <ul></ul>${review?`<label class="field">${E(t('submissionDestination'))}
+ <select data-destination><option value="">${E(t('adminSelectType'))}</option>
+ ${Object.entries(KIND_LABELS).map(([kind,label])=>`<option value="${kind}">${E(t(label))}</option>`).join('')}
+ </select></label>
+ <a class="btn btn-sm" data-content-editor hidden>${E(t('submissionOpenEditor'))}</a>
+ <form>${content(row)}
  <button class="btn" type="submit" value="accepted">${E(t('submissionReviewSubmit'))}</button>
  <button class="btn" type="submit" value="rejected" formnovalidate>${E(t('submissionReject'))}</button>
  </form>`:`<h4>${E(row.title)}</h4><p>${E(row.body)}</p>`}</article>`).join('')}`;
@@ -64,6 +70,13 @@ export async function renderOtherSubmissions(root,{db,user,review,t,E}){
  await Promise.all(rows.map(async row=>{
    const article=root.querySelector(`[data-id="${row.id}"]`);
    if(review){
+     const destination=article.querySelector('[data-destination]');
+     const editor=article.querySelector('[data-content-editor]');
+     destination.onchange=()=>{
+       editor.hidden=!destination.value;
+       if(destination.value)editor.href='#admin?'+new URLSearchParams({kind:destination.value,submission:row.id});
+       else editor.removeAttribute('href');
+     };
      const form=article.querySelector('form');
      bind(form,async decision=>{
        const changes=decision==='accepted'?values(form):{};

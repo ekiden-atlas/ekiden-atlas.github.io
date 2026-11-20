@@ -1,15 +1,14 @@
+import {KINDS,KIND_LABELS} from './admin-content-types.js';
 import {bindFeedbackInbox} from './feedback.js';
 import {raceFields,bindRelayLegs,racePayload} from './admin-result-forms.js';
 import {meetLabel,recordLabel} from './record-names.js';
 import {getDb,checkAdmin,state,loadData,athletes,ekiden,schoolRecords,alltimeRankings,personalResults,specialtyPbs,sectionRecords,worldRankings,worldRankKey,comparisonRankings,ekidenKey,alltimeKey,schoolKey} from './data.js';
 let adminRoot=null,context=null,adminDb=null;
-let tab='managed',current=null,prefill=null,draftKind='result';
+let tab='managed',current=null,prefill=null,submission=null,draftKind='result';
 const fieldForm=kind=>['athlete','result','ekiden'].includes(kind);
-const KINDS=['athlete','pb','specialty_pb','result','ekiden','section_record','school_record','alltime_rank','world_rank','comparison_rank'];
-const KIND_LABELS={athlete:'adminTypeAthlete',pb:'adminTypePb',specialty_pb:'adminTypeSpecialtyPb',result:'adminTypeResult',section_record:'adminTypeSectionRecord',ekiden:'adminTypeEkiden',school_record:'adminTypeSchool',alltime_rank:'adminTypeAlltime',world_rank:'adminTypeWorld',comparison_rank:'adminTypeComparison'};
 const htmlspecialchars=x=>context.E(x);
 const status=m=>{const x=adminRoot?.querySelector('#admin-status');if(x)x.textContent=m;};
-export function detachAdmin(){adminRoot=null;context=null;adminDb=null;current=null;prefill=null;}
+export function detachAdmin(){adminRoot=null;context=null;adminDb=null;current=null;prefill=null;submission=null;}
 export async function renderAdminPage(root,ctx){adminRoot=root;context=ctx;
  const {t,E}=ctx;
  try{
@@ -21,12 +20,30 @@ export async function renderAdminPage(root,ctx){adminRoot=root;context=ctx;
      <a class="btn" href="#submissions">${E(t('submissionTitle'))}</a>`;
      return;
    }
+   const params=new URLSearchParams(location.hash.split('?')[1]);
+   const submissionId=params.get('submission');
+   const destination=params.get('kind');
+   if(submissionId&&KINDS.includes(destination)&&/^[0-9a-f-]{36}$/i.test(submissionId)){
+     const {data,error}=await db.from('wsd_atlas_other_submissions').select('title,body')
+       .eq('id',submissionId).eq('status','pending').maybeSingle();
+     if(adminRoot!==root)return;
+     if(error||!data){
+       root.innerHTML=`<p role="status">${E(t('submissionTargetMissing'))}</p><a href="#submissions?review">${E(t('submissionReview'))}</a>`;
+       return;
+     }
+     submission=data;
+     draftKind=destination;
+     tab='managed';
+   }
    adminDb=db;
    root.innerHTML=`<h1>${E(t('adminTitle'))}</h1><p>${E(t('adminDesc'))}</p>
    <div class="admin-actions">
    ${state.submissionsReady?`<a class="btn" href="#submissions?review">${E(t('submissionReview'))}</a>`:''}
    <a class="btn" href="#fans?review">${E(t('fanReview'))}</a>
    <button class="btn" type="button" id="google-logout">${E(t('logout'))}</button></div>
+   ${submission?`<details class="card" open><summary>${E(t('otherSubmission'))} · ${E(submission.title)}</summary>
+   <p style="white-space:pre-wrap">${E(submission.body)}</p>
+   <p>${E(t('submissionEditorHelp'))}</p><a href="#submissions?review">${E(t('submissionReview'))}</a></details>`:''}
    <p id="admin-status" role="status">${E(t('adminYes'))}</p>
    <details class="ekiden-help" id="feedback-inbox">
      <summary>${E(t('feedbackInbox'))}</summary>
@@ -51,8 +68,8 @@ function sourceChoices(kind){
  const entry=(key,label,payload,source='')=>({key,label,payload,source:source||''});
  const content=r=>Object.fromEntries(Object.entries(r).filter(([key])=>!key.startsWith('_')));
  if(kind==='athlete')return athletes().map(a=>{
-   const {name,grade,gender,birthday,birthplace,hometown,high_school,height_cm,mainEvent,graduation_year,graduation_source,officialGrade,block,clubSource}=a;
-   return entry(name,name,{name,grade,gender,birthday,birthplace,hometown,high_school,height_cm,mainEvent,graduation_year,graduation_source,officialGrade,block,clubSource},a.source_url||clubSource);
+   const {name,grade,gender,birthday,birthplace,hometown,high_school,height_cm,weight_kg,mainEvent,graduation_year,graduation_source,officialGrade,block,clubSource}=a;
+   return entry(name,name,{name,grade,gender,birthday,birthplace,hometown,high_school,height_cm,weight_kg,mainEvent,graduation_year,graduation_source,officialGrade,block,clubSource},a.source_url||clubSource);
  });
  if(kind==='pb')return athletes().flatMap(a=>[['pb1500','1500m'],['pb5000','5000m'],['pb10000','10000m'],['pbHalf','Half Marathon']]
    .map(([field,label])=>entry(a.name+':'+label,a.name+' · '+recordLabel(label),{name:a.name,field,time:a[field]||''},a._pbSources?.[field])));
