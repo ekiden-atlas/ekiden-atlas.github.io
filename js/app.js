@@ -325,7 +325,7 @@ function athleteRaceEntries(name){
  const entries=ekiden().flatMap(race=>race.legs.filter(leg=>leg.name&&nameSearch(leg.name)===key).map(leg=>({race,leg,source:race.source})));
  for(const [type,year,leg,rank] of athleteGuide(name)?.[2]||[]){
    if(entries.some(entry=>entry.race.race===type&&Number(entry.race.year)===year))continue;
-   entries.push({race:{race:type,year},leg:{leg,rank},reserve:leg==null,source:HAKONE_GUIDE_SOURCE});
+   entries.push({race:{race:type,year},leg:{leg,rank},source:HAKONE_GUIDE_SOURCE});
  }
  return entries.sort((a,b)=>b.race.year-a.race.year||['zen','izu','hak'].indexOf(a.race.race)-['zen','izu','hak'].indexOf(b.race.race));
 }
@@ -334,9 +334,9 @@ function renderAthleteEkiden(entries){
  return `<section class="section"><h2>${E(t('navEkiden'))}</h2>
  <div class="table-wrap"><table class="data-table"><thead><tr>
  ${['years','meet','section','resultMark','legRank','source'].map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}
- </tr></thead><tbody>${entries.map(({race,leg,reserve,source})=>`<tr><td>${E(race.year)}</td>
+ </tr></thead><tbody>${entries.map(({race,leg,source})=>`<tr><td>${E(race.year)}</td>
  <td><a href="${raceArchiveLink(race.race,race.year)}">${E(race.meet?meetLabel(race.meet):raceName(race.race))}</a></td>
- <td>${E(reserve?t('relayReserve'):leg.leg??'—')}</td><td class="mono">${E(leg.time||'—')}</td><td>${E(leg.rank??'—')}</td><td>${sourceLink(source)}</td></tr>`).join('')}</tbody></table></div></section>`;
+ <td>${E(leg.leg??'—')}</td><td class="mono">${E(leg.time||'—')}</td><td>${E(leg.rank??'—')}</td><td>${sourceLink(source)}</td></tr>`).join('')}</tbody></table></div></section>`;
 }
 function renderAthletes(){
  const params=new URLSearchParams(location.hash.split('?')[1]||'');
