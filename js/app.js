@@ -1,3 +1,4 @@
+import {athleteSearchKey} from './athlete-search.js';
 import {renderGrowthChart,renderEkidenRankChart} from './analysis-charts.js';
 import {renderWatchPage,watchStar,toggleWatched,setCompared,setWatchEvent} from './athlete-watch.js';
 import {CLUB_DIARIES} from '../data/club-diaries.js';
@@ -208,8 +209,8 @@ let filter={q:'',grade:'all',gender:'all',metric:'pb5000'};
 function renderAthleteTable(){
  const studentBody=document.querySelector('#athlete-rows');
  if(!studentBody)return;
- const query=nameSearch(filter.q);
- const rows=athletes().filter(a=>(!query||nameSearch(a.name).includes(query))&&
+ const query=athleteSearchKey(filter.q);
+ const rows=athletes().filter(a=>(!query||athleteSearchKey(a.name).includes(query))&&
    (filter.grade==='all'||rosterDivision(a)===filter.grade)&&(filter.gender==='all'||a.gender===filter.gender));
  rows.sort((a,b)=>parseTime(a[filter.metric])-parseTime(b[filter.metric]));
  const students=rows.filter(a=>rosterDivision(a)!=='alumni'&&longDistanceRosterNames.has(nameSearch(a.name)));
@@ -422,7 +423,7 @@ function updateResults(reset=false){
  const group=document.querySelector('#result-group').value;
  const groups=new Map();
  const matching=records.filter(r=>(!event||recordLabel(r.event)===event)&&(!meet||meetLabel(r.meet)===meet)&&(!year||String(r.year)===year)&&(!status||r.status===status)&&(!grade||resultGrade(r)===grade)&&
-   (!q||[r.name,r.meet,r.meetAlias,r.event,r.unit,meetLabel(r.meet),recordLabel(r.event),r.location,recordLabel(r.location)].some(value=>nameSearch(value).includes(q))));
+   (!q||athleteSearchKey(r.name).includes(athleteSearchKey(q))||[r.meet,r.meetAlias,r.event,r.unit,meetLabel(r.meet),recordLabel(r.event),r.location,recordLabel(r.location)].some(value=>nameSearch(value).includes(q))));
  for(const row of matching){
    const key=(group==='meet'?meetLabel(row.meet):String(row.year||''))||t('notRecorded');
    if(!groups.has(key))groups.set(key,[]);
@@ -530,7 +531,7 @@ function historyTable(tab){
  const hasRank=tab==='alltime';
  const headers=[...(hasRank?['rank']:[]),'profile','event','resultMark',hasRank?'years':'date','source'];
  const rows=rankingRows(tab).filter(row=>(filter.gender==='all'||row.gender===filter.gender)&&
-   (!filter.event||recordLabel(row.event)===filter.event)&&nameSearch(row.athlete).includes(nameSearch(filter.name)));
+   (!filter.event||recordLabel(row.event)===filter.event)&&athleteSearchKey(row.athlete).includes(athleteSearchKey(filter.name)));
  host.innerHTML=`<div class="table-wrap"><table class="data-table">
  <thead><tr>${headers.map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}</tr></thead>
  <tbody>${rows.map(row=>`<tr>${hasRank?`<td>${E(row.rank??'—')}</td>`:''}
