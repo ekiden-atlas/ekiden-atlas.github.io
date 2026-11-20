@@ -1,7 +1,8 @@
 import {nameSearch,officialAthleteName,parseTime} from './data.js';
 import {meetLabel,recordLabel} from './record-names.js';
 
-const growthAthletes=new Set(['鈴木琉胤','増子陽太']);
+export const growthAthleteNames=['鈴木 琉胤','増子 陽太'];
+const growthAthletes=new Set(growthAthleteNames.map(nameSearch));
 const dayPattern=/^\d{4}-\d{2}-\d{2}$/;
 const width=480,height=240,left=52,right=456,top=23,bottom=200;
 
@@ -51,8 +52,8 @@ export function renderGrowthChart(name,records,{t,E,sourceLink}){
  }
  const best=rows[points.indexOf(line.at(-1))];
  const title=t('growthChartTitle');
- return `<section class="card analysis-card" aria-labelledby="growth-chart-title">
- <h2 id="growth-chart-title">${E(title)}</h2>
+ return `<section class="card analysis-card" aria-label="${E(title)}">
+ <h2>${E(title)}</h2>
  <p class="analysis-best">${E(t('growthChartBest'))} <strong class="mono">${E(best.time)}</strong> <span>${E(best.date)}</span></p>
  <p>${E(t('growthChartNote'))}</p>
  ${chart({points,ticks,xLabels,yLabel:t('resultMark'),label:`${officialAthleteName(name)} · ${title}`,line},E)}

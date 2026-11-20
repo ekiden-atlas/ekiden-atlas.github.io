@@ -1,4 +1,4 @@
-import {renderGrowthChart,renderEkidenRankChart} from './analysis-charts.js';
+import {growthAthleteNames,renderGrowthChart,renderEkidenRankChart} from './analysis-charts.js';
 import {renderWatchPage,watchStar,toggleWatched,setCompared,setWatchEvent} from './athlete-watch.js';
 import {CLUB_DIARIES} from '../data/club-diaries.js';
 import {fanBoardLink,renderFanBoard} from './fan-board.js';
@@ -311,8 +311,21 @@ function renderAthleteHonors(rows){
  <p>${E(t('ekidenHonorsNote'))}</p>
  <div class="table-wrap"><table class="data-table"><thead><tr>
  ${['years','meet','section','resultMark','ekidenHonors'].map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}
- </tr></thead><tbody>${rows.map(row=>`<tr><td>${E(row.year)}</td><td>${E(raceName(row.race))}</td>
+ </tr></thead><tbody>${rows.map(row=>`<tr><td>${E(row.year)}</td><td><a href="${raceArchiveLink(row.race,row.year)}">${E(raceName(row.race))}</a></td>
  <td>${E(row.leg)}</td><td class="mono">${E(row.time)}</td><td>${honorBadges(row.honors)}</td></tr>`).join('')}</tbody></table></div></section>`;
+}
+function athleteRaceEntries(name){
+ const key=nameSearch(name);
+ return ekiden().flatMap(race=>race.legs.filter(leg=>leg.name&&nameSearch(leg.name)===key).map(leg=>({race,leg})));
+}
+function renderAthleteEkiden(entries){
+ if(!entries.length)return '';
+ return `<section class="section"><h2>${E(t('navEkiden'))}</h2>
+ <div class="table-wrap"><table class="data-table"><thead><tr>
+ ${['years','meet','section','resultMark','legRank'].map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}
+ </tr></thead><tbody>${entries.map(({race,leg})=>`<tr><td>${E(race.year)}</td>
+ <td><a href="${raceArchiveLink(race.race,race.year)}">${E(race.meet?meetLabel(race.meet):raceName(race.race))}</a></td>
+ <td>${E(leg.leg)}</td><td class="mono">${E(leg.time)}</td><td>${E(leg.rank??'—')}</td></tr>`).join('')}</tbody></table></div></section>`;
 }
 function renderAthletes(){
  const params=new URLSearchParams(location.hash.split('?')[1]||'');
@@ -325,11 +338,13 @@ function renderAthletes(){
  const canonical=known?.name||name;
  const records=athleteResultRows(canonical);
  const honors=athleteEkidenHonors(canonical);
+ const raceEntries=athleteRaceEntries(canonical);
  return `<section class="wrap section"><a class="btn btn-sm" href="#athletes">← ${E(t('navAthletes'))}</a> ${known?watchStar(canonical,t,E):''} ${watchLink}
  ${known||records.length||honors.length?profileDetail(canonical,records):`<p role="status">${E(t(dataLoaded?'empty':'loading'))}</p>`}
  ${renderGrowthChart(canonical,records,{t,E,sourceLink})}
  ${known||records.length||honors.length?renderAthleteMedia(canonical)+renderAthleteDiaries(officialAthleteName(canonical)):''}
  ${renderAthleteHonors(honors)}
+ ${renderAthleteEkiden(raceEntries)}
  ${known||records.length||honors.length?`<section class="section"><h2>${E(t('athleteResults'))}</h2>${resultPanel(records,false)}</section>`:''}
  </section>`;
  }
@@ -449,7 +464,7 @@ function applyArchiveRoute(tab){
  raceFilters.race=race==='other'||ekidenSeason.some(row=>row.race===race)?race:'all';
  raceFilters.year=ekiden().some(row=>(raceFilters.race==='all'||row.race===raceFilters.race)&&String(row.year)===year)?year:'all';
 }
-function renderRaceList(){const root=document.querySelector('#race-results');if(!root)return;const rows=ekiden().filter(x=>(raceFilters.race==='all'||x.race===raceFilters.race)&&(raceFilters.year==='all'||String(x.year)===raceFilters.year));root.innerHTML=rows.map(r=>{const rankChart=renderEkidenRankChart(r,{t,E});return `<details class="race-detail"${rankChart?' open':''}><summary><div><span class="micro">${E(r.year)} / ${E(r.meet?meetLabel(r.meet):raceName(r.race))}</span><br><strong>${E(t('teamRank'))} ${E(r.rank??'—')} · ${E(t('time'))} ${E(r.total||'—')}</strong></div><span>⌄</span></summary><div class="inside">${rankChart}<div class="table-wrap"><table class="data-table"><thead><tr><th>${E(t('section'))}</th><th>${E(t('profile'))}</th><th>${E(t('time'))}</th><th>${E(t('legRank'))}</th><th>km</th><th>${E(t('handoffRank'))}</th><th>${E(t('ekidenHonors'))}</th></tr></thead><tbody>${(r.legs||[]).map(l=>`<tr><td>${E(l.leg)}</td><td>${E(officialAthleteName(l.name))}</td><td class="mono">${E(l.time)}</td><td>${E(l.rank??'—')}</td><td>${E(l.km??'—')}</td><td>${E(l.team_position??'—')}</td><td>${honorBadges(legHonors(r,l))||'—'}</td></tr>`).join('')||`<tr><td colspan="7">${E(t('notRecorded'))}</td></tr>`}</tbody></table></div><p>${[r.date,r.distance,r.reason||r.status,r.source_format_note].filter(Boolean).map(value=>E(value==='途中棄権'?t('raceDidNotFinish'):recordLabel(value))).join(' · ')}</p>${r.out||r.back?`<p>${E(t('outbound'))} ${E(r.out??'—')} (${E(r.out_rank??'—')}) / ${E(t('returnLeg'))} ${E(r.back??'—')} (${E(r.back_rank??'—')})</p>`:''}<p>${sourceLink(r.source)}</p></div></details>`;}).join('')||`<p class="empty">${E(t('empty'))}</p>`;}
+function renderRaceList(){const root=document.querySelector('#race-results');if(!root)return;const rows=ekiden().filter(x=>(raceFilters.race==='all'||x.race===raceFilters.race)&&(raceFilters.year==='all'||String(x.year)===raceFilters.year));root.innerHTML=rows.map(r=>{const rankChart=renderEkidenRankChart(r,{t,E});const targeted=raceFilters.race!=='all'&&raceFilters.year!=='all';return `<details class="race-detail"${rankChart||targeted?' open':''}><summary><div><span class="micro">${E(r.year)} / ${E(r.meet?meetLabel(r.meet):raceName(r.race))}</span><br><strong>${E(t('teamRank'))} ${E(r.rank??'—')} · ${E(t('time'))} ${E(r.total||'—')}</strong></div><span>⌄</span></summary><div class="inside">${rankChart}<div class="table-wrap"><table class="data-table"><thead><tr><th>${E(t('section'))}</th><th>${E(t('profile'))}</th><th>${E(t('time'))}</th><th>${E(t('legRank'))}</th><th>km</th><th>${E(t('handoffRank'))}</th><th>${E(t('ekidenHonors'))}</th></tr></thead><tbody>${(r.legs||[]).map(l=>`<tr><td>${E(l.leg)}</td><td>${l.name?competitionAthlete(l.name):'—'}</td><td class="mono">${E(l.time)}</td><td>${E(l.rank??'—')}</td><td>${E(l.km??'—')}</td><td>${E(l.team_position??'—')}</td><td>${honorBadges(legHonors(r,l))||'—'}</td></tr>`).join('')||`<tr><td colspan="7">${E(t('notRecorded'))}</td></tr>`}</tbody></table></div><p>${[r.date,r.distance,r.reason||r.status,r.source_format_note].filter(Boolean).map(value=>E(value==='途中棄権'?t('raceDidNotFinish'):recordLabel(value))).join(' · ')}</p>${r.out||r.back?`<p>${E(t('outbound'))} ${E(r.out??'—')} (${E(r.out_rank??'—')}) / ${E(t('returnLeg'))} ${E(r.back??'—')} (${E(r.back_rank??'—')})</p>`:''}<p>${sourceLink(r.source)}</p></div></details>`;}).join('')||`<p class="empty">${E(t('empty'))}</p>`;}
 function renderRaceFilters(){
  const years=ekiden().filter(row=>raceFilters.race==='all'||row.race===raceFilters.race).map(row=>row.year);
  return `<label class="field">${E(t('filterRace'))}<select id="race-type">
@@ -458,7 +473,7 @@ function renderRaceFilters(){
  <label class="field">${E(t('filterYear'))}<select id="race-year">
  <option value="all">${E(t('all'))}</option>${yearOption(years)}</select></label>`;
 }
-const archiveTabs=[['ekiden','navEkiden','#archive'],['school','schoolRecords','#archive/school'],['alltime','allTime','#archive/alltime']];
+const archiveTabs=[['ekiden','navEkiden','#archive'],['school','schoolRecords','#archive/school'],['alltime','allTime','#archive/alltime'],['charts','archiveCharts','#archive/charts']];
 const rankingFilters={
  school:{gender:'all',event:'',name:''},
  alltime:{gender:'all',event:'',name:''}
@@ -466,12 +481,27 @@ const rankingFilters={
 function archiveTab(path){
  if(path==='history'||path==='archive/alltime')return 'alltime';
  if(path==='archive/school')return 'school';
+ if(path==='archive/charts')return 'charts';
  if(['archive','archive/ekiden','ekiden'].includes(path))return 'ekiden';
  return null;
+}
+function renderArchiveCharts(){
+ const athleteCharts=growthAthleteNames.map(name=>{
+   const plot=renderGrowthChart(name,athleteResultRows(name),{t,E,sourceLink});
+   return plot?`<article><h2>${competitionAthlete(name)}</h2>${plot}</article>`:'';
+ }).join('');
+ const races=ekiden().map(race=>{
+   const plot=renderEkidenRankChart(race,{t,E});
+   return plot?`<article class="card"><h2><a href="${raceArchiveLink(race.race,race.year)}">${E(race.year)} ${E(raceName(race.race))}</a></h2>
+   ${plot}${sourceLink(race.source)}</article>`:'';
+ }).join('');
+ return athleteCharts||races?`<div class="archive-chart-grid">${athleteCharts}${races}</div>`:`<p>${E(t('empty'))}</p>`;
 }
 function renderArchive(tab){
  const tabs=`<nav class="archive-tabs" aria-label="${E(t('navArchive'))}">
  ${archiveTabs.map(([id,label,href])=>`<a href="${href}" ${tab===id?'aria-current="page"':''}>${E(t(label))}</a>`).join('')}</nav>`;
+ if(tab==='charts')return pageIntro('archiveCharts','archiveChartsDesc')+
+   `<section class="wrap section archive-section">${tabs}${renderArchiveCharts()}</section>`;
  const controls=tab==='ekiden'?renderRaceFilters():renderRankingFilters(tab);
  const beginner=language()==='zh';
  const records=tab==='ekiden'?`<div id="section-records">${renderSectionRecords()}</div>`:'';
@@ -543,7 +573,7 @@ if(current==='archive'){
    document.querySelector('#race-type').value=raceFilters.race;
    document.querySelector('#race-year').value=raceFilters.year;
    renderRaceList();
- }else{
+ }else if(tab!=='charts'){
    document.querySelector('#history-gender').value=rankingFilters[tab].gender;
    document.querySelector('#history-event').value=rankingFilters[tab].event;
    historyTable(tab);
