@@ -256,3 +256,16 @@
   font-weight: 400;
   line-height: 1;
 }
+
+@font-face {
+  font-family: "Noto Serif JP Credit";
+  src: url("assets/fonts/noto-serif-jp-credit.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+.footer-credit [data-i18n="footerCreditSuffix"] {
+  margin-inline-start: .35em;
+  font-family: "Noto Serif JP Credit", "Yu Mincho", Georgia, serif;
+  font-size: .75em;
+  font-weight: 400;
+}
