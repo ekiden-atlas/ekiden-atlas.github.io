@@ -1,3 +1,4 @@
+import {renderGrowthChart} from './analysis-charts.js';
 import {athletes,ekiden,nameSearch,officialAthleteName,parseTime,personalResults,specialtyPbs} from './data.js';
 import {meetLabel,recordLabel} from './record-names.js';
 
@@ -105,6 +106,12 @@ export function renderWatchPage({t,E,sourceLink,raceName}){
  <tbody>${body}</tbody></table></div>`;
  const row=(label,cells)=>`<tr><th scope="row">${E(label)}</th>${cells.map(cell=>`<td>${cell}</td>`).join('')}</tr>`;
  const relays=selected.length>=2?relayRows(selected,raceName):[];
+ const growthCharts=event==='5000m'&&selected.length>=2?selected.map(({name})=>{
+   const marks=rows.filter(row=>nameSearch(row.name)===nameSearch(name));
+   const chart=renderGrowthChart(name,marks,{t,E,sourceLink});
+   return chart?`<article><h2><a href="${athleteHref(name)}">${E(officialAthleteName(name))}</a></h2>${chart}</article>`:'';
+ }).join(''):'';
+
  return `<a class="btn btn-sm" href="#athletes">← ${E(t('navAthletes'))}</a>
  <h1>${E(t('watchTitle'))}</h1><p>${E(t('watchIntro'))}</p>
  ${watched.length?`<ul class="watch-list">${watched.map(athlete=>{
@@ -115,6 +122,7 @@ export function renderWatchPage({t,E,sourceLink,raceName}){
  ${selected.length>=2?`<label class="field watch-event">${E(t('event'))}<select id="watch-event">${events.map(([key])=>`<option value="${E(key)}" ${event===key?'selected':''}>${E(key)}</option>`).join('')}</select></label>
  ${table(t('watchComparison'),row(t('pb'),columns.map(c=>value(c.pb)))+row(t('watchSeason',{year}),columns.map(c=>value(c.best)))+
  row(t('watchRecent'),columns.map(c=>c.recent.length?`<ul>${c.recent.map(r=>`<li>${value(r)}</li>`).join('')}</ul>`:'—')))}
+ ${growthCharts?`<div class="analysis-chart-grid">${growthCharts}</div>`: ''}
  <h2>${E(t('watchRelay'))}</h2><p>${E(t('watchRelayNote'))}</p>
  ${relays.length?table(t('watchRelay'),relays.map(group=>row(group.title,selected.map(athlete=>{
    const marks=group.rows.get(nameSearch(athlete.name))||[];

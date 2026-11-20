@@ -1,4 +1,4 @@
-import {growthAthleteNames,renderGrowthChart,renderEkidenRankChart} from './analysis-charts.js';
+import {renderGrowthChart,renderEkidenRankChart} from './analysis-charts.js';
 import {renderWatchPage,watchStar,toggleWatched,setCompared,setWatchEvent} from './athlete-watch.js';
 import {CLUB_DIARIES} from '../data/club-diaries.js';
 import {fanBoardLink,renderFanBoard} from './fan-board.js';
@@ -486,16 +486,12 @@ function archiveTab(path){
  return null;
 }
 function renderArchiveCharts(){
- const athleteCharts=growthAthleteNames.map(name=>{
-   const plot=renderGrowthChart(name,athleteResultRows(name),{t,E,sourceLink});
-   return plot?`<article><h2>${competitionAthlete(name)}</h2>${plot}</article>`:'';
- }).join('');
  const races=ekiden().map(race=>{
    const plot=renderEkidenRankChart(race,{t,E});
    return plot?`<article class="card"><h2><a href="${raceArchiveLink(race.race,race.year)}">${E(race.year)} ${E(raceName(race.race))}</a></h2>
    ${plot}${sourceLink(race.source)}</article>`:'';
  }).join('');
- return athleteCharts||races?`<div class="archive-chart-grid">${athleteCharts}${races}</div>`:`<p>${E(t('empty'))}</p>`;
+ return races?`<div class="analysis-chart-grid">${races}</div>`:`<p>${E(t('empty'))}</p>`;
 }
 function renderArchive(tab){
  const tabs=`<nav class="archive-tabs" aria-label="${E(t('navArchive'))}">
