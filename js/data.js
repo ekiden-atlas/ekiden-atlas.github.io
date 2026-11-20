@@ -225,6 +225,15 @@ export function personalResults(){
    }
  }
  return applyManaged('result',[...rows.values()],x=>x.id)
+   .map(row=>{
+     // Fill the verified fields for the original, incomplete Oku-Kuma submission.
+     const verified=rows.get(row.id);
+     if(row.id!=='submission-3cfa893c-91e8-4f5e-ab56-287f9d825735'||row.event!=='第7区 5.045km'||
+       row.date!==verified.date||parseTime(row.time)!==parseTime(verified.time))return row;
+     return {...row,meet:verified.meet,event:verified.event,time:verified.time,
+       rank:row.rank??verified.rank,status:row.status||verified.status,
+       gradeAtRace:row.gradeAtRace??row.grade??verified.gradeAtRace};
+   })
    .filter(x=>x.id&&x.name&&x.event)
    .sort((a,b)=>Number(b.year)-Number(a.year)||String(b.date||'').localeCompare(String(a.date||'')));
 }
