@@ -291,3 +291,7 @@
   font-size: .85em;
   white-space: nowrap;
 }
+
+.footer-submission > p {
+  margin: 6px 0 0;
+}
