@@ -1,3 +1,4 @@
+import {OFFICIAL_LONG_DISTANCE_ROSTER} from '../data/official-club-roster.js';
 import {KINDS,KIND_LABELS} from './admin-content-types.js';
 import {bindFeedbackInbox} from './feedback.js';
 import {raceFields,bindRelayLegs,racePayload} from './admin-result-forms.js';
@@ -5,6 +6,7 @@ import {meetLabel,recordLabel} from './record-names.js';
 import {getDb,checkAdmin,state,loadData,athletes,ekiden,schoolRecords,alltimeRankings,personalResults,specialtyPbs,sectionRecords,worldRankings,worldRankKey,comparisonRankings,ekidenKey,alltimeKey,schoolKey} from './data.js';
 let adminRoot=null,context=null,adminDb=null;
 let tab='managed',current=null,prefill=null,submission=null,draftKind='result';
+const longDistanceSources=new Set(OFFICIAL_LONG_DISTANCE_ROSTER.map(member=>member.source_url));
 const fieldForm=kind=>['athlete','result','ekiden'].includes(kind);
 const htmlspecialchars=x=>context.E(x);
 const status=m=>{const x=adminRoot?.querySelector('#admin-status');if(x)x.textContent=m;};
@@ -95,7 +97,7 @@ function managedPane(){
  const base=structured?templates.find(row=>row.key===chosen?.record_key)||prefill:null;
  const value=chosen||{kind,record_key:prefill?.key||'',payload:{},source_url:prefill?.source||'',is_deleted:false};
  const payload={...value.payload,...base?.payload};
- const officialProfiles=kind==='athlete'?templates.filter(row=>row.payload.clubSource):[];
+ const officialProfiles=kind==='athlete'?templates.filter(row=>longDistanceSources.has(row.payload.clubSource)):[];
  const savedRows=state.managed.filter(row=>row.kind===kind);
 area.innerHTML=`${!deployed?`<div class="notice"><strong>${E(t('adminMigration'))}</strong><p>${E(t('adminMigrationHelp'))}</p></div>`:''}<div class="split"><div><div class="card-top"><h3>${E(t('adminEditedRecords'))}</h3><button id="admin-new" class="btn btn-sm" type="button" ${deployed?'':'disabled'}>${E(t('adminCreate'))}</button></div><div class="admin-list">${savedRows.map(x=>`<button type="button" data-edit-kind="${E(x.kind)}" data-edit-key="${E(x.record_key)}">${E(t(KIND_LABELS[x.kind]||'adminSelectType'))} / ${E(x.record_key)} ${x.is_deleted?'· '+E(t('adminDeleted')):''}</button>`).join('')||`<p class="empty">${E(t('empty'))}</p>`}</div>${officialProfiles.length?`<h3>${E(t('adminOfficialRoster'))} · ${officialProfiles.length}</h3>
  <div class="admin-list">${officialProfiles.map(profile=>`<button type="button" data-profile-key="${E(profile.key)}">${E(profile.label)} · ${E(profile.payload.block)}</button>`).join('')}</div>`:''}</div><div><form id="admin-content-form" class="admin-form"><label class="field">${E(t('adminSelectType'))}<select name="kind" required ${chosen?'disabled':''}>${KINDS.map(k=>`<option value="${k}" ${value.kind===k?'selected':''}>${E(t(KIND_LABELS[k]||'adminSelectType'))}</option>`).join('')}</select></label>${!chosen?`<label class="field">${E(t('adminUseBase'))}<select id="admin-base-chooser"><option value="">${E(t('adminPickBase'))}</option>${templates.map((r,i)=>`<option value="${i}" ${r.key===prefill?.key?'selected':''}>${E(r.label)}</option>`).join('')}</select></label>`:''}${structured?'':`<label class="field">${E(t('adminKey'))}<input name="record_key" value="${E(value.record_key)}" required minlength="2" maxlength="180" ${chosen?'readonly':''}></label>`}<label class="field">${E(t(structured?'adminOfficialSource':'adminSource'))}<input name="source_url" type="url" required pattern="https://.*" value="${E(value.source_url)}" placeholder="https://…"></label>${structured?raceFields(kind,payload,context):`<label class="field">${E(t('adminPayload'))}<textarea name="payload" required spellcheck="false">${E(JSON.stringify(value.payload,null,2))}</textarea></label>`}<div class="admin-actions"><button class="btn btn-primary" type="submit" ${deployed?'':'disabled'}>${E(t('adminSave'))}</button><button class="btn btn-danger" type="button" id="admin-delete" ${deployed&&chosen&&!value.is_deleted?'':'disabled'}>${E(t('adminDelete'))}</button><button class="btn" type="button" id="admin-restore" ${deployed&&chosen&&value.is_deleted?'':'disabled'}>${E(t('adminRestore'))}</button><button class="btn" type="button" id="admin-cancel">${E(t('adminCancel'))}</button></div><p id="admin-form-msg" role="status"></p></form></div></div>`;
