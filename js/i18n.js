@@ -200,7 +200,7 @@ resultsMatching:"姓名检索会列出拼写相符的记录。同名选手请结
 resultSearch:"姓名、赛事或项目",
 resultMark:"成绩",
 resultStatus:"参赛身份",
-submissionDivisionOptions:"初一|初二|初三|高一|高二|高三|一年级|二年级|三年级|四年级",
+submissionDivisionOptions:"中学一年级|中学二年级|中学三年级|高中一年级|高中二年级|高中三年级|一年级|二年级|三年级|四年级",
 student:"在校",
 resultCount:"第 {start}–{end} 条，共 {total} 条",
 nextPage:"下一页",
