@@ -64,8 +64,6 @@ export const SASAKI_SCHOOL_RESULTS=races.map(([date,event,time,meet,stage='',ran
 });
 
 SASAKI_SCHOOL_RESULTS.push(
- {id:'sasaki-middle-1500-undated',name:'佐々木 哲',status:'middleSchool',unit:'愛工大名電中学校',
-   meet:'中学時代の記録',event:'1500m',time:'3:55.36',rank:null,source:blog,verification:'cited'},
  {id:'sasaki-middle-2021-zenchu-3000',name:'佐々木 哲',year:2021,date:'2021-08-19',gradeAtRace:3,
    status:'middleSchool',unit:'愛工大名電中学校',meet:'第48回全日本中学校陸上競技選手権大会',
    event:'3000m',time:'8:37.34',stage:'決勝',rank:2,source:junior,verification:'primary'}
