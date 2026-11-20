@@ -238,8 +238,21 @@
   font-size: clamp(1.25rem, 3.5vw, 1.625rem);
   line-height: 1.25;
 }
-.footer-credit span {
+.footer-credit > span {
   display: block;
   margin-top: .25rem;
   font-size: .8125rem;
+}
+
+@font-face {
+  font-family: Allura;
+  src: url("assets/fonts/allura-liene.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+.footer-signature {
+  font-family: Allura, "Segoe Script", cursive;
+  font-size: 1.3em;
+  font-weight: 400;
+  line-height: 1;
 }
