@@ -460,7 +460,12 @@ function updateResults(reset=false){
  document.querySelector('#result-prev').disabled=!resultsPage;
  document.querySelector('#result-next').disabled=start+resultsPageSize>=rows.length;
 }
-let raceFilters={race:'all',year:'all'};
+let raceFilters={race:'all',year:'all',decade:'all'};
+const raceDecade=year=>Math.floor(year/10)*10;
+function racesInScope(){
+ return ekiden().filter(row=>(raceFilters.race==='all'||row.race===raceFilters.race)&&
+   (raceFilters.decade==='all'||String(raceDecade(row.year))===raceFilters.decade));
+}
 let previousArchiveHash;
 function applyArchiveRoute(tab){
  if(tab!=='ekiden'){
@@ -472,15 +477,43 @@ function applyArchiveRoute(tab){
  const params=new URLSearchParams(location.hash.split('?')[1]);
  const race=params.get('race');
  const year=params.get('year');
+ raceFilters.decade='all';
  raceFilters.race=race==='other'||ekidenSeason.some(row=>row.race===race)?race:'all';
  raceFilters.year=ekiden().some(row=>(raceFilters.race==='all'||row.race===raceFilters.race)&&String(row.year)===year)?year:'all';
 }
-function renderRaceList(){const root=document.querySelector('#race-results');if(!root)return;const rows=ekiden().filter(x=>(raceFilters.race==='all'||x.race===raceFilters.race)&&(raceFilters.year==='all'||String(x.year)===raceFilters.year));root.innerHTML=rows.map(r=>{const rankChart=renderEkidenRankChart(r,{t,E});const targeted=raceFilters.race!=='all'&&raceFilters.year!=='all';return `<details class="race-detail"${rankChart||targeted?' open':''}><summary><div><span class="micro">${E(r.year)} / ${E(r.meet?meetLabel(r.meet):raceName(r.race))}</span><br><strong>${E(t('teamRank'))} ${E(r.rank??'—')} · ${E(t('time'))} ${E(r.total||'—')}</strong></div><span>⌄</span></summary><div class="inside">${rankChart}<div class="table-wrap"><table class="data-table"><thead><tr><th>${E(t('section'))}</th><th>${E(t('profile'))}</th><th>${E(t('time'))}</th><th>${E(t('legRank'))}</th><th>km</th><th>${E(t('handoffRank'))}</th><th>${E(t('ekidenHonors'))}</th></tr></thead><tbody>${(r.legs||[]).map(l=>`<tr><td>${E(l.leg)}</td><td>${l.name?competitionAthlete(l.name):'—'}</td><td class="mono">${E(l.time)}</td><td>${E(l.rank??'—')}</td><td>${E(l.km??'—')}</td><td>${E(l.team_position??'—')}</td><td>${honorBadges(legHonors(r,l))||'—'}</td></tr>`).join('')||`<tr><td colspan="7">${E(t('notRecorded'))}</td></tr>`}</tbody></table></div><p>${[r.date,r.distance,r.reason||r.status,r.source_format_note].filter(Boolean).map(value=>E(value==='途中棄権'?t('raceDidNotFinish'):recordLabel(value))).join(' · ')}</p>${r.out||r.back?`<p>${E(t('outbound'))} ${E(r.out??'—')} (${E(r.out_rank??'—')}) / ${E(t('returnLeg'))} ${E(r.back??'—')} (${E(r.back_rank??'—')})</p>`:''}<p>${sourceLink(r.source)}</p></div></details>`;}).join('')||`<p class="empty">${E(t('empty'))}</p>`;}
+function renderRaceDetails(r,rankChart){
+ return `${rankChart}<div class="table-wrap"><table class="data-table"><thead><tr><th>${E(t('section'))}</th><th>${E(t('profile'))}</th><th>${E(t('time'))}</th><th>${E(t('legRank'))}</th><th>km</th><th>${E(t('handoffRank'))}</th><th>${E(t('ekidenHonors'))}</th></tr></thead><tbody>${(r.legs||[]).map(l=>`<tr><td>${E(l.leg)}</td><td>${l.name?competitionAthlete(l.name):'—'}</td><td class="mono">${E(l.time)}</td><td>${E(l.rank??'—')}</td><td>${E(l.km??'—')}</td><td>${E(l.team_position??'—')}</td><td>${honorBadges(legHonors(r,l))||'—'}</td></tr>`).join('')||`<tr><td colspan="7">${E(t('notRecorded'))}</td></tr>`}</tbody></table></div><p>${[r.date,r.distance,r.reason||r.status,r.source_format_note].filter(Boolean).map(value=>E(value==='途中棄権'?t('raceDidNotFinish'):recordLabel(value))).join(' · ')}</p>${r.out||r.back?`<p>${E(t('outbound'))} ${E(r.out??'—')} (${E(r.out_rank??'—')}) / ${E(t('returnLeg'))} ${E(r.back??'—')} (${E(r.back_rank??'—')})</p>`:''}<p>${sourceLink(r.source)}</p>`;
+}
+function renderRaceList(){
+ const root=document.querySelector('#race-results');
+ if(!root)return;
+ const rows=racesInScope().filter(row=>raceFilters.year==='all'||String(row.year)===raceFilters.year);
+ const targeted=raceFilters.race!=='all'&&raceFilters.year!=='all';
+ root.innerHTML=rows.map(r=>{
+   const rankChart=renderEkidenRankChart(r,{t,E});
+   const open=Boolean(rankChart)||targeted;
+   return `<details class="race-detail"${open?' open':''}><summary><div><span class="micro">${E(r.year)} / ${E(r.meet?meetLabel(r.meet):raceName(r.race))}</span><br><strong>${E(t('teamRank'))} ${E(r.rank??'—')} · ${E(t('time'))} ${E(r.total||'—')}</strong></div><span>⌄</span></summary>
+   <div class="inside">${open?renderRaceDetails(r,rankChart):''}</div></details>`;
+ }).join('')||`<p class="empty">${E(t('empty'))}</p>`;
+ root.querySelectorAll('.race-detail').forEach((details,index)=>{
+   if(details.open)return;
+   const inside=details.querySelector('.inside');
+   details.addEventListener('toggle',function populate(){
+     if(!details.open)return;
+     inside.innerHTML=renderRaceDetails(rows[index],'');
+     details.removeEventListener('toggle',populate);
+   });
+ });
+}
 function renderRaceFilters(){
- const years=ekiden().filter(row=>raceFilters.race==='all'||row.race===raceFilters.race).map(row=>row.year);
+ const years=racesInScope().map(row=>row.year);
+ const decades=raceFilters.race==='hak'?[...new Set(ekiden().filter(row=>row.race==='hak').map(row=>raceDecade(row.year)))].sort((a,b)=>b-a):[];
  return `<label class="field">${E(t('filterRace'))}<select id="race-type">
  <option value="all">${E(t('all'))}</option>
- ${['hak','izu','zen','other'].map(race=>`<option value="${race}">${E(raceName(race))}</option>`).join('')}</select></label>
+ ${['hak','izu','zen','other'].map(race=>`<option value="${race}" ${race===raceFilters.race?'selected':''}>${E(raceName(race))}</option>`).join('')}</select></label>
+ ${decades.length?`<label class="field">${E(t('raceDecade'))}<select id="race-decade">
+ <option value="all">${E(t('all'))}</option>
+ ${decades.map(decade=>`<option value="${decade}" ${String(decade)===raceFilters.decade?'selected':''}>${decade}–${decade+9}</option>`).join('')}</select></label>`:''}
  <label class="field">${E(t('filterYear'))}<select id="race-year">
  <option value="all">${E(t('all'))}</option>${yearOption(years)}</select></label>`;
 }
@@ -592,17 +625,19 @@ document.querySelector('#lang-ja').addEventListener('click',()=>chooseLanguage('
 function chooseLanguage(v){setLanguage(v);document.querySelector('#lang-zh').setAttribute('aria-pressed',String(v==='zh'));document.querySelector('#lang-ja').setAttribute('aria-pressed',String(v==='ja'));render();}
 document.querySelector('#menu-btn').addEventListener('click',()=>{const n=document.querySelector('#mobile-nav');n.hidden=!n.hidden;document.querySelector('#menu-btn').setAttribute('aria-expanded',String(!n.hidden));});
 document.addEventListener('input',e=>{if(e.target?.id==='result-q')updateResults(true);if(e.target?.id==='filter-q'){filter.q=e.target.value;renderAthleteTable();}if(e.target?.id==='history-search'){rankingFilters.alltime.name=e.target.value;historyTable('alltime');}});
-document.addEventListener('change',e=>{const id=e.target?.id,v=e.target?.value;if(['result-year','result-status','result-grade','result-meet','result-event','result-group'].includes(id))updateResults(true);if(id==='filter-grade')filter.grade=v;if(id==='filter-gender')filter.gender=v;if(id==='filter-metric')filter.metric=v;if(id?.startsWith('filter-'))renderAthleteTable();if(id==='race-type'){
- raceFilters.race=v;
+document.addEventListener('change',e=>{const id=e.target?.id,v=e.target?.value;if(['result-year','result-status','result-grade','result-meet','result-event','result-group'].includes(id))updateResults(true);if(id==='filter-grade')filter.grade=v;if(id==='filter-gender')filter.gender=v;if(id==='filter-metric')filter.metric=v;if(id?.startsWith('filter-'))renderAthleteTable();if(id==='race-type'||id==='race-decade'){
+ if(id==='race-type'){
+   raceFilters.race=v;
+   raceFilters.decade='all';
+   document.querySelector('#section-records').innerHTML=renderSectionRecords();
+ }else raceFilters.decade=v;
  raceFilters.year='all';
  const controls=e.target.closest('.filterbar');
  controls.innerHTML=renderRaceFilters();
- controls.querySelector('#race-type').value=v;
- controls.querySelector('#race-type').focus();
- document.querySelector('#section-records').innerHTML=renderSectionRecords();
+ controls.querySelector('#'+id)?.focus();
 }
 if(id==='race-year')raceFilters.year=v;
-if(id==='race-type'||id==='race-year')renderRaceList();
+if(['race-type','race-decade','race-year'].includes(id))renderRaceList();
 if(id==='history-gender'||id==='history-event'){
  const tab=archiveTab(location.hash.slice(1).split('?')[0]);
  rankingFilters[tab][id==='history-gender'?'gender':'event']=v;
