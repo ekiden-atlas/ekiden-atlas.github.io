@@ -1,3 +1,4 @@
+import {HAKONE_GUIDE_ATHLETES} from '../data/hakone-2027-athlete-guide.js';
 import {nameSearch} from './data.js';
 
 // Search aliases only. Keep official spellings and record identifiers intact.
@@ -15,4 +16,12 @@ const aliases=new Map(characterGroups.flatMap(group=>[...group].map(character=>[
 
 export function athleteSearchKey(name){
  return Array.from(nameSearch(name).normalize('NFKC'),character=>aliases.get(character)??character).join('');
+}
+
+const guideByName=new Map(HAKONE_GUIDE_ATHLETES.map(row=>[nameSearch(row[0]),row]));
+export const athleteGuide=name=>guideByName.get(nameSearch(name));
+const kanaKey=value=>nameSearch(value).normalize('NFKC').replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));
+export function matchesAthleteSearch(name,query){
+ return athleteSearchKey(name).includes(athleteSearchKey(query))||
+   kanaKey(athleteGuide(name)?.[1]).includes(kanaKey(query));
 }
