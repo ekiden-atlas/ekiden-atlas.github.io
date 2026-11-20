@@ -139,6 +139,7 @@ export function recordLabel(value) {
   let label = String(value ?? '').normalize('NFKC');
   for (const [from, to] of terminology) label = label.replaceAll(from, to);
   return label
+    .replace(/第(\d+)区/g, '$1区')
     .replace(/^(\d+m)H$/, '$1ハードル')
     .replace(/^(\d+k?m)W$/, '$1競歩')
     .replace(/^(4×\d+m)R$/, '$1リレー');
