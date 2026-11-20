@@ -3,6 +3,12 @@ export const COMPETITIONS = [
   {
     id:'ageo-2026', title:'第39回2026上尾シティハーフマラソン', start:'2026-11-22',
     venue:'上尾運動公園陸上競技場', source:'https://www.ageocity-marathon.com/outline/',
+    liveLinks:[
+      ['scheduleVideoChannel','https://www.youtube.com/@teletama3ch/streams'],
+      ['schedulePlayerLive','https://web.playerapp.tokyo/live/200223'],
+      ['scheduleRunnerTracking','https://live.runport.run/r/ageo39-half'],
+    ],
+    liveSource:'https://ageocity-marathon.com/img/program2026.pdf',
     intro:'ageoWatch', resultMeet:'第39回2026上尾シティハーフマラソン',
     entryStatus:'entriesAnnounced', entrySource:'https://waseda-ac.jp/news/detail/1057',
     entries:[{event:'ハーフマラソン', start:'09:00', athletes:[

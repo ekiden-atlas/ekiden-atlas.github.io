@@ -139,6 +139,9 @@ function renderCompetitionDetail(meet){
  ${language()==='zh'?`<p>${E(t(meet.intro))}</p>`:''}
  ${sourceLink(meet.source,t('scheduleOfficial'))}</div></header>
  <div class="wrap section schedule-detail">
+ ${meet.liveLinks?.length?`<section aria-labelledby="schedule-live-title"><h2 id="schedule-live-title">${E(t('scheduleLive'))}</h2>
+ <div class="actions">${meet.liveLinks.map(([label,url])=>sourceLink(url,t(label))).join('')}</div>
+ <p>${E(t('scheduleLiveNote'))} ${sourceLink(meet.liveSource)}</p></section>`:''}
  <section aria-labelledby="schedule-entry-title"><div class="section-head"><h2 id="schedule-entry-title">${E(t(meet.entryHeading||'scheduleEntries'))}</h2></div>
  ${meet.entries?.length?`${meet.entryStatus?`<p><span class="tag">${E(t(meet.entryStatus))}</span> ${sourceLink(meet.entrySource)}</p>`:''}
  ${meet.entries.map(entry=>`<article class="card schedule-entry"><h3>${E(entry.title?t(entry.title,{count:entry.athletes.length+(entry.reserves?.length||0)}):recordLabel(entry.event))}</h3>
