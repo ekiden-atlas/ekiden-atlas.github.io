@@ -257,12 +257,12 @@ function renderAthleteMedia(name){
  const locale=language()==='zh'?0:1;
  return `<section class="section athlete-media" aria-labelledby="athlete-media-title">
  <h2 id="athlete-media-title">${E(t('athleteMediaTitle'))}</h2>
- ${items.length?`<ul class="athlete-media-list">${items.map(row=>`<li class="card">
+ ${items.length?`<ul class="athlete-media-list" id="athlete-media-list">${items.map(row=>`<li class="card">
  <span class="tag">${E(t('athleteMedia'+row.kind))}</span> ${row.paid?`<span class="tag">${E(t('athleteMediaPaid'))}</span>`:''}
  <h3>${sourceLink(row.url,row.title[locale])}</h3>
  <dl><dt>${E(t('athleteMediaPublisher'))}</dt><dd>${E(row.publisher[locale])}</dd>
  <dt>${E(t('athleteMediaDate'))}</dt><dd><time datetime="${E(row.date)}">${E(row.date)}</time></dd>
- <dt>${E(t('meet'))}</dt><dd>${E(row.meet?.[locale]||t('athleteMediaGeneral'))}</dd></dl></li>`).join('')}</ul>`
+ <dt>${E(t('meet'))}</dt><dd>${E(row.meet?.[locale]||t('athleteMediaGeneral'))}</dd></dl></li>`).join('')}</ul>${items.length>2?`<button type="button" class="btn btn-sm athlete-media-toggle" aria-controls="athlete-media-list" aria-expanded="false">${E(t('athleteMediaMore'))}</button>`:''}`
  :`<p>${E(t('athleteMediaEmpty'))}</p>`}</section>`;
 }
 function renderAthleteSocialLinks(name){
@@ -338,23 +338,34 @@ function renderAthleteHonors(rows){
  </tr></thead><tbody>${rows.map(row=>`<tr><td>${E(row.year)}</td><td><a href="${raceArchiveLink(row.race,row.year)}">${E(raceName(row.race))}</a></td>
  <td>${E(row.leg)}</td><td class="mono">${E(row.time)}</td><td>${honorBadges(row.honors)}</td></tr>`).join('')}</tbody></table></div></section>`;
 }
-function athleteRaceEntries(name){
+function athleteRaceEntries(name,records){
  const key=nameSearch(name);
  const entries=ekiden().flatMap(race=>race.legs.filter(leg=>leg.name&&nameSearch(leg.name)===key).map(leg=>({race,leg,source:race.source})));
  for(const [type,year,leg,rank] of athleteGuide(name)?.[2]||[]){
    if(entries.some(entry=>entry.race.race===type&&Number(entry.race.year)===year))continue;
    entries.push({race:{race:type,year},leg:{leg,rank},source:HAKONE_GUIDE_SOURCE});
  }
+ for(const row of records){
+   const meet=meetLabel(row.meet);
+   if(!/(高校|高中|高等学校|中学|初中|都道府県|都道府县)/.test(meet)||!/駅伝|驿传/.test(meet)||/選考|選抜選考|予選会/.test(meet))continue;
+   const segment=`${row.event||''} ${row.stage||''}`.match(/([0-9]+)\s*[区區]/);
+   if(!segment||!row.time)continue;
+   entries.push({race:{year:row.year,meet},leg:{leg:Number(segment[1]),rank:row.rank,time:row.time},source:row.source});
+ }
  return entries.sort((a,b)=>b.race.year-a.race.year||['zen','izu','hak'].indexOf(a.race.race)-['zen','izu','hak'].indexOf(b.race.race));
 }
 function renderAthleteEkiden(entries){
  if(!entries.length)return '';
- return `<section class="section"><h2>${E(t('navEkiden'))}</h2>
- <div class="table-wrap"><table class="data-table"><thead><tr>
+ const place=entry=>Number(entry.leg.rank)||Infinity;
+ const best=[...entries].sort((a,b)=>place(a)-place(b)||Number(Boolean(b.race.race))-Number(Boolean(a.race.race))).slice(0,3);
+ const remaining=entries.filter(entry=>!best.includes(entry));
+ const table=rows=>`<div class="table-wrap"><table class="data-table"><thead><tr>
  ${['years','meet','section','resultMark','legRank','source'].map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}
- </tr></thead><tbody>${entries.map(({race,leg,source})=>`<tr><td>${E(race.year)}</td>
- <td><a href="${raceArchiveLink(race.race,race.year)}">${E(race.meet?meetLabel(race.meet):raceName(race.race))}</a></td>
- <td>${E(leg.leg??'—')}</td><td class="mono">${E(leg.time||'—')}</td><td>${E(leg.rank??'—')}</td><td>${sourceLink(source)}</td></tr>`).join('')}</tbody></table></div></section>`;
+ </tr></thead><tbody>${rows.map(({race,leg,source})=>`<tr><td>${E(race.year)}</td>
+ <td>${race.race?`<a href="${raceArchiveLink(race.race,race.year)}">${E(race.meet?meetLabel(race.meet):raceName(race.race))}</a>`:E(race.meet)}</td>
+ <td>${E(leg.leg??'—')}</td><td class="mono">${E(leg.time||'—')}</td><td>${E(leg.rank??'—')}</td><td>${sourceLink(source)}</td></tr>`).join('')}</tbody></table></div>`;
+ return `<section class="section"><h2>${E(t('navEkiden'))}</h2>${table(best)}
+ ${remaining.length?`<details class="athlete-ekiden-more"><summary>${E(t('athleteEkidenMore',{count:remaining.length}))}</summary>${table(remaining)}</details>`:''}</section>`;
 }
 function renderAthletes(){
  const params=new URLSearchParams(location.hash.split('?')[1]||'');
@@ -367,7 +378,7 @@ function renderAthletes(){
  const canonical=known?.name||name;
  const records=athleteResultRows(canonical);
  const honors=athleteEkidenHonors(canonical);
- const raceEntries=athleteRaceEntries(canonical);
+ const raceEntries=athleteRaceEntries(canonical,records);
  return `<section class="wrap section"><a class="btn btn-sm" href="#athletes">← ${E(t('navAthletes'))}</a> ${known?watchStar(canonical,t,E):''} ${watchLink}
  ${known||records.length||honors.length?profileDetail(canonical,records):`<p role="status">${E(t(dataLoaded?'empty':'loading'))}</p>`}
  ${renderGrowthChart(canonical,records,{t,E,sourceLink})}
@@ -756,6 +767,13 @@ document.addEventListener('click',e=>{
    return;
  }
  const button=e.target.closest('button');
+ if(button?.classList.contains('athlete-media-toggle')){
+   const list=document.getElementById(button.getAttribute('aria-controls'));
+   const expanded=list.classList.toggle('is-expanded');
+   button.setAttribute('aria-expanded',String(expanded));
+   button.textContent=t(expanded?'athleteMediaLess':'athleteMediaMore');
+   return;
+ }
  const id=button?.id;
  if(button?.dataset.watchName){
    toggleWatched(button.dataset.watchName);

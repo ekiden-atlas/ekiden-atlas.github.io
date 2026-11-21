@@ -311,3 +311,15 @@
 .footer-submission .btn:hover {
   background: #943c5b;
 }
+
+.athlete-media-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.athlete-media-list:not(.is-expanded) > li:nth-child(n+5),
+.athlete-media-list:not(:has(> li:nth-child(5))) + .athlete-media-toggle { display: none; }
+.athlete-ekiden-more { margin-top: 12px; }
+.athlete-ekiden-more summary { cursor: pointer; color: var(--wine); font-weight: 650; }
+.athlete-ekiden-more .table-wrap { margin-top: 8px; }
+@media (max-width: 620px) {
+  .athlete-media-list { grid-template-columns: minmax(0, 1fr); }
+  .athlete-media-list:not(.is-expanded) > li:nth-child(n+3) { display: none; }
+  .athlete-media-list:has(> li:nth-child(3)) + .athlete-media-toggle { display: inline-flex; }
+}

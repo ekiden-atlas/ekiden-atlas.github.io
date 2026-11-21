@@ -109,6 +109,17 @@ export const SCHOOL_RESULTS = [
   masukoSchool('2025-mdc','2025-09-23',3,'highSchool','学法石川','ミドルディスタンスサーキット アドバンス東北','2000m','5:10.47',1,'決勝・当時の高校最高記録','https://www.rikujyokyogi.co.jp/archives/185007','cited'),
   masukoSchool('2025-fukushima-high','2025-10-23',3,'highSchool','学法石川','第70回福島県高等学校駅伝競走大会','駅伝1区','28:20',1,'10km・区間新記録','https://gold.jaic.org/fukushima/kekka/2025/1023/rel00101.html'),
   masukoSchool('2025-nittai','2025-11-16',3,'highSchool','学法石川','第324回日本体育大学長距離競技会 兼 第18回日体大チャレンジゲームズ','5000m','13:27.26',4,'チャレンジゲームズ','https://tasukikeifu.com/ja/players/person-e5a297e5ad9020e999bde5a4','cited'),
+  ...[
+    ['2019-fukushima','2019-10-24',1,'第64回福島県高等学校駅伝競走大会',2,'8:24',1,'区間賞','https://gold.jaic.org/fukushima/kekka/2019/1024/20191024-r.pdf'],
+    ['2019-national','2019-12-22',1,'第70回全国高等学校駅伝競走大会',2,'8:15',8,'','https://gold.jaic.org/jaic/member/okayama/2019/1222/2019M70-ekiden.pdf'],
+    ['2020-national','2020-12-20',2,'第71回全国高等学校駅伝競走大会',1,'30:27',31,'','https://gold.jaic.org/jaic/member/okayama/2020/1220/2020M71-ekiden.pdf'],
+    ['2021-national','2021-12-26',3,'第72回全国高等学校駅伝競走大会',1,'29:13',9,'','https://gold.jaic.org/jaic/member/okayama/2021/1226/2021M72-ekiden.pdf']
+  ].map(([id,date,gradeAtRace,meet,leg,time,rank,stage,source])=>({
+    id:'school-yamaguchi-tomoki-'+id,date,year:Number(date.slice(0,4)),name:'山口 智規',gradeAtRace,
+    status:'highSchool',unit:'学校法人石川高等学校',meet,event:'駅伝'+leg+'区',time,rank,stage,source,verification:'primary'
+  })),
+  yamaguchiSchool('2021-nagano-ekiden','2021-10-31',1,'highSchool','佐久長聖高等学校','長野県高等学校総合体育大会駅伝競走大会','駅伝4区','24:33',1,'区間賞','https://nrk-dir.jp/pdf/2021/21171002m.pdf'),
+  yamaguchiSchool('2023-nagano-ekiden','2023-11-05',3,'highSchool','佐久長聖高等学校','長野県高等学校総合体育大会駅伝競走大会','駅伝3区','23:33',1,'区間賞・区間新','https://nrk-dir.jp/pdf/2023/23171002m.pdf'),
   yamaguchiSchool("2021-nagano-spring","2021-04-17",1,"highSchool","佐久長聖高等学校","第61回長野県陸上競技春季大会","3000m","8:41.72",1,"少年B決勝","https://nrk-dir.jp/pdf/2021/21170003m.pdf"),
   yamaguchiSchool("2021-toshin-1500","2021-05-14",1,"highSchool","佐久長聖高等学校","2021年度東信高等学校総合体育大会 陸上競技大会","1500m","4:00.01",1,"オープン決勝2組","https://nrk-dir.jp/pdf/2021/21179003m.pdf"),
   yamaguchiSchool("2021-toshin-5000","2021-05-16",1,"highSchool","佐久長聖高等学校","2021年度東信高等学校総合体育大会 陸上競技大会","5000m","14:43.19",1,"オープン決勝","https://nrk-dir.jp/pdf/2021/21179003m.pdf"),
