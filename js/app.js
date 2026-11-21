@@ -407,10 +407,17 @@ function athleteResultRows(name){
  return personalResults().filter(row=>nameSearch(row.name)===nameSearch(name));
 }
 const summaryEvents=['800m','1500m','3000m','5000m','10000m','ハーフマラソン','マラソン'];
-function renderTeamGrowth(results,rows,season,seasonOf,cutoff,today,cell){
+function renderTeamGrowth(results,rows,season,currentSeason,seasonOf,cutoff,today,cell){
  const years=[season-2,season-1,season];
  const groups=new Map();
  const profiles=new Map(athletes().map(row=>[nameSearch(row.name),row]));
+ if(season===currentSeason){
+   for(const [key,profile] of profiles){
+     if(profile.block==='長距離'&&Number.isFinite(parseTime(profile.pb5000))&&parseTime(profile.pb5000)>0){
+       groups.set(key,{name:officialAthleteName(profile.name),marks:new Map()});
+     }
+   }
+ }
  const offset=(date,year)=>(Number(date.slice(0,4))-year)*12+Number(date.slice(5,7));
  const cutoffOffset=offset(cutoff,season);
  const compare=(a,b)=>parseTime(a.time)-parseTime(b.time)||Number(Boolean(b.source))-Number(Boolean(a.source))||
@@ -421,7 +428,7 @@ function renderTeamGrowth(results,rows,season,seasonOf,cutoff,today,cell){
    const year=seasonOf(row.date);
    const month=offset(row.date,year);
    if(!years.includes(year)||month>cutoffOffset)continue;
-   if(cutoff===today.slice(0,7)&&month===cutoffOffset&&row.date.slice(8)>today.slice(8))continue;
+   if(cutoff===today.slice(0,7)&&month===cutoffOffset&&(!row.date.slice(8)||row.date.slice(8)>today.slice(8)))continue;
    const key=nameSearch(row.name);
    if(!groups.has(key))groups.set(key,{name:officialAthleteName(row.name),marks:new Map()});
    const marks=groups.get(key).marks;
@@ -432,23 +439,28 @@ function renderTeamGrowth(results,rows,season,seasonOf,cutoff,today,cell){
    const seconds=parseTime(row.time);
    if(!group||recordLabel(row.event)!=='5000m'||!Number.isFinite(seconds)||seconds<=0||row.date>today)continue;
    if(!group.pb||compare(row,group.pb)<0)group.pb=row;
+   if(['highSchool','middleSchool'].includes(row.status)&&(!group.schoolBest||compare(row,group.schoolBest)<0))group.schoolBest=row;
  }
  const ordered=[...groups].sort(([,a],[,b])=>a.name.localeCompare(b.name,'ja'));
  if(!ordered.length)return `<p role="status">${E(t('empty'))}</p>`;
  return `<div class="table-wrap"><table class="data-table team-table" aria-labelledby="team-title">
- <thead><tr><th scope="col">${E(t('navAthletes'))}</th><th scope="col">${E(t('growthTeamPb'))}</th>
+ <thead><tr><th scope="col">${E(t('navAthletes'))}</th><th scope="col">${E(t('growthTeamPb'))}</th><th scope="col">${E(t('growthSchoolBest'))}</th>
  ${years.map(year=>`<th scope="col">${E(year)} · SB</th>`).join('')}<th scope="col">${E(t('growthTeamChange'))}</th></tr></thead>
- <tbody>${ordered.map(([key,{name,marks,pb}])=>{
+ <tbody>${ordered.map(([key,{name,marks,pb,schoolBest}])=>{
    const profile=profiles.get(key);
    const time=profile?.pb5000;
-   if(parseTime(time)>0&&parseTime(time)<parseTime(pb?.time))pb={time,source:profile._pbSources?.pb5000};
+   if(parseTime(time)>0&&parseTime(time)<parseTime(pb?.time))pb={time,source:profile._pbSources?.pb5000||profile.clubSource};
    const delta=marks.has(season)&&marks.has(season-1)
      ?Math.round((parseTime(marks.get(season).time)-parseTime(marks.get(season-1).time))*100):null;
    const change=delta===null?'—':t(delta===0?'growthTeamEqual':delta<0?'growthTeamFaster':'growthTeamSlower',
      {seconds:(Math.abs(delta)/100).toFixed(2)});
    return `<tr><th scope="row"><a href="#athletes?name=${encodeURIComponent(name)}&amp;growth=1">${E(name)}</a></th>
    <td>${cell(pb)}${pb?`<small>${E(pb.status?resultDivision(pb):t('resultGradeUnknown'))}</small>`:''}</td>
-   ${years.map(year=>`<td>${cell(marks.get(year))}</td>`).join('')}<td>${E(change)}</td></tr>`;
+   <td>${cell(schoolBest)}${schoolBest?`<small>${E(resultDivision(schoolBest))}</small>`:''}</td>
+   ${years.map(year=>{
+     const mark=marks.get(year);
+     return `<td>${cell(mark)}${mark?`<small>${E(resultDivision(mark))}</small>`:''}</td>`;
+   }).join('')}<td>${E(change)}</td></tr>`;
  }).join('')}</tbody></table></div>`;
 }
 function renderTeamSummary(params){
@@ -460,7 +472,7 @@ function renderTeamSummary(params){
  const seasonOf=date=>Number(date.slice(0,4))-(Number(date.slice(5,7))<startMonth?1:0);
  const currentSeason=seasonOf(today);
  const results=personalResults();
- const rows=results.filter(row=>row.status==='student'&&
+ const rows=results.filter(row=>(row.status==='student'||growth&&['middleSchool','highSchool','OB'].includes(row.status))&&
    /^\d{4}-(0[1-9]|1[0-2])(?:-(0[1-9]|[12]\d|3[01]))?$/.test(row.date)&&row.date<=today&&
    summaryEvents.includes(recordLabel(row.event))&&Number.isFinite(parseTime(row.time))&&parseTime(row.time)>0);
  const seasons=[...new Set([currentSeason,...rows.map(row=>seasonOf(row.date))])].sort((a,b)=>b-a);
@@ -499,7 +511,7 @@ function renderTeamSummary(params){
  <p>${E(t(growth?'growthTeamScope':'teamScope'))}</p>
  ${!growth&&language()==='zh'?`<p class="note">${E(t('teamSeasonExplanation'))}
  <a href="#results?season=2025&amp;period=academic&amp;month=2026-03">${E(t('teamKudoSeasonLink'))}</a></p>`:''}
- ${growth?renderTeamGrowth(results,rows,season,seasonOf,cutoff,today,cell):athletes.length?`<div class="table-wrap"><table class="data-table team-table" aria-labelledby="team-title">
+ ${growth?renderTeamGrowth(results,rows,season,currentSeason,seasonOf,cutoff,today,cell):athletes.length?`<div class="table-wrap"><table class="data-table team-table" aria-labelledby="team-title">
  <thead><tr><th scope="col">${E(t('navAthletes'))}</th>${summaryEvents.map(event=>`<th scope="col">${E(event==='ハーフマラソン'?t('teamHalf'):event==='マラソン'?t('teamMarathon'):event)}</th>`).join('')}</tr></thead>
  <tbody>${athletes.map(({name,marks})=>`<tr><th scope="row">${E(name)}</th>${summaryEvents.map(event=>`<td>${cell(marks.get(event))}</td>`).join('')}</tr>`).join('')}</tbody>
  </table></div>`:`<p role="status">${E(t('empty'))}</p>`}
