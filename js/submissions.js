@@ -1,3 +1,4 @@
+import {submissionErrorKey} from './submission-errors.js';
 import {submissionBadgeMarkup,watchSubmissionBadge} from './submission-badge.js';
 import {renderOtherSubmissions} from './other-submissions.js';
 import {OFFICIAL_LONG_DISTANCE_ROSTER} from '../data/official-club-roster.js';
@@ -23,7 +24,7 @@ function athletePicker(t,E){
  <option value="" disabled selected>${E(t('submissionChooseAthlete'))}</option>${options}</select></label>`;
 }
 
-export async function renderSubmissions(root,{t,E,sourceLink}){
+export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
  const params=new URLSearchParams(location.hash.split('?')[1]);
  const results=personalResults();
  const target=params.has('result')?results.find(row=>row.id===params.get('result')):null;
@@ -60,16 +61,20 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
    }
    if(review&&!admin){say('submissionReviewDenied');return;}
    if(params.has('result')&&!target){say('submissionTargetMissing');return;}
-   const selfEdit=(await db.rpc('wsd_atlas_submitter_edits_ready')).data===true;
-   const detailsReady=(await db.rpc('wsd_atlas_submission_details_ready')).data===true;
+   const [edits,details,attachments,sourceOption]=await Promise.all([
+     db.rpc('wsd_atlas_submitter_edits_ready'),
+     db.rpc('wsd_atlas_submission_details_ready'),
+     db.rpc('wsd_atlas_attachment_submissions_ready'),
+     db.rpc('wsd_atlas_optional_submission_source_ready')
+   ]);
+   const selfEdit=edits.data===true;
+   const detailsReady=details.data===true;
+   const upgraded=attachments.data===true;
+   const optionalSource=upgraded&&sourceOption.data===true;
    const selectedFields=fields+(selfEdit?',revision':'')+(detailsReady?',finish_rank,race_division':'');
    const query=db.from(table).select(selectedFields).order('created_at',{ascending:false}).limit(100);
    const {data:rows,error}=await (review?query.eq('status','pending'):query.eq('author_id',user.id));
    if(error)throw error;
-   if(!root.isConnected)return;
-   const upgraded=(await db.rpc('wsd_atlas_attachment_submissions_ready')).data===true;
-   if(!root.isConnected)return;
-   const optionalSource=upgraded&&(await db.rpc('wsd_atlas_optional_submission_source_ready')).data===true;
    if(!root.isConnected)return;
    const input=(key,name,type,max,value='',readOnly=false,required=true)=>`<label class="field">${E(t(key))}<input name="${name}" type="${type}" maxlength="${max}" value="${E(value??'')}" ${required?'required':''} ${readOnly?'readonly':''}></label>`;
    const divisions=['m1','m2','m3','h1','h2','h3','u1','u2','u3','u4'];
@@ -105,7 +110,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
      ${input(optionalSource?'submissionOptionalSource':'source','source_url','url',600,'',false,!optionalSource)}
      <button class="btn" type="submit">${E(t('submissionSend'))}</button>
    </form>`:''}
-   <p role="status"></p>
+   <p role="status">${messageKey?E(t(messageKey)):''}</p>
    <div class="submission-list">${rows.map(row=>{
      const original=row.target_key&&results.find(result=>result.id===row.target_key);
      const current=original?`${original.name} · ${meetLabel(original.meet)} · ${recordLabel(original.event)} · ${original.time}`:'';
@@ -138,16 +143,22 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
    if(form)form.onsubmit=async event=>{
      event.preventDefault();
      const button=form.querySelector('button');
+     if(button.disabled)return;
      button.disabled=true;
+     status.textContent=t('submissionSending');
      try{
        const values=formValues(form);
        const {error}=await db.from(table).insert({...values,target_key:target?.id||null});
        if(error)throw error;
-       await renderSubmissions(root,{t,E,sourceLink});
-       const message=root.querySelector('[role=status]');
-       if(message)message.textContent=t('submissionSent');
-     }catch{status.textContent=t('submissionFailed');}
-     finally{button.disabled=false;}
+     }catch(error){
+       status.textContent=t(submissionErrorKey(error));
+       button.disabled=false;
+       return;
+     }
+     form.reset();
+     status.textContent=t('submissionSent');
+     await renderSubmissions(root,{t,E,sourceLink,messageKey:'submissionSent'});
+     button.disabled=false;
    };
    root.querySelectorAll('[data-review-form]').forEach(form=>{form.onsubmit=async event=>{
      event.preventDefault();
@@ -165,15 +176,15 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
          .eq('id',row.id).eq('status','pending');
        if(selfEdit)update.eq('revision',row.revision);
        const {data,error}=await update.select('id').maybeSingle();
-       if(error||!data)throw error||new Error('Already reviewed');
+       if(error||!data)throw error||{code:'40001'};
        await loadData();
        await renderSubmissions(root,{t,E,sourceLink});
-     }catch{status.textContent=t('submissionReviewFailed');}
+     }catch(error){status.textContent=t(submissionErrorKey(error,'submissionReviewFailed'));}
      finally{buttons.forEach(item=>{item.disabled=false;});}
    };});
    const other=root.querySelector('[data-other-submissions]');
    if(other)await renderOtherSubmissions(other,{db,user,review,selfEdit,t,E}).catch(()=>{
      other.textContent=t('submissionUnavailable');
    });
- }catch{say('submissionUnavailable');}
+ }catch{if(!messageKey)say('submissionUnavailable');}
 }
