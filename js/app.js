@@ -213,7 +213,7 @@ function rosterSources(athlete){
  const links=[...new Set(Object.values(athlete._pbSources||{}))].map(url=>sourceLink(url)).filter(Boolean);
  return links.length?links.join('<br>'):sourceLink(athlete.source_url)||E(t('sourceFallback'));
 }
-function athleteRows(rows){return rows.map(a=>`<tr><td><a href="#athletes?name=${encodeURIComponent(a.name)}">${E(officialAthleteName(a.name))}</a> ${watchStar(a.name,t,E)}<span class="subline">${blocks[a.block]?`${E(t(blocks[a.block]))} · `:''}${E(rosterDivisionLabel(a))} · ${E(t({女:'female',男:'male'}[a.gender]||'notRecorded'))}</span></td><td class="mono">${E(a.pb1500||'—')}</td><td class="mono">${E(a.pb5000||'—')}</td><td class="mono">${E(a.pb10000||'—')}</td><td class="mono">${E(a.pbHalf||'—')}</td><td>${rosterSources(a)}</td></tr>`).join('');}
+function athleteRows(rows){return rows.map(a=>`<tr><td><a href="#athletes?name=${encodeURIComponent(a.name)}">${E(officialAthleteName(a.name))}</a>${ekidenRoleBadge(a.name)} ${watchStar(a.name,t,E)}<span class="subline">${blocks[a.block]?`${E(t(blocks[a.block]))} · `:''}${E(rosterDivisionLabel(a))} · ${E(t({女:'female',男:'male'}[a.gender]||'notRecorded'))}</span></td><td class="mono">${E(a.pb1500||'—')}</td><td class="mono">${E(a.pb5000||'—')}</td><td class="mono">${E(a.pb10000||'—')}</td><td class="mono">${E(a.pbHalf||'—')}</td><td>${rosterSources(a)}</td></tr>`).join('');}
 const longDistanceRosterNames=new Set(OFFICIAL_LONG_DISTANCE_ROSTER.map(member=>nameSearch(member.name)));
 let filter={q:'',grade:'all',gender:'all',metric:'pb5000'};
 function renderAthleteTable(){
@@ -305,10 +305,15 @@ const ekidenLeadership=new Map([
  ['小平敦之','profileEkidenCaptain'],
  ['髙尾啓太朗','profileEkidenManager']
 ]);
+function ekidenRoleBadge(name,withSource=false){
+ const role=ekidenLeadership.get(nameSearch(name));
+ if(!role)return '';
+ const label=t(role);
+ return ` <span class="tag">${withSource?sourceLink(ekidenLeadershipSource,label):E(label)}</span>`;
+}
 function profileDetail(name,records){
  const a=athlete(name)||{name};
  const reading=athleteGuide(name)?.[1];
- const role=ekidenLeadership.get(nameSearch(a.name));
  const hometownKey=a.hometown?.trim()?'hometown':'home_prefecture';
  const basics=[['middleSchoolProfile','middle_school'],['school','high_school'],['birthday','birthday'],['birthplace','birthplace'],['hometown',hometownKey],['height','height_cm','cm'],['weight','weight_kg','kg']];
  const metrics=[['1500m','pb1500',1.5],['5000m','pb5000',5],['10000m','pb10000',10],['ハーフマラソン','pbHalf',21.0975]]
@@ -316,7 +321,7 @@ function profileDetail(name,records){
  const marathon=records.filter(row=>row.pb&&recordLabel(row.event)==='マラソン'&&validUrl(row.source)&&Number.isFinite(parseTime(row.time)))
    .sort((left,right)=>parseTime(left.time)-parseTime(right.time))[0];
  if(marathon)metrics.push({title:t('marathonPb'),time:marathon.time,km:42.195,source:marathon.source});
- const field=a.pb5000?'pb5000':a.pb10000?'pb10000':'pb1500';const valid=athletes().filter(x=>x.gender===a.gender&&Number.isFinite(parseTime(x[field]))).sort((x,y)=>parseTime(x[field])-parseTime(y[field]));const pos=valid.findIndex(x=>x.name===name)+1;const ranks=worldRankings(name);return `<div class="split" style="margin-top:22px"><article class="detail-panel"><span class="micro">ATHLETE PROFILE · ${E(t('snapshot'))}</span><h1>${E(officialAthleteName(name))}</h1>${reading?`<p class="athlete-reading"><span lang="ja">${E(reading)}</span></p>`:''}<p>${E(rosterDivisionLabel(a))} · ${E(t({女:'female',男:'male'}[a.gender]||'notRecorded'))}</p>${role?`<p><span class="tag">${E(t(role))}</span> ${sourceLink(ekidenLeadershipSource)}</p>`:''}${a.graduation_year?`<p>${E(t('graduated'))} · ${E(a.graduation_year)} ${sourceLink(a.graduation_source)}</p>`:''}${blocks[a.block]?`<p>${E(t(blocks[a.block]))} ${sourceLink(a.clubSource)}</p>`:''}${a.mainEvent?`<p>${E(t('event'))} · ${E(recordLabel(a.mainEvent))}</p>`:''}${basics.map(([label,key,unit])=>`<div class="row-meta">${E(t(label))} · ${E(a[key]??t('notRecorded'))}${a[key]&&unit?' '+unit:''} ${a[key]?sourceLink(a._profileSources?.[key]):''}</div>`).join('')}
+ const field=a.pb5000?'pb5000':a.pb10000?'pb10000':'pb1500';const valid=athletes().filter(x=>x.gender===a.gender&&Number.isFinite(parseTime(x[field]))).sort((x,y)=>parseTime(x[field])-parseTime(y[field]));const pos=valid.findIndex(x=>x.name===name)+1;const ranks=worldRankings(name);return `<div class="split" style="margin-top:22px"><article class="detail-panel"><span class="micro">ATHLETE PROFILE · ${E(t('snapshot'))}</span><h1>${E(officialAthleteName(name))}${ekidenRoleBadge(a.name,true)}</h1>${reading?`<p class="athlete-reading"><span lang="ja">${E(reading)}</span></p>`:''}<p>${E(rosterDivisionLabel(a))} · ${E(t({女:'female',男:'male'}[a.gender]||'notRecorded'))}</p>${a.graduation_year?`<p>${E(t('graduated'))} · ${E(a.graduation_year)} ${sourceLink(a.graduation_source)}</p>`:''}${blocks[a.block]?`<p>${E(t(blocks[a.block]))} ${sourceLink(a.clubSource)}</p>`:''}${a.mainEvent?`<p>${E(t('event'))} · ${E(recordLabel(a.mainEvent))}</p>`:''}${basics.map(([label,key,unit])=>`<div class="row-meta">${E(t(label))} · ${E(a[key]??t('notRecorded'))}${a[key]&&unit?' '+unit:''} ${a[key]?sourceLink(a._profileSources?.[key]):''}</div>`).join('')}
  <div class="row-meta">${E(t('dataUpdated'))} · ${E(a.updated_at?.slice(0,10)||DATA_SNAPSHOT)} ${sourceLink(a.source_url)}</div>${renderAthleteHighlights(name,records)}${renderAthleteSocialLinks(name)}<h3>${E(t('pb'))}</h3><div class="detail-grid">${metrics.map(({title,time,km,source})=>`<div><small>${E(title)} · PB</small><b class="mono">${E(time||'—')}</b><small>${time?E(t('pace')+' '+formatPace(time,km)):E(t('notRecorded'))}</small>${sourceLink(source)}</div>`).join('')}</div>${specialtyPbs(name).map(r=>`<p>${E(recordLabel(r.event))} · PB <b>${E(r.time)}</b> ${sourceLink(r.source)}</p>`).join('')}<p class="titleline">${E(t('athleteMetric'))}</p><p>${E(t('internalSort'))}</p>${verifiedContext(name)}${pos?`<div class="rank-badge">${E(t('internalTag',{rank:pos,total:valid.length}))}</div><div class="progress-track"><i style="width:${Math.max(4,100*(valid.length-pos+1)/valid.length)}%"></i></div>`:`<p>${E(t('notRanked'))}</p>`}</article><article class="detail-panel"><h3>${E(t('globalTitle'))}</h3><p>${E(t('globalNote'))}</p>${ranks.length?ranks.map(r=>`<div class="card" style="margin-top:11px;padding:16px"><div class="card-top"><strong>${E(recordLabel(r.event_name))}</strong><span class="tag">${E(t('worldRank'))} ${E(r.world_rank??'—')}</span></div><p>${E(t('asiaRank'))} · ${E(r.asia_rank??t('notRecorded'))}<br>
  ${E(t('rankingPoints'))} · ${E(r.ranking_points??t('notRecorded'))}<br>
  ${E(t('rankingDate'))} · ${E(r.ranking_date)}</p>
