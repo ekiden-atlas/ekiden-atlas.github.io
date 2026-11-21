@@ -18,7 +18,7 @@ export const RACE_DATE_CORRECTIONS_2026={
   "annual-40":{"date":"2026-07-09","precision":"日","source":"https://waseda-ac.jp/news/detail/942"},
   "annual-44":{"date":"2026-05-31","precision":"日"},
   "annual-49":{"date":"2026-05-28","precision":"日","source":"https://liveresults.hkaaa.com/api/uploads/2026/Asian_U20_Athletics_2026_Results_Summary.pdf"},
-  "annual-57":{"source":"https://prtimes.jp/main/html/rd/p/000000013.000110460.html","rank":1},
+  "annual-57":{"source":"https://readyfor.jp/projects/waseda-ac2025/announcements/420616","rank":1,"stage":"当時の日本新記録"},
   "annual-61":{"date":"2026-05-22","precision":"日","source":"https://waseda-ac.jp/news/detail/879"},
   "annual-63":{"date":"2026-06-13","precision":"日","source":"https://waseda-ac.jp/news/detail/897"},
   "annual-65":{"date":"2026-08-07","precision":"日","source":"https://worldathletics.org/competitions/world-athletics-u20-championships/oregon26/results/men/3000-metres/finals/results"},
