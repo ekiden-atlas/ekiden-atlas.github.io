@@ -24,11 +24,27 @@ const yamaguchiSchool = (id,date,gradeAtRace,status,unit,meet,event,time,rank,st
   status,unit,meet,event,time,rank,stage,source,verification
 });
 
+const nittai308Source='http://ld.nssu-athletic.com/uploads/2023/2023-09-23_result.pdf';
+const nittai308Meet='第308回日本体育大学長距離競技会';
+const nittai308HighSchoolResults = [
+  ['yoshikura','吉倉 ナヤブ直希',3,'早稲田実業高校','14:27.52',30,14],
+  ['sema','瀬間 元輔',3,'東京農業大学第二高校','14:43.91',34,14],
+  ['horino','堀野 正太',2,'須磨学園高校','14:16.25',29,15],
+  ['tomita','冨田 拓臣',2,'水城高校','14:25.51',16,13],
+  ['honda','本田 桜二郎',1,'大牟田高校','14:11.84',8,14],
+  ['kuwabara','桑原 マテウス大地',2,'國學院久我山高校','14:58.09',25,9]
+].map(([athleteId,name,gradeAtRace,unit,time,rank,group])=>({
+  id:'school-'+athleteId+'-2023-nittai-308',name,year:2023,date:'2023-09-24',gradeAtRace,
+  status:'highSchool',unit,meet:nittai308Meet,event:'5000m',time,rank,stage:group+'組',
+  verification:'primary',source:nittai308Source
+}));
+
 export const SCHOOL_RESULTS = [
+  ...nittai308HighSchoolResults,
   {id:'school-niizuma-2023-nittai-308',name:'新妻 遼己',year:2023,date:'2023-09-24',
     gradeAtRace:1,status:'highSchool',unit:'西脇工業高校',meet:'第308回日本体育大学長距離競技会',
     event:'5000m',time:'14:04.41',rank:1,stage:'14組',verification:'primary',
-    source:'https://ld.nssu-athletic.com/uploads/2023/2023-09-23_result.pdf'},
+    source:nittai308Source},
   {"id":"school-sasaki-2024-hokushinetsu-1500","name":"佐々木 哲","year":2024,"date":"2024-06-13","gradeAtRace":3,"status":"highSchool","unit":"佐久長聖高等学校","meet":"第63回北信越高等学校陸上競技対校選手権大会","event":"1500m","time":"4:03.65","rank":1,"stage":"予選2組・決勝進出","source":"https://blog.neet-shikakugets.com/hokushinetsu-koukou-sotai-2024","verification":"cited"},
   {"id":"school-sasaki-2024-u20-3000sc","name":"佐々木 哲","year":2024,"date":"2024-06-27","gradeAtRace":3,"status":"highSchool","unit":"佐久長聖高等学校","meet":"第40回U20日本陸上競技選手権大会","event":"3000mSC","time":"8:39.89","rank":1,"stage":"決勝","source":"https://www.jaaf.or.jp/files/upload/202407/01_06270630all.pdf","verification":"primary"},
   {"id":"school-sasaki-2024-u20-3000","name":"佐々木 哲","year":2024,"date":"2024-06-30","gradeAtRace":3,"status":"highSchool","unit":"佐久長聖高等学校","meet":"第40回U20日本陸上競技選手権大会","event":"3000m","time":"8:02.56","rank":2,"stage":"決勝","source":"https://www.jaaf.or.jp/files/upload/202407/01_06270630all.pdf","verification":"primary"},
@@ -92,7 +108,7 @@ export const SCHOOL_RESULTS = [
   yamaguchiSchool('2022-interhigh-heat','2022-08-05',2,'highSchool','佐久長聖高等学校','第75回全国高等学校陸上競技対校選手権大会','5000m','14:33.87',10,'予選3組','https://gold.jaic.org/gunma/menu/results/r_22/r220803HS/rel055.html'),
   yamaguchiSchool('2023-interhigh-heat','2023-08-04',3,'highSchool','佐久長聖高等学校','第76回全国高等学校陸上競技対校選手権大会','5000m','14:01.57',4,'予選3組・決勝進出','https://www.jaaf.or.jp/files/competition/document/1762-7.pdf#page=17'),
   yamaguchiSchool('2023-interhigh-final','2023-08-05',3,'highSchool','佐久長聖高等学校','第76回全国高等学校陸上競技対校選手権大会','5000m','13:59.60',10,'決勝','https://www.jaaf.or.jp/files/competition/document/1762-7.pdf#page=18'),
-  yamaguchiSchool('2023-nittai-308','2023-09-24',3,'highSchool','佐久長聖高等学校','第308回日本体育大学長距離競技会','5000m','13:52.73',7,'16組','https://ld.nssu-athletic.com/uploads/2023/2023-09-23_result.pdf'),
+  yamaguchiSchool('2023-nittai-308','2023-09-24',3,'highSchool','佐久長聖高等学校','第308回日本体育大学長距離競技会','5000m','13:52.73',7,'16組',nittai308Source),
   yamaguchiSchool('2023-nittai-challenge','2023-11-25',3,'highSchool','佐久長聖高等学校','第6回日体大チャレンジゲームズ','5000m','13:34.59',5,'決勝','https://worldathletics.org/competition/calendar-results/results/7203262'),
   {id:'school-yamaguchi-2022-nittai-294',name:'山口 竣平',year:2022,date:'2022-04-24',
     gradeAtRace:2,status:'highSchool',unit:'佐久長聖高校',meet:'第294回日本体育大学長距離競技会',
