@@ -19,8 +19,8 @@ import {DATA_SNAPSHOT} from '../data/roster.js';
 import {renderAdminPage,detachAdmin} from './admin.js';
 const app=document.querySelector('#app');
 const E=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const validUrl=v=>{try{const u=new URL(String(v));return u.protocol==='https:'&&!u.username&&!u.password&&!/(?:^|\.)(github\.com|github\.io|githubusercontent\.com)$/.test(u.hostname)?u.href:null;}catch{return null;}};
-const sourceLink=(url,label=t('viewSource'))=>{const href=validUrl(url);return href?`<a href="${E(href)}" target="_blank" rel="noopener noreferrer">${E(label)} ↗</a>`:'';};
+const validUrl=(v,allowHttp=false)=>{try{const u=new URL(String(v));return (u.protocol==='https:'||(allowHttp&&u.protocol==='http:'))&&!u.username&&!u.password&&!/(?:^|\.)(github\.com|github\.io|githubusercontent\.com)$/.test(u.hostname)?u.href:null;}catch{return null;}};
+const sourceLink=(url,label=t('viewSource'))=>{const href=validUrl(url,true);return href?`<a href="${E(href)}" target="_blank" rel="noopener noreferrer">${E(label)} ↗</a>`:'';};
 const raceName=r=>t({hak:'introHak',izu:'introIzu',zen:'introZen',other:'otherEkiden'}[r]||'introHak');
 const gradeName=n=>t({1:'first',2:'second',3:'third',4:'fourth'}[n]||'notRecorded');
 function verifiedContext(name){

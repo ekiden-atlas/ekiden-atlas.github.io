@@ -34,3 +34,9 @@
 ## 纳入已绑定 Google 的账号
 
 `sql/optional-linked-google-result-submissions.sql` 保留本人才能提交的检查，并识别 Supabase 签发的 Google 已绑定身份。既有账号即使最初通过其他方式创建，只要已绑定 Google，登录后也可投稿。读取、审核和发布策略维持原样。回滚时重新应用 `sql/optional-google-result-submissions.sql` 中的条件，再回退对应前端更新。
+
+## HTTP 赛果来源
+
+审阅并授权后，单独应用 `sql/optional-http-result-sources.sql`。迁移仅替换投稿队列和已发布内容的来源约束。它允许投稿及已发布的赛果使用 HTTP 和 HTTPS，保留 Google 登录、审核权限及其他内容类型的 HTTPS 要求。应用前从 `pg_constraint` 核对两个现有约束的名称和定义，并保存原定义。迁移在单个事务内执行，锁超时或约束名不符时整体回退。
+
+先在测试环境核对 HTTP 赛果从提交到审核发布，以及非赛果仍要求 HTTPS。生产验证使用一条来源可核对的真实赛果投稿。回滚时，先清点两表中新增的 HTTP 来源，将能确认支持 HTTPS 的来源替换成 HTTPS。对于仅支持 HTTP 的来源，先保留记录并审阅处置方式。两表均满足原约束后，在同一事务中恢复保存的原定义。
