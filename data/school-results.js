@@ -19,9 +19,9 @@ const uesugiHighSchool = (id,date,gradeAtRace,meet,event,time,rank,stage,source,
   status:'highSchool',unit:'八千代松陰高等学校',meet,event,time,rank,stage,source,verification
 });
 
-const yamaguchiSchool = (id,date,gradeAtRace,status,unit,meet,event,time,rank,stage,source)=>({
+const yamaguchiSchool = (id,date,gradeAtRace,status,unit,meet,event,time,rank,stage,source,verification='primary')=>({
   id:'school-yamaguchi-'+id,date,year:Number(date.slice(0,4)),name:'山口 竣平',gradeAtRace,
-  status,unit,meet,event,time,rank,stage,source,verification:'primary'
+  status,unit,meet,event,time,rank,stage,source,verification
 });
 
 export const SCHOOL_RESULTS = [
@@ -60,6 +60,29 @@ export const SCHOOL_RESULTS = [
   masukoSchool('2025-mdc','2025-09-23',3,'highSchool','学法石川','ミドルディスタンスサーキット アドバンス東北','2000m','5:10.47',1,'決勝・当時の高校最高記録','https://www.rikujyokyogi.co.jp/archives/185007','cited'),
   masukoSchool('2025-fukushima-high','2025-10-23',3,'highSchool','学法石川','第70回福島県高等学校駅伝競走大会','駅伝1区','28:20',1,'10km・区間新記録','https://gold.jaic.org/fukushima/kekka/2025/1023/rel00101.html'),
   masukoSchool('2025-nittai','2025-11-16',3,'highSchool','学法石川','第324回日本体育大学長距離競技会 兼 第18回日体大チャレンジゲームズ','5000m','13:27.26',4,'チャレンジゲームズ','https://tasukikeifu.com/ja/players/person-e5a297e5ad9020e999bde5a4','cited'),
+  yamaguchiSchool("2021-nagano-spring","2021-04-17",1,"highSchool","佐久長聖高等学校","第61回長野県陸上競技春季大会","3000m","8:41.72",1,"少年B決勝","https://nrk-dir.jp/pdf/2021/21170003m.pdf"),
+  yamaguchiSchool("2021-toshin-1500","2021-05-14",1,"highSchool","佐久長聖高等学校","2021年度東信高等学校総合体育大会 陸上競技大会","1500m","4:00.01",1,"オープン決勝2組","https://nrk-dir.jp/pdf/2021/21179003m.pdf"),
+  yamaguchiSchool("2021-toshin-5000","2021-05-16",1,"highSchool","佐久長聖高等学校","2021年度東信高等学校総合体育大会 陸上競技大会","5000m","14:43.19",1,"オープン決勝","https://nrk-dir.jp/pdf/2021/21179003m.pdf"),
+  yamaguchiSchool("2021-hiu-88","2021-06-05",1,"highSchool","佐久長聖高等学校","第88回平成国際大学長距離競技会","3000m","8:28.02",null,"","https://tyouseiekidenouen.blog.fc2.com/blog-entry-783.html","cited"),
+  yamaguchiSchool("2021-tokai-202","2021-06-19",1,"highSchool","佐久長聖高等学校","第202回東海大学長距離競技会","3000m","8:18.02",1,"","https://chuo-ldt.net/2021/06/20/210619result2/","cited"),
+  yamaguchiSchool("2021-hiu-89","2021-09-20",1,"highSchool","佐久長聖高等学校","第89回平成国際大学長距離競技会","3000m","8:25.05",null,"","https://tyouseiekidenouen.blog.fc2.com/blog-entry-783.html","cited"),
+  yamaguchiSchool("2021-nittai-291","2021-10-03",1,"highSchool","佐久長聖高等学校","第291回日本体育大学長距離競技会","5000m","14:15.13",null,"","https://tyouseiekidenouen.blog.fc2.com/blog-entry-783.html","cited"),
+  yamaguchiSchool("2021-nittai-292","2021-11-14",1,"highSchool","佐久長聖高等学校","第292回日本体育大学長距離競技会","5000m","14:18.78",null,"","https://tyouseiekidenouen.blog.fc2.com/blog-entry-783.html","cited"),
+  yamaguchiSchool("2021-nittai-293","2021-12-05",1,"highSchool","佐久長聖高等学校","第293回日本体育大学長距離競技会","5000m","14:20.07",5,"27組","https://blog.neet-shikakugets.com/nittaidai-ld-2021-1204","cited"),
+  yamaguchiSchool("2022-hiu-95","2022-04-30",2,"highSchool","佐久長聖高等学校","第95回平成国際大学長距離競技会","3000m","8:15.96",null,"","https://tyouseiekidenouen.blog.fc2.com/blog-entry-783.html","cited"),
+  yamaguchiSchool("2022-toshin-1500","2022-05-13",2,"highSchool","佐久長聖高等学校","令和4年度東信高等学校総合体育大会 陸上競技大会","1500m","3:58.97",3,"オープン決勝3組","https://nrk-dir.jp/pdf/2022/22172003m.pdf"),
+  yamaguchiSchool("2022-toshin-5000","2022-05-15",2,"highSchool","佐久長聖高等学校","令和4年度東信高等学校総合体育大会 陸上競技大会","5000m","14:25.23",2,"決勝","https://nrk-dir.jp/pdf/2022/22172003m.pdf"),
+  yamaguchiSchool("2022-nagano-ih","2022-05-29",2,"highSchool","佐久長聖高等学校","第67回長野県高等学校陸上競技対校選手権大会","5000m","14:45.20",2,"決勝","https://nrk-dir.jp/pdf/2022/22171001m.pdf"),
+  yamaguchiSchool("2022-hiu-96","2022-06-04",2,"highSchool","佐久長聖高等学校","第96回平成国際大学長距離競技会","3000m","8:19.79",1,"","https://blog.neet-shikakugets.com/heiseikokusai-daigaku-ld-2022-0604","cited"),
+  yamaguchiSchool("2022-saku-night","2022-07-23",2,"highSchool","佐久長聖高等学校","第1回佐久中長距離ナイター記録会","3000m","8:19.04",3,"タイムレース3組","https://nrk-dir.jp/pdf/2022/22171705m.pdf"),
+  yamaguchiSchool("2022-hiu-98","2022-09-19",2,"highSchool","佐久長聖高等学校","第98回平成国際大学長距離競技会","5000m","14:49.84",null,"","https://tyouseiekidenouen.blog.fc2.com/blog-entry-783.html","cited"),
+  yamaguchiSchool("2023-tokai-217","2023-04-15",3,"highSchool","佐久長聖高等学校","第217回東海大学長距離競技会","3000m","8:26.76",null,"2組","https://breaktime2002.com/sakutyousei_ekiden_2023/","cited"),
+  yamaguchiSchool("2023-nagano-spring","2023-04-16",3,"highSchool","佐久長聖高等学校","第63回長野県陸上競技春季大会","1500m","3:55.75",2,"決勝","https://nrk-dir.jp/pdf/2023/23170003m.pdf"),
+  yamaguchiSchool("2023-toshin-1500","2023-05-12",3,"highSchool","佐久長聖高等学校","令和5年度東信高等学校総合体育大会 陸上競技大会","1500m","3:58.05",4,"オープン決勝2組","https://nrk-dir.jp/pdf/2023/23172003m.pdf"),
+  yamaguchiSchool("2023-toshin-5000","2023-05-14",3,"highSchool","佐久長聖高等学校","令和5年度東信高等学校総合体育大会 陸上競技大会","5000m","14:30.18",2,"決勝","https://nrk-dir.jp/pdf/2023/23172003m.pdf"),
+  yamaguchiSchool("2023-nagano-ih","2023-05-28",3,"highSchool","佐久長聖高等学校","第68回長野県高等学校陸上競技対校選手権大会","5000m","14:25.98",2,"決勝","https://nrk-dir.jp/pdf/2023/23171001m.pdf"),
+  yamaguchiSchool("2023-tokai-219","2023-06-04",3,"highSchool","佐久長聖高等学校","第219回東海大学長距離競技会","3000m","8:08.23",2,"3組","https://hakonankit-fd.com/article/post-21278.html","cited"),
+  yamaguchiSchool("2023-saku-night","2023-07-22",3,"highSchool","佐久長聖高等学校","第2回佐久中長距離ナイター記録会","3000m","8:11.30",3,"タイムレース5組","https://nrk-dir.jp/pdf/2023/23171705m.pdf"),
   yamaguchiSchool('2020-joc-heat','2020-10-16',3,'middleSchool','OPT','全国中学生陸上競技大会2020','3000m','8:42.34',3,'予選1組・決勝進出','https://gold.jaic.org/gunma/menu/results/r_20/r201016JHS/records.pdf'),
   yamaguchiSchool('2020-joc-final','2020-10-17',3,'middleSchool','OPT','全国中学生陸上競技大会2020','3000m','8:46.66',4,'決勝','https://gold.jaic.org/gunma/menu/results/r_20/r201016JHS/records.pdf'),
   yamaguchiSchool('2022-interhigh-heat','2022-08-05',2,'highSchool','佐久長聖高等学校','第75回全国高等学校陸上競技対校選手権大会','5000m','14:33.87',10,'予選3組','https://gold.jaic.org/gunma/menu/results/r_22/r220803HS/rel055.html'),
