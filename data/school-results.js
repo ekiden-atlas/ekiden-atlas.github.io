@@ -66,7 +66,7 @@ export const SCHOOL_RESULTS = [
   uesugiHighSchool("2023-chiba-district-800","2023-04-22",1,"第76回千葉県高等学校総合体育大会陸上競技大会第2支部予選会","800m","1:58.43",2,"","https://kantou-koukou-rikujou.info/data/2023/2023_soutai_chiba_2_result.pdf"),
   uesugiHighSchool("2023-chiba-school-meet","2023-06-04",1,"第43回千葉県高校陸上競技記録会","3000m","8:39.50",1,"少年B・1組","https://www5c.biglobe.ne.jp/~iwa-m/results/2023/kirokukai/OutputHtml/nans21v/shtml/result/track/20230604_1-14-7-0-8-3-3-0-5_ResultTrackA.html"),
   uesugiHighSchool("2023-ichihara-night","2023-07-16",1,"第30回市原市ナイター陸上競技記録会","1500m","3:59.46",3,"タイムレース2組","https://ichispo.com/contents/nighter/2023nighter/dansikirokuitiran.pdf"),
-  uesugiHighSchool('2023-chiba-rookie-district','2023-09',1,'千葉県高等学校新人陸上競技大会第2支部予選会','','16:21.76',null,'県大会進出',null,'userProvided'),
+  uesugiHighSchool('2023-chiba-rookie-district','2023-09',1,'千葉県高等学校新人陸上競技大会第2支部予選会','5000m','16:21.76',null,'県大会進出',null,'userProvided'),
   uesugiHighSchool("2023-chiba-rookie","2023-09-22",1,"第62回千葉県高等学校新人陸上競技大会","5000m","14:38.55",3,"タイムレース総合","https://koukou-rikujou.info/data/2023/2023_shinjin_chiba_result.pdf"),
   uesugiHighSchool("2023-ibu-12","2023-10-29",1,"第12回国際武道大学競技会","5000m","14:34.00",1,"決勝1組","https://ibutfclub.com/wp-content/uploads/2023/11/%E4%BB%A4%E5%92%8C5%E5%B9%B4%E5%BA%A6%E7%AC%AC12%E5%9B%9E%E5%9B%BD%E9%9A%9B%E6%AD%A6%E9%81%93%E5%A4%A7%E5%AD%A6%E7%AB%B6%E6%8A%80%E4%BC%9A%E3%80%80%E7%B5%90%E6%9E%9C%E3%83%97%E3%83%AD%E3%82%B0%E3%83%A9%E3%83%A0.pdf"),
   uesugiHighSchool("2023-chiba-ekiden-trial","2023-11-25",1,"都道府県駅伝千葉県選手選考会","5000m","14:21.49",1,"選考会5000m","https://www.jaaf-chiba.jp/pages/main/result/past/2023/130-tdfkekiden/kessyo.pdf"),
