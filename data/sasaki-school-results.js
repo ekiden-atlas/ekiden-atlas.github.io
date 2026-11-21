@@ -2,6 +2,7 @@ const blog='https://tyouseiekidenouen.blog.fc2.com/blog-entry-837.html';
 const nagano='https://nrk-dir.jp/pdf/2022/22172009m.pdf';
 const junior='https://gold.jaic.org/gunma/menu/results/r_21/r210818JHS/records.pdf';
 const lima='https://worldathletics.org/competitions/world-athletics-u20-championships/world-athletics-u20-championships-7180313/results/men/3000-metres-steeplechase/';
+const east2023Results='https://nrk-dir.jp/pdf/2023/23172003m.pdf';
 const east2024Results='https://nrk-dir.jp/pdf/2024/24172003m.pdf';
 const east='東信高等学校陸上競技大会';
 const naganoHigh2024Results='https://nrk-dir.jp/pdf/2024/24171001m.pdf';
@@ -30,14 +31,14 @@ const races=[
  ['2022-12-04','5000m','14:30.74','第215回東海大学長距離競技会'],
  ['2022-12-26','5000m','14:34.57','エスジーエイチチャレンジ'],
  ['2022-09-10','3000mSC','9:36.20','東信高等学校新人陸上競技大会','決勝',1,nagano],
- ['2023-05-12','1500m','4:08.24',east],
+ ['2023-05-12','1500m','4:08.24',east,'オープン決勝2組',9,east2023Results],
  ['2023-06-04','3000m','8:25.37',tokai],
  ['2023-04-15','5000m','15:03.93',spring],
- ['2023-05-14','5000m','15:12.88',east],
+ ['2023-05-14','5000m','15:12.88',east,'オープン決勝',6,east2023Results],
  ['2023-09-24','5000m','14:58.39',nittai],
  ['2023-11-25','5000m','14:03.51',nittai],
  ['2023-04-16','3000mSC','9:38.55',spring],
- ['2023-05-13','3000mSC','9:26.46',east],
+ ['2023-05-13','3000mSC','9:26.46',east,'決勝',3,east2023Results],
  ['2023-05-27','3000mSC','9:03.76',naganoHigh],
  ['2023-06-17','3000mSC','9:12.33',regional,'予選'],
  ['2023-06-18','3000mSC','9:01.90',regional,'決勝'],
