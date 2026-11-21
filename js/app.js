@@ -497,6 +497,8 @@ function renderTeamSummary(params){
  <label class="field">${E(t('teamMonth'))}<select id="team-month">${options(months,cutoff)}</select></label>
  <button type="button" class="btn" id="team-print">${E(t('teamPrint'))}</button></div>
  <p>${E(t(growth?'growthTeamScope':'teamScope'))}</p>
+ ${!growth&&language()==='zh'?`<p class="note">${E(t('teamSeasonExplanation'))}
+ <a href="#results?season=2025&amp;period=academic&amp;month=2026-03">${E(t('teamKudoSeasonLink'))}</a></p>`:''}
  ${growth?renderTeamGrowth(results,rows,season,seasonOf,cutoff,today,cell):athletes.length?`<div class="table-wrap"><table class="data-table team-table" aria-labelledby="team-title">
  <thead><tr><th scope="col">${E(t('navAthletes'))}</th>${summaryEvents.map(event=>`<th scope="col">${E(event==='ハーフマラソン'?t('teamHalf'):event==='マラソン'?t('teamMarathon'):event)}</th>`).join('')}</tr></thead>
  <tbody>${athletes.map(({name,marks})=>`<tr><th scope="row">${E(name)}</th>${summaryEvents.map(event=>`<td>${cell(marks.get(event))}</td>`).join('')}</tr>`).join('')}</tbody>
