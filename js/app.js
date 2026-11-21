@@ -38,11 +38,15 @@ function renderDiaryList(entries,labels){
  return `<ul class="official-link-list">${entries.map(([date,author,id])=>`<li>
  <time datetime="${E(date)}">${E(date)}</time> · ${sourceLink(clubDiary+'detail/'+id,labels?author:t('clubDiaryRead',{date}))}</li>`).join('')}</ul>`;
 }
-function renderClubDiary(){
+function renderClubDiary(home=false){
+ const latestDates=new Set([...new Set(CLUB_DIARIES.map(([date])=>date))].sort().reverse().slice(0,5));
+ const entries=home
+   ? CLUB_DIARIES.filter(([date])=>latestDates.has(date)).sort(([a],[b])=>b.localeCompare(a))
+   : CLUB_DIARIES.filter(([, ,id])=>featuredDiaryIds.has(id));
  return `<section class="section club-diary" aria-labelledby="club-diary-title">
  <div class="section-head"><div><h2 id="club-diary-title">${E(t('clubDiaryTitle'))}</h2>
  <p>${E(t('clubDiaryDesc'))}</p></div></div>
- <div class="card">${renderDiaryList(CLUB_DIARIES.filter(([, ,id])=>featuredDiaryIds.has(id)),true)}
+ <div class="card">${renderDiaryList(entries,true)}
  ${sourceLink(clubDiary+'category/1',t('clubDiaryAll'))}</div></section>`;
 }
 function renderAthleteDiaries(name){
@@ -196,7 +200,7 @@ function renderHome(){
  ${sourceLink('https://waseda-ac.jp/team/member/block/3',t('clubIntroSource'))}
  ${sourceLink('https://waseda-ac.jp/recruit/',t('clubIntroCoachSource'))}</div></div>
  </section>
- <div class="wrap">${fanBoardLink(t,E)}${renderClubDiary()}${renderOfficialLinks(false)}</div><div class="wrap statusbar">${E(t('sourceFallback'))} · ${E(DATA_SNAPSHOT)}</div>`;
+ <div class="wrap">${fanBoardLink(t,E)}${renderClubDiary(true)}${renderOfficialLinks(false)}</div><div class="wrap statusbar">${E(t('sourceFallback'))} · ${E(DATA_SNAPSHOT)}</div>`;
 }
 const rosterDivision=a=>a.graduation_year?'alumni':a.officialGrade==='大学院'?'graduate':String(a.grade??'');
 function rosterDivisionLabel(a){
