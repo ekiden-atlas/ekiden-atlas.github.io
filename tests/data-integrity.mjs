@@ -78,7 +78,7 @@ assert.deepEqual(athletes().filter(row=>row.clubSource).map(row=>row.clubSource)
 assert.equal(athlete('佐々木 哲').high_school,'佐久長聖高等学校');
 const rows=personalResults();
 assert.equal(rows.length,1096+HONDA_SCHOOL_RESULTS.length+SASAKI_SCHOOL_RESULTS.length+EARLIER_ATHLETE_RESULTS.length+ADDITIONAL_RESULTS_2026.length);
-assert.equal(new Set(EARLIER_ATHLETE_RESULTS.map(row=>nameSearch(row.name))).size,18);
+assert.equal(new Set(EARLIER_ATHLETE_RESULTS.map(row=>nameSearch(row.name))).size,26);
 assert.equal(new Set(rows.map(row=>row.id)).size,rows.length);
 for(const [year,count] of [[2023,92],[2024,366],[2025,270],[2026,248+ADDITIONAL_RESULTS_2026.length]]){
  assert.equal(rows.filter(row=>row.year===year).length,count+HONDA_SCHOOL_RESULTS.filter(row=>row.year===year).length+SASAKI_SCHOOL_RESULTS.filter(row=>row.year===year).length+EARLIER_ATHLETE_RESULTS.filter(row=>row.year===year).length);
@@ -138,7 +138,7 @@ assert.equal(resultById('annual-51').status,'highSchool');
 assert.equal(resultGrade(resultById('school-suzuki-2022-ekiden')),'1');
 assert.equal(resultGrade({status:'OB',grade:4}),'');
 assert.ok(rows.some(row=>row.verification==='primary'&&row.rank===64&&row.time==='26:03'&&row.status==='highSchool'&&resultGrade(row)==='2'));
-assert.equal(rows.filter(row=>row.status==='OB').length,state.official.results.filter(row=>row.status==='OB').length);
+assert.equal(rows.filter(row=>row.status==='OB').length,state.official.results.filter(row=>row.status==='OB').length+EARLIER_ATHLETE_RESULTS.filter(row=>row.status==='OB').length);
 const legacy=rows.find(row=>row.id==='ob2026-1');
 const record_key='ob:'+[legacy.name,legacy.date,legacy.meet,legacy.event,legacy.time].join('|').slice(0,178);
 state.legacyEdits=[{entity_type:'ob_result',record_key,payload:{rank:7}}];
