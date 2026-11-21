@@ -29,6 +29,10 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
  const results=personalResults();
  const target=params.has('result')?results.find(row=>row.id===params.get('result')):null;
  const review=params.has('review');
+ const from=params.get('from')||'';
+ const returnLink=/^#(?:home|athletes|results|schedule|guide|archive|fans)(?:\?|$)/.test(from)
+   ?`<p><a class="btn" href="${E(from)}">${E(t('submissionReturn'))}</a></p>`:'';
+ const successLink=messageKey==='submissionSent'?returnLink:'';
  const say=key=>{root.innerHTML=`<p role="status">${E(t(key))}</p>`;};
  try{
    if(!state.submissionsReady){say('submissionUnavailable');return;}
@@ -111,6 +115,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      <button class="btn" type="submit">${E(t('submissionSend'))}</button>
    </form>`:''}
    <p role="status">${messageKey?E(t(messageKey)):''}</p>
+   <div data-submission-return>${successLink}</div>
    <div class="submission-list">${rows.map(row=>{
      const original=row.target_key&&results.find(result=>result.id===row.target_key);
      const current=original?`${original.name} · ${meetLabel(original.meet)} · ${recordLabel(original.event)} · ${original.time}`:'';
@@ -157,6 +162,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      }
      form.reset();
      status.textContent=t('submissionSent');
+     root.querySelector('[data-submission-return]').innerHTML=returnLink;
      await renderSubmissions(root,{t,E,sourceLink,messageKey:'submissionSent'});
      button.disabled=false;
    };
@@ -183,7 +189,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      finally{buttons.forEach(item=>{item.disabled=false;});}
    };});
    const other=root.querySelector('[data-other-submissions]');
-   if(other)await renderOtherSubmissions(other,{db,user,review,selfEdit,t,E}).catch(()=>{
+   if(other)await renderOtherSubmissions(other,{db,user,review,selfEdit,t,E,returnLink}).catch(()=>{
      other.textContent=t('submissionUnavailable');
    });
  }catch{if(!messageKey)say('submissionUnavailable');}
