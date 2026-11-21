@@ -254,7 +254,7 @@ export function personalResults(){
        rank:row.rank??verified.rank,status:row.status||verified.status,
        gradeAtRace:row.gradeAtRace??row.grade??verified.gradeAtRace};
    })
-   .filter(x=>x.id&&x.name&&x.event)
+   .filter(x=>x.id&&x.name&&(x.event||x.verification==='userProvided'))
    .sort((a,b)=>Number(b.year)-Number(a.year)||String(b.date||'').localeCompare(String(a.date||'')));
 }
 export function specialtyPbs(name){
