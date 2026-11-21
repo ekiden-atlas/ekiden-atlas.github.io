@@ -69,12 +69,14 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
    if(!root.isConnected)return;
    const upgraded=(await db.rpc('wsd_atlas_attachment_submissions_ready')).data===true;
    if(!root.isConnected)return;
-   const input=(key,name,type,max,value='',readOnly=false)=>`<label class="field">${E(t(key))}<input name="${name}" type="${type}" maxlength="${max}" value="${E(value)}" required ${readOnly?'readonly':''}></label>`;
+   const optionalSource=upgraded&&(await db.rpc('wsd_atlas_optional_submission_source_ready')).data===true;
+   if(!root.isConnected)return;
+   const input=(key,name,type,max,value='',readOnly=false,required=true)=>`<label class="field">${E(t(key))}<input name="${name}" type="${type}" maxlength="${max}" value="${E(value??'')}" ${required?'required':''} ${readOnly?'readonly':''}></label>`;
    const divisions=['m1','m2','m3','h1','h2','h3','u1','u2','u3','u4'];
    const divisionLabels=t('submissionDivisionOptions').split('|');
    const divisionLabel=value=>divisionLabels[divisions.indexOf(value)];
    const detailFields=(rank,division)=>detailsReady?`
-     <label class="field">${E(t('rank'))}<input name="finish_rank" type="number" min="1" max="2147483647" step="1" value="${E(rank??'')}"></label>
+     <label class="field">${E(t('submissionOptionalRank'))}<input name="finish_rank" type="number" min="1" max="2147483647" step="1" value="${E(rank??'')}"></label>
      <label class="field">${E(t('resultStatus'))}<select name="race_division">
      <option value="">${E(t('notRecorded'))}</option>
      ${divisions.map(value=>`<option value="${value}" ${value===division?'selected':''}>${E(divisionLabel(value))}</option>`).join('')}
@@ -85,6 +87,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
        values.finish_rank=values.finish_rank?Number(values.finish_rank):null;
        values.race_division=values.race_division||null;
      }
+     if(optionalSource&&'source_url' in values)values.source_url=values.source_url||null;
      return values;
    }
    root.innerHTML=`
@@ -99,7 +102,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
      ${!target?input('date','race_date','date',10):''}
      ${input('resultMark','mark','text',20,target?.time)}
      ${detailFields()}
-     ${input('source','source_url','url',600)}
+     ${input(optionalSource?'submissionOptionalSource':'source','source_url','url',600,'',false,!optionalSource)}
      <button class="btn" type="submit">${E(t('submissionSend'))}</button>
    </form>`:''}
    <p role="status"></p>
@@ -121,7 +124,7 @@ export async function renderSubmissions(root,{t,E,sourceLink}){
        ].join(''):''}
        ${input('resultMark','mark','text',20,row.mark)}
        ${detailFields(row.finish_rank,row.race_division)}
-       ${input('source','source_url','url',600,row.source_url)}
+       ${input(optionalSource&&!review?'submissionOptionalSource':'source','source_url','url',600,row.source_url,false,review||!optionalSource)}
      </div>`:''}
      ${canEdit?`<button class="btn btn-sm" type="submit" value="pending">${E(t('submissionSaveEdit'))}</button>
      <button class="btn btn-sm" type="submit" value="withdrawn" formnovalidate>${E(t('submissionWithdraw'))}</button>`:`
