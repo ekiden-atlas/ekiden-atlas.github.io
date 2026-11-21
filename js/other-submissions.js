@@ -7,7 +7,7 @@ const mimeTypes=[
  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 ];
 
-export async function renderOtherSubmissions(root,{db,user,review,selfEdit,t,E,messageKey}){
+export async function renderOtherSubmissions(root,{db,user,review,selfEdit,t,E,messageKey,returnLink}){
  const bucket=db.storage.from('atlas-submission-files');
  const query=db.from(table).select('id,author_id,folder,title,body,status'+(selfEdit?',revision':'')).order('created_at',{ascending:false}).limit(100);
  const {data:rows,error}=await (review?query.eq('status','pending'):query.eq('author_id',user.id));
@@ -15,7 +15,7 @@ export async function renderOtherSubmissions(root,{db,user,review,selfEdit,t,E,m
  if(!root.isConnected)return;
  const content=(row={})=>`<label class="field">${E(t('otherSubmissionTitle'))}<input name="title" maxlength="120" required value="${E(row.title||'')}"></label>
  <label class="field">${E(t('otherSubmissionBody'))}<textarea name="body" maxlength="4000" required>${E(row.body||'')}</textarea></label>`;
- root.innerHTML=`<h3>${E(t('otherSubmission'))}</h3><p role="status">${messageKey?E(t(messageKey)):''}</p>
+ root.innerHTML=`<h3>${E(t('otherSubmission'))}</h3><p role="status">${messageKey?E(t(messageKey)):''}</p><div data-submission-return>${messageKey==='submissionSent'?returnLink||'':''}</div>
  ${review?'':`<form class="card">${content()}
  <label class="field">${E(t('otherSubmissionFiles'))}<input name="files" type="file" accept="${mimeTypes.join(',')}" multiple></label>
  <button class="btn" type="submit">${E(t('submissionSend'))}</button></form>`}
@@ -49,7 +49,8 @@ export async function renderOtherSubmissions(root,{db,user,review,selfEdit,t,E,m
      const messageKey=review?'otherSubmissionReviewed':event.submitter?.value==='withdrawn'?'submissionStatus.withdrawn':event.submitter?.value==='pending'?'adminSaved':'submissionSent';
      if(messageKey==='submissionSent')form.reset();
      status.textContent=t(messageKey);
-     await renderOtherSubmissions(root,{db,user,review,selfEdit,t,E,messageKey}).catch(()=>{});
+     if(messageKey==='submissionSent')root.querySelector('[data-submission-return]').innerHTML=returnLink||'';
+     await renderOtherSubmissions(root,{db,user,review,selfEdit,t,E,messageKey,returnLink}).catch(()=>{});
    }catch(error){status.textContent=t(submissionErrorKey(error,review?'submissionReviewFailed':'otherSubmissionFailed'));}
    finally{buttons.forEach(button=>{button.disabled=false;});}
  };};

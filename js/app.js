@@ -397,6 +397,52 @@ function resultDivision(row){
  }
  return t('notRecorded');
 }
+const resultFilterIds=['q','year','meet','event','group','status','grade'];
+
+function submissionOrigin(){
+ const [route,query]=location.hash.split('?');
+ const params=new URLSearchParams(query);
+ if(document.querySelector('#result-rows')){
+   params.set('resultPage',String(resultsPage+1));
+   for(const field of resultFilterIds){
+     const control=document.getElementById('result-'+field);
+     if(control)params.set('resultFilter-'+field,control.value);
+   }
+ }
+ params.delete('resultRow');
+ params.set('returnScroll',String(Math.round(window.scrollY)));
+ return `${route||'#home'}?${params}`;
+}
+
+function restoreResultView(){
+ const params=new URLSearchParams(location.hash.split('?')[1]);
+ if(!params.has('resultPage'))return;
+ for(const field of resultFilterIds){
+   const control=document.getElementById('result-'+field);
+   if(control&&params.has('resultFilter-'+field)){
+     const fallback=control.value;
+     control.value=params.get('resultFilter-'+field);
+     if(control instanceof HTMLSelectElement&&control.selectedIndex<0)control.value=fallback;
+   }
+ }
+ const page=Number(params.get('resultPage'));
+ if(Number.isSafeInteger(page)&&page>0)resultsPage=page-1;
+}
+
+function scrollToSubmissionOrigin(){
+ const hash=location.hash;
+ const params=new URLSearchParams(hash.split('?')[1]);
+ if(!params.has('resultRow')&&!params.has('returnScroll'))return;
+ requestAnimationFrame(()=>{
+   if(location.hash!==hash)return;
+   const id=params.get('resultRow');
+   const row=id&&document.querySelector(`[data-result-row="${CSS.escape(id)}"]`);
+   if(row){row.scrollIntoView({block:'center'});return;}
+   const top=Number(params.get('returnScroll'));
+   if(params.has('returnScroll')&&Number.isFinite(top)&&top>=0)window.scrollTo(0,top);
+ });
+}
+
 function resultPanel(records,showAthlete,name=''){
  const names=[...new Set(records.map(row=>row.name))].sort((a,b)=>a.localeCompare(b,'ja'));
  const meets=[...new Set(records.map(row=>meetLabel(row.meet)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ja'));
@@ -445,13 +491,15 @@ function updateResults(reset=false){
    groups.get(key).push({row,key});
  }
  const rows=[...groups.values()].flat();
+ resultsPage=Math.min(resultsPage,Math.max(0,Math.ceil(rows.length/resultsPageSize)-1));
  const colspan=isProfile?7:8;
  let currentGroup;
  const start=resultsPage*resultsPageSize;
+ const origin=state.submissionsReady?submissionOrigin():'';
  root.innerHTML=rows.slice(start,start+resultsPageSize).map(({row:r,key})=>{
  const heading=key===currentGroup?'':`<tr class="result-group-heading"><td colspan="${colspan}"><strong>${E(key)}</strong> · ${groups.get(key).length}</td></tr>`;
  currentGroup=key;
- return heading+`<tr>
+ return heading+`<tr data-result-row="${E(r.id)}">
  ${isProfile?'':`<td><a href="#athletes?name=${encodeURIComponent(r.name)}">${E(officialAthleteName(r.name))}</a></td>`}
  <td>${E(r.date||r.year||'—')}</td><td>${E(meetLabel(r.meet))}<span class="subline">${E([r.location,r.unit].filter(Boolean).map(recordLabel).join(' · '))}</span></td>
  <td>${E(r.event?recordLabel(r.event):'—')}<span class="subline">${E(recordLabel(r.stage))}</span></td><td class="mono">${E(r.time||'—')}${r.pb?' · PB':''}</td>
@@ -459,7 +507,7 @@ function updateResults(reset=false){
  <td>${E(resultDivision(r))}</td>
  <td>${r._managed?E(t('resultManaged')):r.verification==='legacyEdit'?E(t('resultLegacyEdit')):r.verification==='userProvided'?E(t('resultUserProvided')):''}
  <span class="subline">${E(String(r._updatedAt||r.updated_at||state.official?.meta?.fetched||DATA_SNAPSHOT).slice(0,10))}</span>
- ${sourceLink(r.source)}${state.submissionsReady?`<div><a href="#submissions?result=${encodeURIComponent(r.id)}">${E(t('submissionCorrection'))}</a></div>`:''}${r.gradeSource?`<div>${sourceLink(r.gradeSource,t('gradeSource'))}</div>`:''}</td></tr>`;}).join('')||`<tr><td colspan="${colspan}">${E(t(records.length||state.officialOnline?'empty':'historyFailed'))}</td></tr>`;
+ ${sourceLink(r.source)}${state.submissionsReady?`<div><a href="#submissions?${E(new URLSearchParams({result:r.id,from:origin+'&resultRow='+encodeURIComponent(r.id)}).toString())}">${E(t('submissionCorrection'))}</a></div>`:''}${r.gradeSource?`<div>${sourceLink(r.gradeSource,t('gradeSource'))}</div>`:''}</td></tr>`;}).join('')||`<tr><td colspan="${colspan}">${E(t(records.length||state.officialOnline?'empty':'historyFailed'))}</td></tr>`;
  document.querySelector('#result-count').textContent=t('resultCount',{start:rows.length?start+1:0,end:Math.min(start+resultsPageSize,rows.length),total:rows.length});
  document.querySelector('#result-prev').disabled=!resultsPage;
  document.querySelector('#result-next').disabled=start+resultsPageSize>=rows.length;
@@ -600,7 +648,7 @@ async function render(){detachAdmin();const path=decodeURIComponent((location.ha
  app.innerHTML=pageIntro('submissionTitle','submissionIntro')+`<section class="wrap section" id="submission-root"><p role="status">${E(t('loading'))}</p></section>`;
  await renderSubmissions(document.querySelector('#submission-root'),{t,E,sourceLink});
  return;
-}if(current==='home')app.innerHTML=renderHome();if(current==='athletes')app.innerHTML=renderAthletes();if(current==='schedule')app.innerHTML=renderSchedule();if(current==='results'){app.innerHTML=renderResults();updateResults();}applyArchiveRoute(tab);if(current==='archive')app.innerHTML=renderArchive(tab);if(current==='guide'){
+}if(current==='home')app.innerHTML=renderHome();if(current==='athletes')app.innerHTML=renderAthletes();if(current==='schedule')app.innerHTML=renderSchedule();if(current==='results'){app.innerHTML=renderResults();restoreResultView();updateResults();}applyArchiveRoute(tab);if(current==='archive')app.innerHTML=renderArchive(tab);if(current==='guide'){
  app.innerHTML=renderGuide();
  if(new URLSearchParams(location.hash.split('?')[1]).has('official')){
    document.querySelector('#official-links-title').scrollIntoView();
@@ -610,8 +658,9 @@ if(!state.dbOnline&&state.official)app.insertAdjacentHTML('beforeend',`<p class=
 if(current==='athletes'){
  const gender=document.querySelector('#filter-gender');
  if(gender){gender.value=filter.gender;renderAthleteTable();}
- else if(dataLoaded)updateResults();
+ else if(dataLoaded){restoreResultView();updateResults();}
 }
+scrollToSubmissionOrigin();
 if(current==='archive'){
  if(tab==='ekiden'){
    document.querySelector('#race-type').value=raceFilters.race;
@@ -686,6 +735,13 @@ document.addEventListener('change',event=>{
  }
 });
 document.addEventListener('click',e=>{
+ const submissionLink=e.target.closest('a[href="#submissions"]');
+ if(submissionLink&&location.hash.split('?')[0]!=='#submissions'&&
+    !e.defaultPrevented&&!e.metaKey&&!e.ctrlKey&&!e.shiftKey&&!e.altKey){
+   e.preventDefault();
+   location.hash='#submissions?'+new URLSearchParams({from:submissionOrigin()});
+   return;
+ }
  const button=e.target.closest('button');
  const id=button?.id;
  if(button?.dataset.watchName){
