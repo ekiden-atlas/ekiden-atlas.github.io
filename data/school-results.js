@@ -19,6 +19,11 @@ const uesugiHighSchool = (id,date,gradeAtRace,meet,event,time,rank,stage,source,
   status:'highSchool',unit:'八千代松陰高等学校',meet,event,time,rank,stage,source,verification
 });
 
+const yamaguchiSchool = (id,date,gradeAtRace,status,unit,meet,event,time,rank,stage,source)=>({
+  id:'school-yamaguchi-'+id,date,year:Number(date.slice(0,4)),name:'山口 竣平',gradeAtRace,
+  status,unit,meet,event,time,rank,stage,source,verification:'primary'
+});
+
 export const SCHOOL_RESULTS = [
   {"id":"school-sasaki-2024-hokushinetsu-1500","name":"佐々木 哲","year":2024,"date":"2024-06-13","gradeAtRace":3,"status":"highSchool","unit":"佐久長聖高等学校","meet":"第63回北信越高等学校陸上競技対校選手権大会","event":"1500m","time":"4:03.65","rank":1,"stage":"予選2組・決勝進出","source":"https://blog.neet-shikakugets.com/hokushinetsu-koukou-sotai-2024","verification":"cited"},
   {"id":"school-sasaki-2024-u20-3000sc","name":"佐々木 哲","year":2024,"date":"2024-06-27","gradeAtRace":3,"status":"highSchool","unit":"佐久長聖高等学校","meet":"第40回U20日本陸上競技選手権大会","event":"3000mSC","time":"8:39.89","rank":1,"stage":"決勝","source":"https://www.jaaf.or.jp/files/upload/202407/01_06270630all.pdf","verification":"primary"},
@@ -55,6 +60,13 @@ export const SCHOOL_RESULTS = [
   masukoSchool('2025-mdc','2025-09-23',3,'highSchool','学法石川','ミドルディスタンスサーキット アドバンス東北','2000m','5:10.47',1,'決勝・当時の高校最高記録','https://www.rikujyokyogi.co.jp/archives/185007','cited'),
   masukoSchool('2025-fukushima-high','2025-10-23',3,'highSchool','学法石川','第70回福島県高等学校駅伝競走大会','駅伝1区','28:20',1,'10km・区間新記録','https://gold.jaic.org/fukushima/kekka/2025/1023/rel00101.html'),
   masukoSchool('2025-nittai','2025-11-16',3,'highSchool','学法石川','第324回日本体育大学長距離競技会 兼 第18回日体大チャレンジゲームズ','5000m','13:27.26',4,'チャレンジゲームズ','https://tasukikeifu.com/ja/players/person-e5a297e5ad9020e999bde5a4','cited'),
+  yamaguchiSchool('2020-joc-heat','2020-10-16',3,'middleSchool','OPT','全国中学生陸上競技大会2020','3000m','8:42.34',3,'予選1組・決勝進出','https://gold.jaic.org/gunma/menu/results/r_20/r201016JHS/records.pdf'),
+  yamaguchiSchool('2020-joc-final','2020-10-17',3,'middleSchool','OPT','全国中学生陸上競技大会2020','3000m','8:46.66',4,'決勝','https://gold.jaic.org/gunma/menu/results/r_20/r201016JHS/records.pdf'),
+  yamaguchiSchool('2022-interhigh-heat','2022-08-05',2,'highSchool','佐久長聖高等学校','第75回全国高等学校陸上競技対校選手権大会','5000m','14:33.87',10,'予選3組','https://gold.jaic.org/gunma/menu/results/r_22/r220803HS/rel055.html'),
+  yamaguchiSchool('2023-interhigh-heat','2023-08-04',3,'highSchool','佐久長聖高等学校','第76回全国高等学校陸上競技対校選手権大会','5000m','14:01.57',4,'予選3組・決勝進出','https://www.jaaf.or.jp/files/competition/document/1762-7.pdf#page=17'),
+  yamaguchiSchool('2023-interhigh-final','2023-08-05',3,'highSchool','佐久長聖高等学校','第76回全国高等学校陸上競技対校選手権大会','5000m','13:59.60',10,'決勝','https://www.jaaf.or.jp/files/competition/document/1762-7.pdf#page=18'),
+  yamaguchiSchool('2023-nittai-308','2023-09-24',3,'highSchool','佐久長聖高等学校','第308回日本体育大学長距離競技会','5000m','13:52.73',7,'16組','https://ld.nssu-athletic.com/uploads/2023/2023-09-23_result.pdf'),
+  yamaguchiSchool('2023-nittai-challenge','2023-11-25',3,'highSchool','佐久長聖高等学校','第6回日体大チャレンジゲームズ','5000m','13:34.59',5,'決勝','https://worldathletics.org/competition/calendar-results/results/7203262'),
   {id:'school-yamaguchi-2022-nittai-294',name:'山口 竣平',year:2022,date:'2022-04-24',
     gradeAtRace:2,status:'highSchool',unit:'佐久長聖高校',meet:'第294回日本体育大学長距離競技会',
     event:'5000m',time:'14:14.56',rank:3,stage:'12組',verification:'cited',
