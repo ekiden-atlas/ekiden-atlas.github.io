@@ -410,14 +410,17 @@ const summaryEvents=['800m','1500m','3000m','5000m','10000m','ハーフマラソ
 function renderTeamSummary(params){
  const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo'}).format(new Date());
  const currentMonth=today.slice(0,7);
- const currentSeason=Number(today.slice(0,4))-(today.slice(5,7)<'04'?1:0);
+ const calendar=params.get('period')==='calendar';
+ const startMonth=calendar?1:4;
+ const seasonOf=date=>Number(date.slice(0,4))-(Number(date.slice(5,7))<startMonth?1:0);
+ const currentSeason=seasonOf(today);
  const rows=personalResults().filter(row=>row.status==='student'&&
    /^\d{4}-(0[1-9]|1[0-2])(?:-(0[1-9]|[12]\d|3[01]))?$/.test(row.date)&&row.date<=today&&
    summaryEvents.includes(recordLabel(row.event))&&Number.isFinite(parseTime(row.time))&&parseTime(row.time)>0);
- const seasons=[...new Set([currentSeason,...rows.map(row=>Number(row.date.slice(0,4))-(row.date.slice(5,7)<'04'?1:0))])].sort((a,b)=>b-a);
+ const seasons=[...new Set([currentSeason,...rows.map(row=>seasonOf(row.date))])].sort((a,b)=>b-a);
  const requested=Number(params.get('season'));
  const season=seasons.includes(requested)?requested:currentSeason;
- const months=Array.from({length:12},(_,i)=>`${season+(i>=9?1:0)}-${String((i+3)%12+1).padStart(2,'0')}`).filter(month=>month<=currentMonth);
+ const months=Array.from({length:12},(_,i)=>`${season+Math.floor((i+startMonth-1)/12)}-${String((i+startMonth-1)%12+1).padStart(2,'0')}`).filter(month=>month<=currentMonth);
  const cutoff=months.includes(params.get('month'))?params.get('month'):months.at(-1);
  const team=new Map();
  for(const row of rows){
@@ -437,7 +440,10 @@ function renderTeamSummary(params){
  <p class="eyebrow">EKIDEN ATLAS</p><h1 id="team-title">${E(t('teamSummary'))}</h1>
  <p>${E(t('teamPeriod',{start:months[0]+'-01',end:cutoff===currentMonth?today:cutoff}))}</p>
  <div class="filterbar team-controls">
- <label class="field">${E(t('teamSeason'))}<select id="team-season">${options(seasons,season)}</select></label>
+ <label class="field">${E(t('teamPeriodType'))}<select id="team-period">
+ <option value="academic"${calendar?'':' selected'}>${E(t('teamAcademic'))}</option>
+ <option value="calendar"${calendar?' selected':''}>${E(t('teamCalendar'))}</option></select></label>
+ <label class="field">${E(t('years'))}<select id="team-season">${options(seasons,season)}</select></label>
  <label class="field">${E(t('teamMonth'))}<select id="team-month">${options(months,cutoff)}</select></label>
  <button type="button" class="btn" id="team-print">${E(t('teamPrint'))}</button></div>
  <p>${E(t('teamScope'))}</p>
@@ -747,8 +753,12 @@ document.querySelector('#menu-btn').addEventListener('click',()=>{const n=docume
 document.addEventListener('input',e=>{if(e.target?.id==='result-q')updateResults(true);if(e.target?.id==='filter-q'){filter.q=e.target.value;renderAthleteTable();}if(e.target?.id==='history-search'){rankingFilters.alltime.name=e.target.value;historyTable('alltime');}});
 document.addEventListener('change',event=>{
  const {id,value}=event.target;
- if(id==='team-season')location.hash='#results?season='+value;
- if(id==='team-month')location.hash='#results?season='+document.querySelector('#team-season').value+'&month='+value;
+ if(!['team-period','team-season','team-month'].includes(id))return;
+ const period=document.querySelector('#team-period').value;
+ const season=id==='team-period'?'current':document.querySelector('#team-season').value;
+ const params=new URLSearchParams({season,period});
+ if(id==='team-month')params.set('month',value);
+ location.hash='#results?'+params;
 });
 document.addEventListener('change',e=>{const id=e.target?.id,v=e.target?.value;if(['result-year','result-status','result-grade','result-meet','result-event','result-group'].includes(id))updateResults(true);if(id==='filter-grade')filter.grade=v;if(id==='filter-gender')filter.gender=v;if(id==='filter-metric')filter.metric=v;if(id?.startsWith('filter-'))renderAthleteTable();if(id==='race-type'||id==='race-decade'){
  if(id==='race-type'){
