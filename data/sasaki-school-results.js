@@ -35,7 +35,7 @@ const races=[
  ['2023-06-04','3000m','8:25.37',tokai],
  ['2023-04-15','5000m','15:03.93',spring],
  ['2023-05-14','5000m','15:12.88',east,'オープン決勝',6,east2023Results],
- ['2023-09-24','5000m','14:58.39','第308回'+nittai,'14組',null,'https://ekidenfan.japan42195.com/2023/09/24/%E3%83%BB%E7%AC%AC%EF%BC%93%EF%BC%90%EF%BC%98%E5%9B%9E%E6%97%A5%E6%9C%AC%E4%BD%93%E8%82%B2%E5%A4%A7%E5%AD%A6%E9%95%B7%E8%B7%9D%E9%9B%A2%E7%AB%B6%E6%8A%80%E4%BC%9A%E3%80%80%E7%94%B7%E5%AD%905000m/','cited'],
+ ['2023-09-24','5000m','14:58.39','第308回'+nittai,'14組',38,'http://ld.nssu-athletic.com/uploads/2023/2023-09-23_result.pdf'],
  ['2023-11-25','5000m','14:03.51','第310回'+nittai,'19組',null,'https://ekidenfan.japan42195.com/2023/11/25/%E3%83%BB%E7%AC%AC%EF%BC%93%EF%BC%91%EF%BC%90%E5%9B%9E%E6%97%A5%E6%9C%AC%E4%BD%93%E8%82%B2%E5%A4%A7%E5%AD%A6%E9%95%B7%E8%B7%9D%E9%9B%A2%E7%AB%B6%E6%8A%80%E4%BC%9A%E3%80%80%E7%94%B7%E5%AD%905000m/','cited'],
  ['2023-04-16','3000mSC','9:38.55',spring],
  ['2023-05-13','3000mSC','9:26.46',east,'決勝',3,east2023Results],
