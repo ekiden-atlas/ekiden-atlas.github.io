@@ -17,17 +17,17 @@ function chart({points,ticks,xLabels,yLabel,label,line},E){
  </svg>`;
 }
 
-export function renderGrowthChart(name,records,{t,E,sourceLink}){
- if(!growthAthletes.has(nameSearch(name)))return '';
+export function renderGrowthChart(name,records,{t,E,sourceLink,showAll=false}){
+ if(!showAll&&!growthAthletes.has(nameSearch(name)))return '';
  const meets=new Map();
  for(const row of records){
    if(recordLabel(row.event)!=='5000m'||!dayPattern.test(row.date)||!row.source||
-     !['primary','cited'].includes(row.verification)||!Number.isFinite(parseTime(row.time)))continue;
+     !['primary','cited'].includes(row.verification)||!Number.isFinite(parseTime(row.time))||parseTime(row.time)<=0)continue;
    const key=[row.date,row.time].join(':');
    if(!meets.has(key)||row.verification==='primary')meets.set(key,row);
  }
  const rows=[...meets.values()].sort((a,b)=>a.date.localeCompare(b.date)||parseTime(a.time)-parseTime(b.time));
- if(rows.length<2)return '';
+ if(rows.length<(showAll?1:2))return '';
  const firstYear=Number(rows[0].date.slice(0,4));
  const lastYear=Number(rows.at(-1).date.slice(0,4));
  const start=Date.UTC(firstYear,0,1),end=Date.UTC(lastYear+1,0,1);
@@ -54,8 +54,8 @@ export function renderGrowthChart(name,records,{t,E,sourceLink}){
  return `<section class="card analysis-card" aria-label="${E(title)}">
  <h2>${E(title)}</h2>
  <p class="analysis-best">${E(t('growthChartBest'))} <strong class="mono">${E(best.time)}</strong> <span>${E(best.date)}</span></p>
- <p>${E(t('growthChartNote'))}</p>
- ${chart({points,ticks,xLabels,yLabel:t('resultMark'),label:`${officialAthleteName(name)} · ${title}`,line},E)}
+ <p>${E(t(showAll?'growthScatterNote':'growthChartNote'))}</p>
+ ${chart({points,ticks,xLabels,yLabel:t('resultMark'),label:`${officialAthleteName(name)} · ${title}`,line:showAll?[]:line},E)}
  <details><summary>${E(t('chartSources'))}</summary><ul class="analysis-sources">
  ${rows.map(row=>`<li>${E(row.date)} · ${E(meetLabel(row.meet))} · <strong>${E(row.time)}</strong> ${sourceLink(row.source)}</li>`).join('')}
  </ul></details></section>`;
