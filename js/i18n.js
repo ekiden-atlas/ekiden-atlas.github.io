@@ -1,8 +1,9 @@
 const zh={
 athleteRosterBasis:"现役选手以早稻田大学竞走部官网的长距离名单为准。",
 clubIntroTitle:"早稻田大学竞走部・长距离组",
-clubIntroBody:"长距离组隶属早稻田大学竞走部。根据驿传监督花田胜彦在竞走部官网的寄语，团队以同一赛季赢得出云、全日本和箱根三场大学驿传为目标，个人则力争跻身日本学生顶尖行列，并迈向世界赛场。",
+clubIntroBody:"长距离组隶属早稻田大学竞走部。根据竞走部官网的监督寄语，团队以同一赛季赢得出云、全日本和箱根三场大学驿传为目标，个人则力争跻身日本学生顶尖行列，并迈向世界赛场。",
 clubIntroSource:"长距离组官方名册",
+clubIntroCoachRole:"驿传监督",
 clubIntroCoachSource:"官方入部指南・监督寄语",
 footerContact:"联系站长",
 footerCredit:"网站制作与维护",
@@ -316,8 +317,9 @@ footerData:'资料快照 2026-11-18 · 早稻田跑步资料独立整理',copyri
 ja={
 athleteRosterBasis:"現役選手は、早稲田大学競走部公式サイトの長距離ブロックの部員一覧に基づいて掲載しています。",
 clubIntroTitle:"早稲田大学競走部 長距離ブロック",
-clubIntroBody:"長距離ブロックは早稲田大学競走部に所属します。公式の入部案内で花田勝彦駅伝監督は、出雲・全日本・箱根の大学駅伝三冠をチームの目標に掲げ、選手個人には学生の頂点から世界へと挑戦することを期待しています。",
+clubIntroBody:"長距離ブロックは早稲田大学競走部に所属します。公式の入部案内で駅伝監督は、出雲・全日本・箱根の大学駅伝三冠をチームの目標に掲げ、選手個人には学生の頂点から世界へと挑戦することを期待しています。",
 clubIntroSource:"長距離ブロック公式部員名簿",
+clubIntroCoachRole:"駅伝監督",
 clubIntroCoachSource:"公式入部案内・監督メッセージ",
 footerContact:"お問い合わせ",
 footerCredit:"サイト制作・運営",
