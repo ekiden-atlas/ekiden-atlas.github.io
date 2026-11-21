@@ -39,7 +39,16 @@ const nittai308HighSchoolResults = [
   verification:'primary',source:nittai308Source
 }));
 
+const nittai310Results='https://ekidenfan.japan42195.com/2023/11/25/%E3%83%BB%E7%AC%AC%EF%BC%93%EF%BC%91%EF%BC%90%E5%9B%9E%E6%97%A5%E6%9C%AC%E4%BD%93%E8%82%B2%E5%A4%A7%E5%AD%A6%E9%95%B7%E8%B7%9D%E9%9B%A2%E7%AB%B6%E6%8A%80%E4%BC%9A%E3%80%80%E7%94%B7%E5%AD%905000m/';
+const nittai310Meet='第310回日本体育大学長距離競技会';
+
 export const SCHOOL_RESULTS = [
+  {id:'school-yamada-2023-nittai-310',name:'山田 晃央',year:2023,date:'2023-11-25',
+    gradeAtRace:2,status:'highSchool',unit:'早稲田実業高校',meet:nittai310Meet,
+    event:'5000m',time:'14:38.35',rank:null,stage:'14組',verification:'cited',source:nittai310Results},
+  {id:'school-tomita-2023-nittai-310',name:'冨田 拓臣',year:2023,date:'2023-11-25',
+    gradeAtRace:2,status:'highSchool',unit:'水城高校',meet:nittai310Meet,
+    event:'5000m',time:'14:55.88',rank:null,stage:'17組',verification:'cited',source:nittai310Results},
   ...nittai308HighSchoolResults,
   {id:'school-niizuma-2023-nittai-308',name:'新妻 遼己',year:2023,date:'2023-09-24',
     gradeAtRace:1,status:'highSchool',unit:'西脇工業高校',meet:'第308回日本体育大学長距離競技会',
