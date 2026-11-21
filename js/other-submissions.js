@@ -1,3 +1,4 @@
+import {submissionErrorKey} from './submission-errors.js';
 import {KIND_LABELS} from './admin-content-types.js';
 const table='wsd_atlas_other_submissions';
 const mimeTypes=[
@@ -6,7 +7,7 @@ const mimeTypes=[
  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 ];
 
-export async function renderOtherSubmissions(root,{db,user,review,selfEdit,t,E}){
+export async function renderOtherSubmissions(root,{db,user,review,selfEdit,t,E,messageKey}){
  const bucket=db.storage.from('atlas-submission-files');
  const query=db.from(table).select('id,author_id,folder,title,body,status'+(selfEdit?',revision':'')).order('created_at',{ascending:false}).limit(100);
  const {data:rows,error}=await (review?query.eq('status','pending'):query.eq('author_id',user.id));
@@ -14,7 +15,7 @@ export async function renderOtherSubmissions(root,{db,user,review,selfEdit,t,E})
  if(!root.isConnected)return;
  const content=(row={})=>`<label class="field">${E(t('otherSubmissionTitle'))}<input name="title" maxlength="120" required value="${E(row.title||'')}"></label>
  <label class="field">${E(t('otherSubmissionBody'))}<textarea name="body" maxlength="4000" required>${E(row.body||'')}</textarea></label>`;
- root.innerHTML=`<h3>${E(t('otherSubmission'))}</h3><p role="status"></p>
+ root.innerHTML=`<h3>${E(t('otherSubmission'))}</h3><p role="status">${messageKey?E(t(messageKey)):''}</p>
  ${review?'':`<form class="card">${content()}
  <label class="field">${E(t('otherSubmissionFiles'))}<input name="files" type="file" accept="${mimeTypes.join(',')}" multiple></label>
  <button class="btn" type="submit">${E(t('submissionSend'))}</button></form>`}
@@ -40,10 +41,16 @@ export async function renderOtherSubmissions(root,{db,user,review,selfEdit,t,E})
    const buttons=[...form.querySelectorAll('button')];
    buttons.forEach(button=>{button.disabled=true;});
    try{
-     if(await save(event.submitter?.value)===false)return;
-     await renderOtherSubmissions(root,{db,user,review,selfEdit,t,E});
-     root.querySelector('[role=status]').textContent=t(review?'otherSubmissionReviewed':event.submitter?.value==='withdrawn'?'submissionStatus.withdrawn':event.submitter?.value==='pending'?'adminSaved':'submissionSent');
-   }catch{status.textContent=t(review?'submissionReviewFailed':'submissionFailed');}
+     status.textContent=t('submissionSending');
+     if(await save(event.submitter?.value)===false){
+       if(status.textContent===t('submissionSending'))status.textContent='';
+       return;
+     }
+     const messageKey=review?'otherSubmissionReviewed':event.submitter?.value==='withdrawn'?'submissionStatus.withdrawn':event.submitter?.value==='pending'?'adminSaved':'submissionSent';
+     if(messageKey==='submissionSent')form.reset();
+     status.textContent=t(messageKey);
+     await renderOtherSubmissions(root,{db,user,review,selfEdit,t,E,messageKey}).catch(()=>{});
+   }catch(error){status.textContent=t(submissionErrorKey(error,review?'submissionReviewFailed':'otherSubmissionFailed'));}
    finally{buttons.forEach(button=>{button.disabled=false;});}
  };};
  if(!review){
@@ -61,18 +68,22 @@ export async function renderOtherSubmissions(root,{db,user,review,selfEdit,t,E})
          const name=file.name.replace(/[^a-zA-Z0-9._-]/g,'_').slice(-100);
          const path=`${user.id}/${folder}/${uploaded.length+1}-${name}`;
          const {error}=await bucket.upload(path,file,{contentType:file.type});
-         if(error)throw error;
+         if(error)throw {uploadError:error,file:file.name};
          uploaded.push(path);
        }
        const {error}=await db.from(table).insert({...values(form),folder});
        if(error)throw error;
      }catch(error){
-       if(uploaded.length)await bucket.remove(uploaded);
+       if(uploaded.length)void bucket.remove(uploaded).then(()=>{},()=>{});
+       if(error.uploadError){
+         status.textContent=t(submissionErrorKey(error.uploadError,'submissionUploadFailed'),{file:error.file});
+         return false;
+       }
        throw error;
      }
    });
  }
- await Promise.all(rows.map(async row=>{
+ void Promise.allSettled(rows.map(async row=>{
    const article=root.querySelector(`[data-id="${row.id}"]`);
    if(review){
      const destination=article.querySelector('[data-destination]');
@@ -91,7 +102,7 @@ export async function renderOtherSubmissions(root,{db,user,review,selfEdit,t,E})
        const update=db.from(table).update({...changes,status:decision}).eq('id',row.id).eq('status','pending');
        if(selfEdit)update.eq('revision',row.revision);
        const {data,error}=await update.select('id').maybeSingle();
-       if(error||!data)throw error||new Error('Already reviewed');
+       if(error||!data)throw error||{code:'40001'};
      });
    }
    const folder=`${row.author_id}/${row.folder}`;
