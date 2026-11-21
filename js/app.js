@@ -195,7 +195,8 @@ function renderHome(){
  </article>`).join('')||`<p>${E(t(dataLoaded?'empty':'historyBusy'))}</p>`}</div></div></section>
  <section class="wrap section" aria-labelledby="club-intro-title">
  <div class="section-head"><h2 id="club-intro-title">${E(t('clubIntroTitle'))}</h2></div>
- <div class="intro-panel"><p>${E(t('clubIntroBody'))}</p>
+ <div class="intro-panel"><p><span class="tag">${E(t('clubIntroCoachRole'))}</span> <strong>花田 勝彦</strong></p>
+ <p>${E(t('clubIntroBody'))}</p>
  <div class="actions"><a class="btn btn-sm" href="#athletes">${E(t('navAthletes'))}</a>
  ${sourceLink('https://waseda-ac.jp/team/member/block/3',t('clubIntroSource'))}
  ${sourceLink('https://waseda-ac.jp/recruit/',t('clubIntroCoachSource'))}</div></div>
