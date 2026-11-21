@@ -77,10 +77,10 @@ assert.equal(new Set(athletes().map(row=>nameSearch(row.name))).size,athletes().
 assert.deepEqual(athletes().filter(row=>row.clubSource).map(row=>row.clubSource).sort(),OFFICIAL_CLUB_ROSTER.map(row=>row.source_url).sort());
 assert.equal(athlete('佐々木 哲').high_school,'佐久長聖高等学校');
 const rows=personalResults();
-assert.equal(rows.length,1038+HONDA_SCHOOL_RESULTS.length+SASAKI_SCHOOL_RESULTS.length+EARLIER_ATHLETE_RESULTS.length+ADDITIONAL_RESULTS_2026.length);
+assert.equal(rows.length,1061+HONDA_SCHOOL_RESULTS.length+SASAKI_SCHOOL_RESULTS.length+EARLIER_ATHLETE_RESULTS.length+ADDITIONAL_RESULTS_2026.length);
 assert.equal(new Set(EARLIER_ATHLETE_RESULTS.map(row=>nameSearch(row.name))).size,18);
 assert.equal(new Set(rows.map(row=>row.id)).size,rows.length);
-for(const [year,count] of [[2023,67],[2024,358],[2025,266],[2026,248+ADDITIONAL_RESULTS_2026.length]]){
+for(const [year,count] of [[2023,74],[2024,358],[2025,266],[2026,248+ADDITIONAL_RESULTS_2026.length]]){
  assert.equal(rows.filter(row=>row.year===year).length,count+HONDA_SCHOOL_RESULTS.filter(row=>row.year===year).length+SASAKI_SCHOOL_RESULTS.filter(row=>row.year===year).length+EARLIER_ATHLETE_RESULTS.filter(row=>row.year===year).length);
 }
 const results2026=rows.filter(row=>row.year===2026);
@@ -204,7 +204,7 @@ assert.equal(honorsAt('山口 竣平','zen',7),undefined);
 console.log('PASS: section winners, tied winners, course records and Japanese bests.');
 
 const schoolRows=rows.filter(row=>['middleSchool','highSchool'].includes(row.status));
-assert.equal(schoolRows.length,241+HONDA_SCHOOL_RESULTS.length+SASAKI_SCHOOL_RESULTS.length+EARLIER_ATHLETE_RESULTS.filter(row=>['middleSchool','highSchool'].includes(row.status)).length);
+assert.equal(schoolRows.length,264+HONDA_SCHOOL_RESULTS.length+SASAKI_SCHOOL_RESULTS.length+EARLIER_ATHLETE_RESULTS.filter(row=>['middleSchool','highSchool'].includes(row.status)).length);
 assert.equal(schoolRows.filter(row=>row.status==='middleSchool').length,53+SASAKI_SCHOOL_RESULTS.filter(row=>row.status==='middleSchool').length+EARLIER_ATHLETE_RESULTS.filter(row=>row.status==='middleSchool').length);
 assert.ok(schoolRows.every(row=>row.unit&&(row.source||row.gradeSource).startsWith('https://')));
 assert.equal(schoolRows.find(row=>row.id==='school-kudo-2019-3000').rank,10);
