@@ -35,7 +35,7 @@ const races=[
  ['2023-06-04','3000m','8:25.37',tokai],
  ['2023-04-15','5000m','15:03.93',spring],
  ['2023-05-14','5000m','15:12.88',east,'オープン決勝',6,east2023Results],
- ['2023-09-24','5000m','14:58.39',nittai],
+ ['2023-09-24','5000m','14:58.39','第308回'+nittai,'14組',null,'https://ekidenfan.japan42195.com/2023/09/24/%E3%83%BB%E7%AC%AC%EF%BC%93%EF%BC%90%EF%BC%98%E5%9B%9E%E6%97%A5%E6%9C%AC%E4%BD%93%E8%82%B2%E5%A4%A7%E5%AD%A6%E9%95%B7%E8%B7%9D%E9%9B%A2%E7%AB%B6%E6%8A%80%E4%BC%9A%E3%80%80%E7%94%B7%E5%AD%905000m/','cited'],
  ['2023-11-25','5000m','14:03.51',nittai],
  ['2023-04-16','3000mSC','9:38.55',spring],
  ['2023-05-13','3000mSC','9:26.46',east,'決勝',3,east2023Results],
@@ -62,11 +62,11 @@ const races=[
  ['2024-08-31','3000mSC','9:16.20',world,'決勝',16,lima+'final/result'],
 ];
 
-export const SASAKI_SCHOOL_RESULTS=races.map(([date,event,time,meet,stage='',rank=null,source=blog])=>{
+export const SASAKI_SCHOOL_RESULTS=races.map(([date,event,time,meet,stage='',rank=null,source=blog,verification=source===blog?'cited':'primary'])=>{
  const year=Number(date.slice(0,4));
  return {id:`sasaki-school-${date}-${event}-${time.replace(/[:.]/g,'-')}`,name:'佐々木 哲',
    year,date,gradeAtRace:year-2021,status:'highSchool',unit:'佐久長聖高等学校',meet,event,time,stage,rank,source,
-   verification:source===blog?'cited':'primary'};
+   verification};
 });
 
 SASAKI_SCHOOL_RESULTS.push(
