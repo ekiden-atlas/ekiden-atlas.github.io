@@ -215,6 +215,7 @@ function rosterSources(athlete){
 }
 function athleteRows(rows){return rows.map(a=>`<tr><td><a href="#athletes?name=${encodeURIComponent(a.name)}">${E(officialAthleteName(a.name))}</a>${ekidenRoleBadge(a.name)} ${watchStar(a.name,t,E)}<span class="subline">${blocks[a.block]?`${E(t(blocks[a.block]))} · `:''}${E(rosterDivisionLabel(a))} · ${E(t({女:'female',男:'male'}[a.gender]||'notRecorded'))}</span></td><td class="mono">${E(a.pb1500||'—')}</td><td class="mono">${E(a.pb5000||'—')}</td><td class="mono">${E(a.pb10000||'—')}</td><td class="mono">${E(a.pbHalf||'—')}</td><td>${rosterSources(a)}</td></tr>`).join('');}
 const longDistanceRosterNames=new Set(OFFICIAL_LONG_DISTANCE_ROSTER.map(member=>nameSearch(member.name)));
+const isCurrentLongDistance=a=>rosterDivision(a)!=='alumni'&&longDistanceRosterNames.has(nameSearch(a.name));
 let filter={q:'',grade:'all',gender:'all',metric:'pb5000'};
 function renderAthleteTable(){
  const studentBody=document.querySelector('#athlete-rows');
@@ -223,7 +224,7 @@ function renderAthleteTable(){
  const rows=athletes().filter(a=>(!query||matchesAthleteSearch(a.name,query))&&
    (filter.grade==='all'||rosterDivision(a)===filter.grade)&&(filter.gender==='all'||a.gender===filter.gender));
  rows.sort((a,b)=>parseTime(a[filter.metric])-parseTime(b[filter.metric]));
- const students=rows.filter(a=>rosterDivision(a)!=='alumni'&&longDistanceRosterNames.has(nameSearch(a.name)));
+ const students=rows.filter(isCurrentLongDistance);
  const alumni=rows.filter(a=>rosterDivision(a)==='alumni');
  for(const [prefix,body,entries] of [['athlete',studentBody,students],['ob',document.querySelector('#ob-rows'),alumni]]){
    document.querySelector(`#${prefix}-section`).hidden=!entries.length;
@@ -407,13 +408,12 @@ function athleteResultRows(name){
  return personalResults().filter(row=>nameSearch(row.name)===nameSearch(name));
 }
 const summaryEvents=['800m','1500m','3000m','5000m','10000m','ハーフマラソン','マラソン'];
-function renderTeamGrowth(results,rows,season,currentSeason,seasonOf,cutoff,today,cell){
+function renderTeamGrowth(profiles,results,rows,season,currentSeason,seasonOf,cutoff,today,cell){
  const years=[season-2,season-1,season];
  const groups=new Map();
- const profiles=new Map(athletes().map(row=>[nameSearch(row.name),row]));
  if(season===currentSeason){
    for(const [key,profile] of profiles){
-     if(profile.block==='長距離'&&Number.isFinite(parseTime(profile.pb5000))&&parseTime(profile.pb5000)>0){
+     if(Number.isFinite(parseTime(profile.pb5000))&&parseTime(profile.pb5000)>0){
        groups.set(key,{name:officialAthleteName(profile.name),marks:new Map()});
      }
    }
@@ -471,8 +471,9 @@ function renderTeamSummary(params){
  const startMonth=calendar?1:4;
  const seasonOf=date=>Number(date.slice(0,4))-(Number(date.slice(5,7))<startMonth?1:0);
  const currentSeason=seasonOf(today);
- const results=personalResults();
- const rows=results.filter(row=>(row.status==='student'||growth&&['middleSchool','highSchool','OB'].includes(row.status))&&
+ const profiles=new Map(athletes().filter(isCurrentLongDistance).map(row=>[nameSearch(row.name),row]));
+ const results=personalResults().filter(row=>profiles.has(nameSearch(row.name))&&row.status!=='OB');
+ const rows=results.filter(row=>(row.status==='student'||growth&&['middleSchool','highSchool'].includes(row.status))&&
    /^\d{4}-(0[1-9]|1[0-2])(?:-(0[1-9]|[12]\d|3[01]))?$/.test(row.date)&&row.date<=today&&
    summaryEvents.includes(recordLabel(row.event))&&Number.isFinite(parseTime(row.time))&&parseTime(row.time)>0);
  const seasons=[...new Set([currentSeason,...rows.map(row=>seasonOf(row.date))])].sort((a,b)=>b-a);
@@ -490,7 +491,7 @@ function renderTeamSummary(params){
    if(!best||parseTime(row.time)<parseTime(best.time)||
       (parseTime(row.time)===parseTime(best.time)&&!best.source&&row.source))marks.set(event,row);
  }
- const athletes=[...team.values()].sort((a,b)=>a.name.localeCompare(b.name,'ja'));
+ const teamAthletes=[...team.values()].sort((a,b)=>a.name.localeCompare(b.name,'ja'));
  const options=(values,selected)=>values.map(value=>`<option value="${E(value)}"${value===selected?' selected':''}>${E(value)}</option>`).join('');
  const cell=row=>row?`<strong class="mono">${sourceLink(row.source,row.time)||E(row.time)}</strong><small>${E(row.date||t('watchUnknownDate'))}</small>`:'—';
  const alternate=new URLSearchParams(params);
@@ -511,9 +512,9 @@ function renderTeamSummary(params){
  <p>${E(t(growth?'growthTeamScope':'teamScope'))}</p>
  ${!growth&&language()==='zh'?`<p class="note">${E(t('teamSeasonExplanation'))}
  <a href="#results?season=2025&amp;period=academic&amp;month=2026-03">${E(t('teamKudoSeasonLink'))}</a></p>`:''}
- ${growth?renderTeamGrowth(results,rows,season,currentSeason,seasonOf,cutoff,today,cell):athletes.length?`<div class="table-wrap"><table class="data-table team-table" aria-labelledby="team-title">
+ ${growth?renderTeamGrowth(profiles,results,rows,season,currentSeason,seasonOf,cutoff,today,cell):teamAthletes.length?`<div class="table-wrap"><table class="data-table team-table" aria-labelledby="team-title">
  <thead><tr><th scope="col">${E(t('navAthletes'))}</th>${summaryEvents.map(event=>`<th scope="col">${E(event==='ハーフマラソン'?t('teamHalf'):event==='マラソン'?t('teamMarathon'):event)}</th>`).join('')}</tr></thead>
- <tbody>${athletes.map(({name,marks})=>`<tr><th scope="row">${E(name)}</th>${summaryEvents.map(event=>`<td>${cell(marks.get(event))}</td>`).join('')}</tr>`).join('')}</tbody>
+ <tbody>${teamAthletes.map(({name,marks})=>`<tr><th scope="row">${E(name)}</th>${summaryEvents.map(event=>`<td>${cell(marks.get(event))}</td>`).join('')}</tr>`).join('')}</tbody>
  </table></div>`:`<p role="status">${E(t('empty'))}</p>`}
  <p class="team-credit">${E(t('teamGenerated',{date:today}))}</p></section>`;
 }
