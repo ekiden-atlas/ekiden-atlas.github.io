@@ -84,7 +84,7 @@ export function renderWatchPage({t,E,sourceLink,raceName}){
  const watched=athletes().filter(row=>saved.has(nameSearch(row.name)));
  const selected=watched.filter(row=>comparison.has(nameSearch(row.name)));
  const year=Number(new Intl.DateTimeFormat('en',{timeZone:'Asia/Tokyo',year:'numeric'}).format(new Date()));
- const value=(row,relay=false)=>row?.time?`<strong class="mono">${E(row.time)}</strong>
+ const value=(row,relay=false)=>row?.time?`<strong class="mono">${E(row.time)}</strong>${row.provisional?` <small>${E(t('resultProvisional'))}</small>`:''}
  <span class="subline">${E(relay?(row.edition?t('watchEdition',{year:row.year,edition:row.edition}):row.year):meetLabel(row.meet))}</span>
  <span class="subline">${E(dated(row)||t('watchUnknownDate'))} · ${sourceLink(row.source)||E(t('watchUnknownSource'))}</span>`:'—';
  const rows=selected.length>=2?personalResults():[];
@@ -99,7 +99,7 @@ export function renderWatchPage({t,E,sourceLink,raceName}){
    const pb=time?{...specialized,...pbMatch,time,source:pbMatch?.source||(pbField?athlete._pbSources?.[pbField]:specialized?.source)}:null;
    const best=marks.filter(row=>Number(dated(row).slice(0,4))===year).sort((a,b)=>parseTime(a.time)-parseTime(b.time))[0];
    const recent=[...new Map(marks.filter(row=>dated(row)).map(row=>[[dated(row),meetLabel(row.meet),row.time].join('|'),row])).values()].slice(0,3);
-   return {pb,best,recent};
+   return {pb,best,recent,preview:pbField==='pbHalf'?athlete._halfPreview:null};
  });
  const table=(caption,body)=>`<div class="table-wrap watch-table"><table class="data-table"><caption>${E(caption)}</caption>
  <thead><tr><th scope="col">${E(t('event'))}</th>${selected.map(row=>`<th scope="col"><a href="${athleteHref(row.name)}">${E(officialAthleteName(row.name))}</a></th>`).join('')}</tr></thead>
@@ -120,7 +120,7 @@ export function renderWatchPage({t,E,sourceLink,raceName}){
    ${watchStar(athlete.name,t,E)} <label><input type="checkbox" data-compare-name="${E(athlete.name)}" aria-label="${E(t('watchCompare')+' '+officialAthleteName(athlete.name))}" ${checked?'checked':selected.length>=3?'disabled':''}> ${E(t('watchCompare'))}</label></li>`;
  }).join('')}</ul>`:`<p>${E(t('watchEmpty'))}</p>`}
  ${selected.length>=2?`<label class="field watch-event">${E(t('event'))}<select id="watch-event">${events.map(([key])=>`<option value="${E(key)}" ${event===key?'selected':''}>${E(key)}</option>`).join('')}</select></label>
- ${table(t('watchComparison'),row(t('pb'),columns.map(c=>value(c.pb)))+row(t('watchSeason',{year}),columns.map(c=>value(c.best)))+
+ ${table(t('watchComparison'),row(t('pb'),columns.map(c=>value(c.pb)+(c.preview?`<span class="subline">${E(t('halfPreview',{time:c.preview.time}))} ${sourceLink(c.preview.source)}</span>`:'')))+row(t('watchSeason',{year}),columns.map(c=>value(c.best)))+
  row(t('watchRecent'),columns.map(c=>c.recent.length?`<ul>${c.recent.map(r=>`<li>${value(r)}</li>`).join('')}</ul>`:'—')))}
  ${growthCharts?`<div class="analysis-chart-grid">${growthCharts}</div>`: ''}
  <h2>${E(t('watchRelay'))}</h2><p>${E(t('watchRelayNote'))}</p>

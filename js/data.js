@@ -1,3 +1,4 @@
+import {recordLabel} from './record-names.js';
 import {HONDA_SCHOOL_RESULTS} from '../data/honda-school-results.js';
 import {SASAKI_SCHOOL_RESULTS} from '../data/sasaki-school-results.js';
 import {ATHLETE_PRINT_PROFILES} from '../data/athlete-print-profiles.js';
@@ -113,7 +114,24 @@ export function athletes(){
   if(!name||!['pb1500','pb5000','pb10000','pbHalf'].includes(field)||!byKey.has(name))return;
   const old=byKey.get(name);old[field]=r.is_deleted?'':String(x.time||'');
   old._pbSources={...old._pbSources,[field]:r.is_deleted?null:r.source_url};
- });return [...byKey.values()];
+ });
+ const halfMarks=new Map();
+ const halfPreviews=new Map();
+ for(const row of personalResults()){
+   if(recordLabel(row.event)!=='ハーフマラソン'||!row.source||
+      !/^(?:\d+:)?\d{1,2}:[0-5]\d$/.test(row.time)||parseTime(row.time)<3000)continue;
+   const key=nameSearch(row.name);
+   const marks=row.provisional?halfPreviews:halfMarks;
+   if(parseTime(row.time)<parseTime(marks.get(key)?.time))marks.set(key,row);
+ }
+ for(const profile of byKey.values()){
+   const key=nameSearch(profile.name);
+   const preview=halfPreviews.get(key);
+   if(preview&&parseTime(preview.time)<Math.min(parseTime(profile.pbHalf),parseTime(halfMarks.get(key)?.time))){
+     profile._halfPreview=preview;
+   }
+ }
+ return [...byKey.values()];
 }
 export function athlete(name){return athletes().find(x=>x.name===name)||null;}
 export const worldRankKey=x=>x._recordKey||[x.athlete_name,x.event_name,x.ranking_date].join(':');
@@ -254,6 +272,9 @@ export function personalResults(){
        rank:row.rank??verified.rank,status:row.status||verified.status,
        gradeAtRace:row.gradeAtRace??row.grade??verified.gradeAtRace};
    })
+   .map(row=>recordLabel(row.event)==='ハーフマラソン'&&
+     /^https:\/\/waseda-ac\.jp\/competition\/detail\/(327|557)$/.test(row.source)&&/^\d+:\d{2}\.[0-5]\d$/.test(row.time)
+     ?{...row,time:row.time.replace('.',':')}:row)
    .filter(x=>x.id&&x.name&&(x.event||x.verification==='userProvided'))
    .sort((a,b)=>Number(b.year)-Number(a.year)||String(b.date||'').localeCompare(String(a.date||'')));
 }
