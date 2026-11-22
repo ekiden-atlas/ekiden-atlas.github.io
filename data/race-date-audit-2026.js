@@ -68,8 +68,33 @@ export const RACE_DATE_CORRECTIONS_2026={
   "waseda-verified-971-0":{"date":"2026-08-06","precision":"日","source":"https://worldathletics.org/competitions/world-athletics-u20-championships/oregon26/results/men/1500-metres/round-1/result"},
 };
 
+const ageoResults=[
+  [460,"瀬間 元輔",3,"1:01:57",27],
+  [462,"多田 真",2,"1:03:02",77],
+  [469,"若狭 奏汰",1,"1:03:13",88],
+  [464,"山田 晃央",2,"1:03:40",113],
+  [466,"大和田 春",3,"1:03:50",123],
+  [840,"辻 陽介",3,"1:04:18",144],
+  [471,"宮本 優希",4,"1:04:30",159],
+  [475,"桑原 マテウス大地",2,"1:04:34",168],
+  [465,"上杉 敦史",1,"1:05:02",197],
+  [461,"佐々木 哲",2,"1:05:29",213],
+  [472,"武田 知典",4,"1:05:34",217],
+  [473,"安江 悠登",4,"1:06:12",244],
+  [470,"和田 寛",1,"1:06:41",259],
+  [477,"水出 依寿",1,"1:06:46",264],
+  [467,"鈴木 翔瑛",3,"1:07:05",272],
+  [476,"安食 光翔",2,"1:07:43",291],
+].map(([bib,name,gradeAtRace,time,rank])=>({
+  id:'ageo-2026-'+bib,name,year:2026,date:'2026-11-22',status:'student',gradeAtRace,
+  meet:'第39回2026上尾シティハーフマラソン',event:'ハーフマラソン',time,rank,stage:'大学生男子',
+  source:'https://marathon-result.jp/ageocityhalf2026/result.php?rc=239&nm='+bib,
+  verification:'primary',provisional:true
+}));
+
 // Finishing marks from official Waseda competition result tables.
 export const ADDITIONAL_RESULTS_2026=[
+  ...ageoResults,
   {"id":"official-2026-784-石崎友太朗-1500m-3-58.49","name":"石崎友太朗","year":2026,"date":"2026-03-21","precision":"日","status":"student","meet":"Spring Trial in Waseda","event":"1500m","time":"3:58.49","rank":11,"source":"https://waseda-ac.jp/competition/detail/784","verification":"primary","gradeAtRace":1},
   {"id":"official-2026-797-吉田新-800m-1-52.97","name":"吉田新","year":2026,"date":"2026-04-05","precision":"日","status":"student","meet":"第59回東京六大学対校陸上競技大会","event":"800m","time":"1:52.97","rank":6,"source":"https://waseda-ac.jp/competition/detail/797","verification":"primary","stage":"決勝","gradeAtRace":2},
   {"id":"official-2026-797-大圖希々-800m-2-21.99","name":"大圖 希々","year":2026,"date":"2026-04-05","precision":"日","status":"student","meet":"第59回東京六大学対校陸上競技大会","event":"800m","time":"2:21.99","rank":3,"source":"https://waseda-ac.jp/competition/detail/797","verification":"primary","gradeAtRace":2},
