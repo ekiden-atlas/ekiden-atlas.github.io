@@ -157,6 +157,7 @@ function renderCompetitionDetail(meet){
  :`<p>${E(t(marks.length?'scheduleEntriesUnarchived':'scheduleEntriesAwaiting'))}</p>`}</section>
  <section aria-labelledby="schedule-results-title"><div class="section-head"><h2 id="schedule-results-title">${E(t('scheduleResults'))}</h2>
  ${meet.relay?`<a class="btn btn-sm" href="${raceArchiveLink(meet.race,meet.relay.year)}">${E(t('navEkiden'))} →</a>`:''}</div>
+ ${meet.replayUrl?`<p>${sourceLink(meet.replayUrl,t('scheduleReplay'))}</p>`:''}
  ${marks.some(row=>row.provisional)?`<p>${E(t('scheduleProvisionalMarks'))}</p>`:''}
  ${meet.relay?.total?`<p>${E(t('teamRank'))} ${E(meet.relay.rank??'—')} · ${E(t('time'))} ${E(meet.relay.total)}</p>`:''}
  ${marks.length?`<div class="table-wrap"><table class="data-table"><thead><tr>${headings.map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}</tr></thead>
