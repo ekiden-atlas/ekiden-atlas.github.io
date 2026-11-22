@@ -3,6 +3,7 @@ export const COMPETITIONS = [
   {
     id:'ageo-2026', title:'第39回2026上尾シティハーフマラソン', start:'2026-11-22',
     venue:'上尾運動公園陸上競技場', source:'https://www.ageocity-marathon.com/outline/',
+    replayUrl:'https://www.youtube.com/watch?v=hVkUlAv3EKI',
     liveLinks:[
       ['scheduleVideoChannel','https://www.youtube.com/@teletama3ch/streams'],
       ['schedulePlayerLive','https://web.playerapp.tokyo/live/200223'],
