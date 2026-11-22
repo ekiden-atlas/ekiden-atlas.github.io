@@ -606,7 +606,7 @@ function resultPanel(records,showAthlete,name=''){
  <label class="field">${E(t('resultStatus'))}<select id="result-status"><option value="">${E(t('all'))}</option><option value="middleSchool">${E(t('middleSchool'))}</option><option value="highSchool">${E(t('highSchool'))}</option><option value="student">${E(t('student'))}</option><option value="OB">OB / OG</option></select></label>
  <label class="field">${E(t('filterGrade'))}<select id="result-grade"><option value="">${E(t('all'))}</option>${[1,2,3,4].map(grade=>`<option value="${grade}">${E(gradeName(grade))}</option>`).join('')}</select></label>
  </div>${showAthlete?`<p>${E(t('resultsMatching'))}</p>`:''}
- <p id="result-count" role="status"></p><div class="table-wrap"><table class="data-table">
+ <p id="result-count" role="status" tabindex="-1"></p><div class="table-wrap"><table class="data-table">
  <thead><tr>${headers.map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}</tr></thead>
  <tbody id="result-rows">${!dataLoaded?`<tr><td colspan="${headers.length}">${E(t('loading'))}</td></tr>`:''}</tbody></table></div><div class="actions">
  <button id="result-prev" class="btn" type="button" disabled>${E(t('previousPage'))}</button>
@@ -854,8 +854,13 @@ if(id==='history-gender'||id==='history-event'){
 }
 });
 window.addEventListener('hashchange',event=>{
+ const oldHash=new URL(event.oldURL).hash;
+ const newHash=new URL(event.newURL).hash;
+ const route=newHash.split('?')[0];
+ const athleteProfile=hash=>hash.split('?')[0]==='#athletes'&&new URLSearchParams(hash.split('?')[1]).has('name');
  render();
- if(event.newURL.includes('#athletes?name=')||event.oldURL.includes('#athletes?name=')||event.newURL.includes('#archive?race=')||event.newURL.includes('#schedule')||event.newURL.includes('#fans')){
+ if(athleteProfile(newHash)||athleteProfile(oldHash)||newHash.startsWith('#archive?race=')||
+    ['#schedule','#fans','#submissions'].includes(route)){
    window.scrollTo({top:0,behavior:'instant'});
  }
 });
@@ -922,6 +927,10 @@ document.addEventListener('click',e=>{
  if(id==='result-prev'||id==='result-next'){
    resultsPage+=id==='result-next'?1:-1;
    updateResults();
+   const start=document.getElementById('result-count');
+   const header=document.querySelector('.topbar');
+   start.focus({preventScroll:true});
+   window.scrollBy({top:start.getBoundingClientRect().top-header.getBoundingClientRect().bottom-12,behavior:'instant'});
  }
  if(id==='ekiden-start')document.querySelector('#ekiden-intro-title').focus();
  if(id==='home-next-meet')document.querySelector('#schedule-heading').focus();
