@@ -157,6 +157,7 @@ function renderCompetitionDetail(meet){
  :`<p>${E(t(marks.length?'scheduleEntriesUnarchived':'scheduleEntriesAwaiting'))}</p>`}</section>
  <section aria-labelledby="schedule-results-title"><div class="section-head"><h2 id="schedule-results-title">${E(t('scheduleResults'))}</h2>
  ${meet.relay?`<a class="btn btn-sm" href="${raceArchiveLink(meet.race,meet.relay.year)}">${E(t('navEkiden'))} →</a>`:''}</div>
+ ${marks.some(row=>row.provisional)?`<p>${E(t('scheduleProvisionalMarks'))}</p>`:''}
  ${meet.relay?.total?`<p>${E(t('teamRank'))} ${E(meet.relay.rank??'—')} · ${E(t('time'))} ${E(meet.relay.total)}</p>`:''}
  ${marks.length?`<div class="table-wrap"><table class="data-table"><thead><tr>${headings.map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}</tr></thead>
  <tbody>${marks.map(row=>`<tr><td>${competitionAthlete(row.name)}</td>
@@ -644,7 +645,7 @@ function updateResults(reset=false){
  <td>${E(r.event?recordLabel(r.event):'—')}<span class="subline">${E(recordLabel(r.stage))}</span></td><td class="mono">${E(r.time||'—')}${r.pb?' · PB':''}</td>
  <td>${E(({冠军:'1',亚军:'2',季军:'3'})[r.rank]??r.rank??'—')}${r.japaneseRank?`<span class="subline">${E(t('japaneseResultRank',{rank:r.japaneseRank}))}</span>`:''}</td>
  <td>${E(resultDivision(r))}</td>
- <td>${r._managed?E(t('resultManaged')):r.verification==='legacyEdit'?E(t('resultLegacyEdit')):r.verification==='userProvided'?E(t('resultUserProvided')):''}
+ <td>${r._managed?E(t('resultManaged')):r.verification==='legacyEdit'?E(t('resultLegacyEdit')):r.verification==='userProvided'?E(t('resultUserProvided')):r.provisional?E(t('resultProvisional')):''}
  <span class="subline">${E(String(r._updatedAt||r.updated_at||state.official?.meta?.fetched||DATA_SNAPSHOT).slice(0,10))}</span>
  ${sourceLink(r.source)}${state.submissionsReady?`<div><a href="#submissions?${E(new URLSearchParams({result:r.id,from:origin+'&resultRow='+encodeURIComponent(r.id)}).toString())}">${E(t('submissionCorrection'))}</a></div>`:''}${r.gradeSource?`<div>${sourceLink(r.gradeSource,t('gradeSource'))}</div>`:''}</td></tr>`;}).join('')||`<tr><td colspan="${colspan}">${E(t(records.length||state.officialOnline?'empty':'historyFailed'))}</td></tr>`;
  document.querySelector('#result-count').textContent=t('resultCount',{start:rows.length?start+1:0,end:Math.min(start+resultsPageSize,rows.length),total:rows.length});
