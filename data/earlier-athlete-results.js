@@ -20,6 +20,10 @@ const niizuma2024 = [
 
 export const EARLIER_ATHLETE_RESULTS = [
   ...niizuma2024,
+  {"id":"high-school-national-71-yamazaki","name":"山﨑 一吹","year":2020,"date":"2020-12-20","status":"highSchool","gradeAtRace":1,"unit":"学法石川高校","meet":"第71回全国高等学校駅伝競走大会","event":"6区","time":"14:43","rank":7,"stage":"5.0km","source":"https://koukouekiden-record.mainichi.jp/record/archive/m_71/all_record.html","verification":"primary"},
+  {"id":"high-school-national-71-miyamoto","name":"宮本 優希","year":2020,"date":"2020-12-20","status":"highSchool","gradeAtRace":1,"unit":"智辯学園和歌山高校","meet":"第71回全国高等学校駅伝競走大会","event":"2区","time":"8:35","rank":31,"stage":"3.0km","source":"https://koukouekiden-record.mainichi.jp/record/archive/m_71/all_record.html","verification":"primary"},
+  {"id":"earlier-niizuma-2025-hyogo-ekiden","name":"新妻 遼己","year":2025,"date":"2025-11-03","status":"highSchool","gradeAtRace":3,"unit":"西脇工業高校","meet":"第80回兵庫県高等学校駅伝競走大会","event":"1区","time":"28:22","rank":1,"stage":"10.0km・区間賞・区間新・チーム総合優勝","source":"https://www.haaa.jp/~koukou/2025/eki/result.pdf","verification":"primary"},
+  {"id":"earlier-niizuma-2025-kinki-ekiden","name":"新妻 遼己","year":2025,"date":"2025-11-16","status":"highSchool","gradeAtRace":3,"unit":"西脇工業高校","meet":"第76回近畿高等学校駅伝競走大会","event":"7区","time":"13:35","rank":1,"stage":"5.0km・区間賞・区間新・チーム総合優勝","source":"https://blog.neet-shikakugets.com/kinki-koukou-ekiden-2025","verification":"cited"},
   {"id":"earlier-5000-suzuki-yuto","name":"鈴木 勇飛","year":2024,"date":"2024-05-05","status":"highSchool","gradeAtRace":2,"unit":"静岡高校","meet":"第1回静岡県長距離強化記録会","event":"5000m","time":"14:54.28","source":"https://shizuriku21.sakura.ne.jp/t%26f/ranking/krnkma24.htm","verification":"primary","pb":true},
   {"id":"earlier-5000-takao","name":"髙尾 啓太朗","year":2023,"date":"2023-11-25","status":"student","gradeAtRace":1,"unit":"早稲田大学","meet":"第310回日本体育大学長距離競技会 兼 第6回NITTAIDAI Challenge Games","event":"5000m","time":"14:43.33","rank":2,"stage":"13組","source":"https://waseda-ac.jp/competition/detail/118","verification":"primary","pb":true},
   {"id":"earlier-5000-kanzaki","name":"神先 強志","year":2024,"date":"2024-09-29","status":"highSchool","gradeAtRace":3,"unit":"駒澤大学高等学校","meet":"第316回日本体育大学長距離競技会 兼 第11回NITTAIDAI Challenge Games","event":"5000m","time":"14:30.93","rank":11,"stage":"15組","source":"http://ld.nssu-athletic.com/uploads/2024/2024-09-28_result.pdf","verification":"primary","pb":true},
@@ -250,6 +254,8 @@ export const EARLIER_ATHLETE_RESULTS = [
   {"id":"earlier-kuwabara-2023-ekiden","name":"桑原 マテウス大地","year":2023,"date":"2023-12-24","gradeAtRace":2,"status":"highSchool","unit":"國學院久我山","meet":"第74回全国高等学校駅伝競走大会","event":"駅伝6区","time":"15:16","rank":19,"stage":"区間順位","source":"https://koukouekiden-record.mainichi.jp/record/archive/m_74/all_record.html","verification":"primary"}
 ];
 export const EARLIER_ATHLETE_CORRECTIONS = {
+  "high-school-national-74-佐々木哲":{"stage":"3.0km・区間賞・区間新"},
+  "high-school-national-75-佐々木哲":{"stage":"8.1075km・区間賞"},
   "annual-121":{"status":"student","source":"https://waseda-ac.jp/competition/detail/1013","verification":"primary","rank":7,"gradeAtRace":3,"date":"2026-09-27","pb":true},
   "annual-124":{"status":"student","source":"https://waseda-ac.jp/competition/detail/1013","verification":"primary","rank":14,"gradeAtRace":2,"date":"2026-09-27","pb":true},
   "annual-127":{"status":"student","source":"https://waseda-ac.jp/competition/detail/1013","verification":"primary","rank":3,"gradeAtRace":4,"date":"2026-09-27","pb":true},
