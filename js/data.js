@@ -267,7 +267,15 @@ export function personalResults(){
      rows.set(id,{...rows.get(id),...fields,id,verification:'legacyEdit',updated_at:edit.updated_at});
    }
  }
- return applyManaged('result',[...rows.values()],x=>x.id)
+ const merged=applyManaged('result',[...rows.values()],x=>x.id);
+ // The annual list and specialty archive both imported this same final.
+ const duplicates=merged.filter(row=>['annual-30','special-0'].includes(row.id)&&
+   nameSearch(row.name)==='佐々木哲'&&row.date==='2026-05-24'&&
+   recordLabel(row.event)==='3000m障害'&&row.time==='8:24.96');
+ const duplicateId=duplicates.length===2
+   ? (duplicates.find(row=>row.id==='annual-30')._managed?'special-0':'annual-30')
+   : null;
+ return merged.filter(row=>row.id!==duplicateId)
    .map(row=>{
      if(row.id==='submission-6d6f9c57-be4a-4916-b4ac-3c5b9daa5768'&&row.date==='2022-11-12'&&
        nameSearch(row.name)==='本田桜二郎'&&row.event==='1区 (3.975km)'&&parseTime(row.time)===729){

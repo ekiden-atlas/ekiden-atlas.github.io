@@ -77,12 +77,14 @@ assert.equal(new Set(athletes().map(row=>nameSearch(row.name))).size,athletes().
 assert.deepEqual(athletes().filter(row=>row.clubSource).map(row=>row.clubSource).sort(),OFFICIAL_CLUB_ROSTER.map(row=>row.source_url).sort());
 assert.equal(athlete('佐々木 哲').high_school,'佐久長聖高等学校');
 const rows=personalResults();
-assert.equal(rows.length,1096+HONDA_SCHOOL_RESULTS.length+SASAKI_SCHOOL_RESULTS.length+EARLIER_ATHLETE_RESULTS.length+ADDITIONAL_RESULTS_2026.length);
+assert.equal(rows.length,1095+HONDA_SCHOOL_RESULTS.length+SASAKI_SCHOOL_RESULTS.length+EARLIER_ATHLETE_RESULTS.length+ADDITIONAL_RESULTS_2026.length);
 assert.equal(new Set(EARLIER_ATHLETE_RESULTS.map(row=>nameSearch(row.name))).size,30);
 assert.equal(new Set(rows.map(row=>row.id)).size,rows.length);
-for(const [year,count] of [[2023,92],[2024,366],[2025,270],[2026,248+ADDITIONAL_RESULTS_2026.length]]){
+for(const [year,count] of [[2023,92],[2024,366],[2025,270],[2026,247+ADDITIONAL_RESULTS_2026.length]]){
  assert.equal(rows.filter(row=>row.year===year).length,count+HONDA_SCHOOL_RESULTS.filter(row=>row.year===year).length+SASAKI_SCHOOL_RESULTS.filter(row=>row.year===year).length+EARLIER_ATHLETE_RESULTS.filter(row=>row.year===year).length);
 }
+assert.deepEqual(rows.filter(row=>nameSearch(row.name)==='佐々木哲'&&row.date==='2026-05-24').map(row=>row.id),['special-0']);
+assert.equal(rows.filter(row=>nameSearch(row.name)==='佐々木哲'&&row.date==='2024-05-24').length,2);
 const results2026=rows.filter(row=>row.year===2026);
 assert.ok(results2026.every(row=>/^2026-\d{2}-\d{2}$/.test(row.date)&&row.source?.startsWith('https://')));
 assert.equal(results2026.find(row=>row.id==='annual-71').rank,43);
