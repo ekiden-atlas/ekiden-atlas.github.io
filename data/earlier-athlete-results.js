@@ -1,5 +1,25 @@
 // Factual records verified against the linked public sources.
+const niizuma2024 = [
+  ["ina", "03-24", 1, "第47回春の高校伊那駅伝", "4区", "26:49", 4, "9.1km・チーム総合21位", "https://www.ina-ekiden.jp/wpnew/wp-content/uploads/2025/03/2024danshi.pdf"],
+  ["toban-spring", "04-06", 2, "兵庫県高等学校地区別陸上競技記録会 東播地区", "1500m", "3:54.71", 1, "", "https://www.haaa.jp/~koukou/touban/2024/tikubetsu/top8"],
+  ["toban-ih", "05-12", 2, "第64回東播高等学校陸上競技対校選手権大会", "5000m", "14:49.46", 1, "タイムレース総合", "https://www.haaa.jp/~koukou/touban/2024/IH/html/rel161.html"],
+  ["hyogo-ih", "06-02", 2, "第77回兵庫県高等学校陸上競技対校選手権大会", "5000m", "14:33.40", 1, "タイムレース総合", "https://www.haaa.jp/~koukou/2024/ih/html/rel258.html"],
+  ["hyogo-champs", "07-06", 2, "第92回兵庫陸上競技選手権大会", "1500m", "3:48.06", 1, "タイムレース総合", "https://gold.jaic.org/hyogo/i/24/24hyo/rel159.html"],
+  ["national-ih-heat", "07-30", 2, "第77回全国高等学校陸上競技対校選手権大会", "5000m", "13:55.20", 1, "予選2組・決勝進出", "https://gold.jaic.org/jaic/member/okayama/2024/77IH/77m-results.pdf"],
+  ["national-ih-final", "07-31", 2, "第77回全国高等学校陸上競技対校選手権大会", "5000m", "13:52.24", 6, "決勝", "https://gold.jaic.org/jaic/member/okayama/2024/77IH/77m-results.pdf"],
+  ["hyogo-youth", "08-22", 2, "第76回兵庫県高等学校ユース陸上競技対校選手権大会", "5000m", "14:16.03", 1, "2年男子・決勝・大会新", "https://koukou-rikujou.info/data/2024/2024_shinjin_hyougo_result.pdf"],
+  ["kinki-youth", "09-15", 2, "第57回近畿高等学校ユース陸上競技対校選手権大会", "5000m", "13:44.64", 1, "2年男子・決勝・大会新", "https://shigahstf.com/wp-content/uploads/2024/09/20240915_%E7%AC%AC57%E5%9B%9E%E8%BF%91%E7%95%BF%E9%AB%98%E7%AD%89%E5%AD%A6%E6%A0%A1%E3%83%A6%E3%83%BC%E3%82%B9%E9%99%B8%E4%B8%8A%E7%AB%B6%E6%8A%80%E5%AF%BE%E6%A0%A1%E9%81%B8%E6%89%8B%E6%A8%A9%E5%A4%A7%E4%BC%9A_%E3%83%AA%E3%82%B6%E3%83%AB%E3%83%88%E3%83%96%E3%83%83%E3%82%AF.pdf"],
+  ["saga", "10-14", 2, "第78回国民スポーツ大会 陸上競技", "5000m", "13:44.72", 2, "少年男子A・決勝", "https://www.pref.saga.lg.jp/saga2024/5NS24/prefecture_28_010.html"],
+  ["hyogo-ekiden", "11-03", 2, "第79回兵庫県高等学校駅伝競走大会", "1区", "29:47", 1, "10.0km・区間賞・チーム総合優勝", "https://www.haaa.jp/~koukou/2024/eki/html/rel00101.html"],
+  ["kinki-ekiden", "11-24", 2, "第75回近畿高等学校駅伝競走大会", "6区", "14:13", 1, "5.0km・区間賞・チーム総合優勝", "https://www.haaa.jp/~koukou/2024/kinkieki/resuslt.pdf"],
+  ["nittai", "11-30", 2, "第318回日本体育大学長距離競技会 兼 第13回日体大チャレンジゲームズ", "5000m", "13:41.68", 7, "決勝", "https://worldathletics.org/competition/calendar-results/results/7216210?eventId=10229609"],
+].map(([id,day,gradeAtRace,meet,event,time,rank,stage,source])=>({
+  id:'earlier-niizuma-2024-'+id,name:'新妻 遼己',year:2024,date:'2024-'+day,
+  gradeAtRace,status:'highSchool',unit:'西脇工業高校',meet,event,time,rank,stage,source,verification:'primary'
+}));
+
 export const EARLIER_ATHLETE_RESULTS = [
+  ...niizuma2024,
   {"id":"earlier-5000-suzuki-yuto","name":"鈴木 勇飛","year":2024,"date":"2024-05-05","status":"highSchool","gradeAtRace":2,"unit":"静岡高校","meet":"第1回静岡県長距離強化記録会","event":"5000m","time":"14:54.28","source":"https://shizuriku21.sakura.ne.jp/t%26f/ranking/krnkma24.htm","verification":"primary","pb":true},
   {"id":"earlier-5000-takao","name":"髙尾 啓太朗","year":2023,"date":"2023-11-25","status":"student","gradeAtRace":1,"unit":"早稲田大学","meet":"第310回日本体育大学長距離競技会 兼 第6回NITTAIDAI Challenge Games","event":"5000m","time":"14:43.33","rank":2,"stage":"13組","source":"https://waseda-ac.jp/competition/detail/118","verification":"primary","pb":true},
   {"id":"earlier-5000-kanzaki","name":"神先 強志","year":2024,"date":"2024-09-29","status":"highSchool","gradeAtRace":3,"unit":"駒澤大学高等学校","meet":"第316回日本体育大学長距離競技会 兼 第11回NITTAIDAI Challenge Games","event":"5000m","time":"14:30.93","rank":11,"stage":"15組","source":"http://ld.nssu-athletic.com/uploads/2024/2024-09-28_result.pdf","verification":"primary","pb":true},
