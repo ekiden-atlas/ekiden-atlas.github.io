@@ -33,7 +33,7 @@ function toast(s){const x=document.querySelector('#toast');x.textContent=s;x.hid
 function pageIntro(k,desc){return `<header class="page-intro"><div class="wrap"><span class="eyebrow">EKIDEN ATLAS · DATA</span><h1>${E(t(k))}</h1><p>${E(t(desc))}</p></div></header>`;}
 function yearOption(years){return [...new Set(years)].filter(Boolean).sort((a,b)=>b-a).map(y=>`<option value="${E(y)}">${E(y)}</option>`).join('');}
 const clubDiary='https://waseda-ac.jp/diary/';
-const featuredDiaryIds=new Set([1695,1693,1689,1688,1687,1685,1670,1666]);
+const featuredDiaryIds=new Set([1698,1695,1693,1689,1688,1687,1685,1670,1666]);
 function renderDiaryList(entries,labels){
  return `<ul class="official-link-list">${entries.map(([date,author,id])=>`<li>
  <time datetime="${E(date)}">${E(date)}</time> · ${sourceLink(clubDiary+'detail/'+id,labels?author:t('clubDiaryRead',{date}))}</li>`).join('')}</ul>`;

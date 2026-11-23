@@ -1,5 +1,6 @@
 // Official publication date, athlete name, and waseda-ac.jp diary ID.
 export const CLUB_DIARIES=[
+  ["2026-11-23","山田 晃央",1698],
   ["2026-11-22","増子 陽太",1695],
   ["2026-11-21","上杉 敦史",1694],
   ["2026-11-20","若狭 奏汰",1693],
