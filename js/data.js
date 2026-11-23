@@ -109,23 +109,34 @@ export function athletes(){
  });
  const rows=applyManaged('athlete',[...withProfiles,...profiles],x=>x.name);
  const byKey=new Map(rows.map(x=>[x.name,x]));
+ const managedHalfPbs=new Set();
  state.managed.filter(x=>x.kind==='pb').forEach(r=>{
   const x=r.payload||{};const name=x.name,field=x.field;
   if(!name||!['pb1500','pb5000','pb10000','pbHalf'].includes(field)||!byKey.has(name))return;
+  if(field==='pbHalf')managedHalfPbs.add(name);
   const old=byKey.get(name);old[field]=r.is_deleted?'':String(x.time||'');
   old._pbSources={...old._pbSources,[field]:r.is_deleted?null:r.source_url};
  });
  const halfMarks=new Map();
  const halfPreviews=new Map();
+ const confirmedHalfPbs=new Map();
  for(const row of personalResults()){
    if(recordLabel(row.event)!=='ハーフマラソン'||!row.source||
       !/^(?:\d+:)?\d{1,2}:[0-5]\d$/.test(row.time)||parseTime(row.time)<3000)continue;
    const key=nameSearch(row.name);
    const marks=row.provisional?halfPreviews:halfMarks;
    if(parseTime(row.time)<parseTime(marks.get(key)?.time))marks.set(key,row);
+   if(!row.provisional&&row.pb&&row.verification==='primary'&&parseTime(row.time)<parseTime(confirmedHalfPbs.get(key)?.time)){
+     confirmedHalfPbs.set(key,row);
+   }
  }
  for(const profile of byKey.values()){
    const key=nameSearch(profile.name);
+   const confirmed=confirmedHalfPbs.get(key);
+   if(confirmed&&!managedHalfPbs.has(profile.name)&&parseTime(confirmed.time)<=parseTime(profile.pbHalf)&&parseTime(confirmed.time)<=parseTime(halfMarks.get(key)?.time)){
+     profile.pbHalf=confirmed.time;
+     profile._pbSources={...profile._pbSources,pbHalf:confirmed.source};
+   }
    const preview=halfPreviews.get(key);
    if(preview&&parseTime(preview.time)<Math.min(parseTime(profile.pbHalf),parseTime(halfMarks.get(key)?.time))){
      profile._halfPreview=preview;
