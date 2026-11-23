@@ -1,4 +1,4 @@
-import {recordLabel} from './record-names.js';
+import {meetLabel,recordLabel} from './record-names.js';
 import {HONDA_SCHOOL_RESULTS} from '../data/honda-school-results.js';
 import {SASAKI_SCHOOL_RESULTS} from '../data/sasaki-school-results.js';
 import {ATHLETE_PRINT_PROFILES} from '../data/athlete-print-profiles.js';
@@ -268,14 +268,20 @@ export function personalResults(){
    }
  }
  const merged=applyManaged('result',[...rows.values()],x=>x.id);
- // The annual list and specialty archive both imported this same final.
- const duplicates=merged.filter(row=>['annual-30','special-0'].includes(row.id)&&
-   nameSearch(row.name)==='佐々木哲'&&row.date==='2026-05-24'&&
-   recordLabel(row.event)==='3000m障害'&&row.time==='8:24.96');
- const duplicateId=duplicates.length===2
-   ? (duplicates.find(row=>row.id==='annual-30')._managed?'special-0':'annual-30')
-   : null;
- return merged.filter(row=>row.id!==duplicateId)
+ // The annual list and specialty archive imported the same four finals.
+ const resultsById=new Map(merged.map(row=>[row.id,row]));
+ const duplicateIds=new Set();
+ for(const [annualId,specialId] of [
+   ['annual-30','special-0'],['annual-32','special-1'],
+   ['annual-33','special-2'],['annual-34','special-3']
+ ]){
+   const annual=resultsById.get(annualId),special=resultsById.get(specialId);
+   if(!annual||!special||nameSearch(annual.name)!=='佐々木哲'||nameSearch(special.name)!=='佐々木哲'||
+      annual.date!==special.date||annual.time!==special.time||annual.rank!==special.rank||
+      meetLabel(annual.meet)!==meetLabel(special.meet)||recordLabel(annual.event)!==recordLabel(special.event))continue;
+   duplicateIds.add(annual._managed&&!special._managed?specialId:annualId);
+ }
+ return merged.filter(row=>!duplicateIds.has(row.id))
    .map(row=>{
      if(row.id==='submission-6d6f9c57-be4a-4916-b4ac-3c5b9daa5768'&&row.date==='2022-11-12'&&
        nameSearch(row.name)==='本田桜二郎'&&row.event==='1区 (3.975km)'&&parseTime(row.time)===729){
