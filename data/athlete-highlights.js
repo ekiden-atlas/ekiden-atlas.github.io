@@ -8,7 +8,7 @@ export const ATHLETE_HIGHLIGHTS = {
   '新妻 遼己': [['zen', 2026, 3], ['izu', 2026, 4], 'high-school-national-76-新妻遼己'],
   '吉倉 ナヤブ直希': ['annual-23', 'annual-163', ['hak', 2026, 1]],
   '工藤 慎作': ['annual-1', ['zen', 2026, 8], 'selected-24'],
-  '佐々木 哲': ['waseda-verified-573-0', 'waseda-verified-518-1', 'high-school-national-75-佐々木哲'],
+  '佐々木 哲': ['special-0', 'waseda-verified-573-0', 'high-school-national-75-佐々木哲'],
   '山﨑 一吹': [['hak', 2026, 6], 'waseda-verified-154-0'],
   '立迫 大徳': ['waseda-verified-200-1', 'waseda-verified-518-0']
 };
