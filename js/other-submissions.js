@@ -8,12 +8,24 @@ const mimeTypes=[
  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 ];
 
-export async function renderOtherSubmissions(root,{db,user,review,admin,selfEdit,t,E,messageKey,returnLink}){
+export async function renderOtherSubmissions(root,{db,user,review,history,admin,selfEdit,t,E,messageKey,returnLink}){
  const bucket=db.storage.from('atlas-submission-files');
- const read=categoryColumn=>{
-   const query=db.from(table).select('id,author_id,folder,title,body,status'+
-     (selfEdit?',revision':'')+(categoryColumn?',category':'')).order('created_at',{ascending:false}).limit(100);
-   return review?query.eq('status','pending'):query.eq('author_id',user.id);
+ const read=async categoryColumn=>{
+   const select=()=>db.from(table).select('id,author_id,folder,title,body,status'+
+     (selfEdit?',revision':'')+(categoryColumn?',category':'')).order('created_at',{ascending:false});
+   if(!history){
+     const query=select();
+     return (review?query.eq('status','pending'):query.eq('author_id',user.id)).limit(100);
+   }
+   const found=new Map();
+   const pageSize=100;
+   for(let offset=0;;offset+=pageSize){
+     const {data,error}=await select().in('status',['accepted','rejected']).order('id').range(offset,offset+pageSize-1);
+     if(error)return {error};
+     if(!root.isConnected)return {data:[]};
+     for(const row of data)found.set(row.id,row);
+     if(data.length<pageSize)return {data:[...found.values()]};
+   }
  };
  let categoryReady=true;
  let {data:rows,error}=await read(true);
@@ -38,11 +50,11 @@ export async function renderOtherSubmissions(root,{db,user,review,admin,selfEdit
  const canEdit=selfEdit&&!review&&row.status==='pending';
  return `<article class="card" data-id="${E(row.id)}"><p>${E(t('submissionStatus.'+row.status))} ${categoryReady?`<span class="tag">${E(categoryLabel(row.category))}</span>`:''}
  <span data-attachment-count hidden></span></p>
- <ul></ul>${review&&admin?`<label class="field">${E(t('submissionDestination'))}
+ <ul></ul>${review&&!history&&admin?`<label class="field">${E(t('submissionDestination'))}
  <select data-destination><option value="">${E(t('adminSelectType'))}</option>
  ${Object.entries(KIND_LABELS).map(([kind,label])=>`<option value="${kind}">${E(t(label))}</option>`).join('')}
  </select></label>
- <a class="btn btn-sm" data-content-editor hidden>${E(t('submissionOpenEditor'))}</a>`:""}${review?`
+ <a class="btn btn-sm" data-content-editor hidden>${E(t('submissionOpenEditor'))}</a>`:""}${review&&!history?`
  <form>${content(row)}
  <button class="btn" type="submit" value="accepted">${E(t('submissionReviewSubmit'))}</button>
  <button class="btn" type="submit" value="rejected" formnovalidate>${E(t('submissionReject'))}</button>
@@ -67,7 +79,7 @@ export async function renderOtherSubmissions(root,{db,user,review,admin,selfEdit
      if(messageKey==='submissionSent')form.reset();
      status.textContent=t(messageKey);
      if(messageKey==='submissionSent')root.querySelector('[data-submission-return]').innerHTML=returnLink||'';
-     await renderOtherSubmissions(root,{db,user,review,admin,selfEdit,t,E,messageKey,returnLink}).catch(()=>{});
+     await renderOtherSubmissions(root,{db,user,review,history,admin,selfEdit,t,E,messageKey,returnLink}).catch(()=>{});
    }catch(error){status.textContent=t(submissionErrorKey(error,review?'submissionReviewFailed':'otherSubmissionFailed'));}
    finally{buttons.forEach(button=>{button.disabled=false;});}
  };};
@@ -103,7 +115,7 @@ export async function renderOtherSubmissions(root,{db,user,review,admin,selfEdit
  }
  void Promise.allSettled(rows.map(async row=>{
    const article=root.querySelector(`[data-id="${row.id}"]`);
-   if(review&&admin){
+   if(review&&!history&&admin){
      const destination=article.querySelector('[data-destination]');
      const editor=article.querySelector('[data-content-editor]');
      destination.onchange=()=>{
