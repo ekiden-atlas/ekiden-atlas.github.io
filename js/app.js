@@ -50,11 +50,23 @@ function renderClubDiary(home=false){
  ${sourceLink(clubDiary+'category/1',t('clubDiaryAll'))}</div></section>`;
 }
 function renderAthleteDiaries(name){
- const entries=CLUB_DIARIES.filter(([,author])=>nameSearch(author)===nameSearch(name));
+ const entries=CLUB_DIARIES.filter(([,author])=>nameSearch(author)===nameSearch(name))
+   .sort(([a],[b])=>b.localeCompare(a));
  if(!entries.length)return '';
+ const currentYear=new Intl.DateTimeFormat('en',{timeZone:'Asia/Tokyo',year:'numeric'}).format(new Date());
+ const years=new Map();
+ for(const entry of entries){
+   const year=entry[0].slice(0,4);
+   if(!years.has(year))years.set(year,[]);
+   years.get(year).push(entry);
+ }
+ const current=years.get(currentYear)||[];
+ years.delete(currentYear);
+ const archive=[...years].map(([year,rows])=>`<details class="athlete-diary-archive">
+ <summary>${E(t('clubDiaryArchive',{year,count:rows.length}))}</summary>${renderDiaryList(rows,false)}</details>`).join('');
  return `<section class="section club-diary" aria-labelledby="athlete-diary-title">
  <h2 id="athlete-diary-title">${E(t('clubDiaryTitle'))}</h2>
- <div class="card">${renderDiaryList(entries,false)}</div></section>`;
+ <div class="card">${current.length?renderDiaryList(current,false):''}${archive}</div></section>`;
 }
 function renderOfficialLinks(showUniversity){
  const groups=showUniversity?OFFICIAL_LINK_GROUPS:OFFICIAL_LINK_GROUPS.slice(0,2);
