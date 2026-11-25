@@ -173,6 +173,8 @@
 .athlete-media dd { margin: 0; }
 
 .club-diary { padding-block: 28px; }
+.athlete-diary-archive summary { cursor: pointer; color: var(--wine); font-weight: 650; }
+.athlete-diary-archive + .athlete-diary-archive { margin-top: 8px; }
 .club-diary a { text-decoration: underline; text-underline-offset: 3px; }
 
 .watch-star[aria-pressed="true"] { color: var(--wine); background: #f7e9ec; }
