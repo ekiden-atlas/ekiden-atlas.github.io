@@ -1,3 +1,4 @@
+import {readReviewRoles,reviewRoleBadge} from './submission-review-roles.js';
 import {submissionErrorKey} from './submission-errors.js';
 import {KIND_LABELS} from './admin-content-types.js';
 const table='wsd_atlas_other_submissions';
@@ -35,6 +36,8 @@ export async function renderOtherSubmissions(root,{db,user,review,history,admin,
  }
  if(error)throw error;
  if(!root.isConnected)return;
+ const reviewRoles=history?await readReviewRoles(db,'other',rows):null;
+ if(!root.isConnected)return;
  const categoryLabel=value=>t('otherCategory.'+(categories.includes(value)?value:'unspecified'));
  const content=(row={})=>`${categoryReady?`<label class="field">${E(t('otherCategoryLabel'))}
  <select name="category" ${row.id?'':'required'}>
@@ -48,7 +51,7 @@ export async function renderOtherSubmissions(root,{db,user,review,history,admin,
  <button class="btn" type="submit">${E(t('submissionSend'))}</button></form>`}
  ${rows.map(row=>{
  const canEdit=selfEdit&&!review&&row.status==='pending';
- return `<article class="card" data-id="${E(row.id)}"><p>${E(t('submissionStatus.'+row.status))} ${categoryReady?`<span class="tag">${E(categoryLabel(row.category))}</span>`:''}
+ return `<article class="card" data-id="${E(row.id)}"><p>${E(t('submissionStatus.'+row.status))} ${reviewRoles?reviewRoleBadge(reviewRoles.get(row.id),t,E):''} ${categoryReady?`<span class="tag">${E(categoryLabel(row.category))}</span>`:''}
  <span data-attachment-count hidden></span></p>
  <ul></ul>${review&&!history&&admin?`<label class="field">${E(t('submissionDestination'))}
  <select data-destination><option value="">${E(t('adminSelectType'))}</option>
