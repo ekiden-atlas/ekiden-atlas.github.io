@@ -1,6 +1,7 @@
 import {submissionErrorKey} from './submission-errors.js';
 import {KIND_LABELS} from './admin-content-types.js';
 const table='wsd_atlas_other_submissions';
+const categories=['athlete','event','other'];
 const mimeTypes=[
  'image/jpeg','image/png','image/webp','application/pdf','text/plain','text/csv',
  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
@@ -9,11 +10,25 @@ const mimeTypes=[
 
 export async function renderOtherSubmissions(root,{db,user,review,selfEdit,t,E,messageKey,returnLink}){
  const bucket=db.storage.from('atlas-submission-files');
- const query=db.from(table).select('id,author_id,folder,title,body,status'+(selfEdit?',revision':'')).order('created_at',{ascending:false}).limit(100);
- const {data:rows,error}=await (review?query.eq('status','pending'):query.eq('author_id',user.id));
+ const read=categoryColumn=>{
+   const query=db.from(table).select('id,author_id,folder,title,body,status'+
+     (selfEdit?',revision':'')+(categoryColumn?',category':'')).order('created_at',{ascending:false}).limit(100);
+   return review?query.eq('status','pending'):query.eq('author_id',user.id);
+ };
+ let categoryReady=true;
+ let {data:rows,error}=await read(true);
+ if(['42703','PGRST204'].includes(error?.code)){
+   categoryReady=false;
+   ({data:rows,error}=await read(false));
+ }
  if(error)throw error;
  if(!root.isConnected)return;
- const content=(row={})=>`<label class="field">${E(t('otherSubmissionTitle'))}<input name="title" maxlength="120" required value="${E(row.title||'')}"></label>
+ const categoryLabel=value=>t('otherCategory.'+(categories.includes(value)?value:'unspecified'));
+ const content=(row={})=>`${categoryReady?`<label class="field">${E(t('otherCategoryLabel'))}
+ <select name="category" ${row.id?'':'required'}>
+ <option value="">${E(categoryLabel(null))}</option>
+ ${categories.map(value=>`<option value="${value}" ${row.category===value?'selected':''}>${E(categoryLabel(value))}</option>`).join('')}
+ </select></label>`:''}<label class="field">${E(t('otherSubmissionTitle'))}<input name="title" maxlength="120" required value="${E(row.title||'')}"></label>
  <label class="field">${E(t('otherSubmissionBody'))}<textarea name="body" maxlength="4000" required>${E(row.body||'')}</textarea></label>`;
  root.innerHTML=`<h3>${E(t('otherSubmission'))}</h3><p role="status">${messageKey?E(t(messageKey)):''}</p><div data-submission-return>${messageKey==='submissionSent'?returnLink||'':''}</div>
  ${review?'':`<form class="card">${content()}
@@ -21,7 +36,8 @@ export async function renderOtherSubmissions(root,{db,user,review,selfEdit,t,E,m
  <button class="btn" type="submit">${E(t('submissionSend'))}</button></form>`}
  ${rows.map(row=>{
  const canEdit=selfEdit&&!review&&row.status==='pending';
- return `<article class="card" data-id="${E(row.id)}"><p>${E(t('submissionStatus.'+row.status))}</p>
+ return `<article class="card" data-id="${E(row.id)}"><p>${E(t('submissionStatus.'+row.status))} ${categoryReady?`<span class="tag">${E(categoryLabel(row.category))}</span>`:''}
+ <span data-attachment-count hidden></span></p>
  <ul></ul>${review?`<label class="field">${E(t('submissionDestination'))}
  <select data-destination><option value="">${E(t('adminSelectType'))}</option>
  ${Object.entries(KIND_LABELS).map(([kind,label])=>`<option value="${kind}">${E(t(label))}</option>`).join('')}
@@ -35,7 +51,8 @@ export async function renderOtherSubmissions(root,{db,user,review,selfEdit,t,E,m
  <button class="btn" type="submit" value="withdrawn" formnovalidate>${E(t('submissionWithdraw'))}</button>
  </form>`:`<h4>${E(row.title)}</h4><p>${E(row.body)}</p>`}</article>`;}).join('')}`;
  const status=root.querySelector('[role=status]');
- const values=form=>({title:form.elements.title.value.trim(),body:form.elements.body.value.trim()});
+ const values=form=>({title:form.elements.title.value.trim(),body:form.elements.body.value.trim(),
+   ...(categoryReady?{category:form.elements.category.value||null}:{})});
  const bind=(form,save)=>{form.onsubmit=async event=>{
    event.preventDefault();
    const buttons=[...form.querySelectorAll('button')];
@@ -110,7 +127,12 @@ export async function renderOtherSubmissions(root,{db,user,review,selfEdit,t,E,m
    const {data,error}=await bucket.list(folder);
    const list=article.querySelector('ul');
    if(error){list.textContent=t('otherAttachmentFailed');return;}
-   list.innerHTML=data.filter(file=>file.id).map(file=>`<li><button class="btn btn-sm" type="button" data-file="${E(file.name)}">${E(file.name)}</button></li>`).join('');
+   const attachments=data.filter(file=>file.id);
+   const count=article.querySelector('[data-attachment-count]');
+   count.textContent=t('otherAttachmentCount',{count:attachments.length});
+   count.classList.add('tag');
+   count.hidden=false;
+   list.innerHTML=attachments.map(file=>`<li><button class="btn btn-sm" type="button" data-file="${E(file.name)}">${E(file.name)}</button></li>`).join('');
    list.querySelectorAll('button').forEach(button=>{button.onclick=async()=>{
      const {data,error}=await bucket.download(`${folder}/${button.dataset.file}`);
      if(error){status.textContent=t('otherAttachmentFailed');return;}
