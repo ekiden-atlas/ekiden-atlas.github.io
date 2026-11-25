@@ -9,7 +9,8 @@ export function watchSubmissionBadge(root,db,t){
    if(!active())return;
    try{
      if(document.visibilityState==='hidden')return;
-     const {data:admin}=await db.rpc('wsd_atlas_is_google_admin');
+     const {data:reviewer}=await db.rpc('wsd_atlas_can_review');
+     const admin=reviewer===true||(await db.rpc('wsd_atlas_is_google_admin')).data===true;
      if(!active()||admin!==true){badge.hidden=true;return;}
      const counts=await Promise.all([
        countPending('wsd_atlas_result_submissions'),
