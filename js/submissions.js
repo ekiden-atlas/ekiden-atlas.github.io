@@ -28,7 +28,8 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
  const params=new URLSearchParams(location.hash.split('?')[1]);
  const results=personalResults();
  const target=params.has('result')?results.find(row=>row.id===params.get('result')):null;
- const review=params.has('review');
+ const history=params.has('history');
+ const review=history||params.has('review');
  const from=params.get('from')||'';
  const returnLink=/^#(?:home|athletes|results|schedule|guide|archive|fans)(?:\?|$)/.test(from)
    ?`<p><a class="btn" href="${E(from)}">${E(t('submissionReturn'))}</a></p>`:'';
@@ -64,7 +65,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      };
      return;
    }
-   if(review&&!canReview){say('submissionReviewDenied');return;}
+   if((history&&!admin)||(review&&!canReview)){say('submissionReviewDenied');return;}
    if(params.has('result')&&!target){say('submissionTargetMissing');return;}
    const [edits,details,attachments,sourceOption]=await Promise.all([
      db.rpc('wsd_atlas_submitter_edits_ready'),
@@ -83,7 +84,8 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      const pending=new Map();
      const pageSize=100;
      for(let offset=0;;offset+=pageSize){
-       const {data,error}=await query().eq('status','pending').order('id').range(offset,offset+pageSize-1);
+       const queue=query();
+       const {data,error}=await (history?queue.in('status',['published','rejected']):queue.eq('status','pending')).order('id').range(offset,offset+pageSize-1);
        if(error)throw error;
        if(!root.isConnected)return;
        for(const row of data)pending.set(row.id,row);
@@ -125,7 +127,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      ${review&&!admin&&row.target_key?`<p>${E(t('submissionCorrectionAdminOnly'))}</p>`:''}
      ${row.target_key?`<p>${E(t('submissionCurrent'))} · ${E(current||t('submissionTargetMissing'))}</p>`:''}
      <p>${E([row.race_date,recordLabel(original?.event||row.event),row.mark,row.finish_rank?`${t('rank')} ${row.finish_rank}`:'',divisionLabel(row.race_division)].filter(Boolean).join(' · '))} ${sourceLink(row.source_url)}</p>
-     ${review||canEdit?`<form data-review-form data-id="${E(row.id)}">
+     ${(review&&!history)||canEdit?`<form data-review-form data-id="${E(row.id)}">
      ${upgraded||canEdit?`<div class="submission-edit">
        ${!row.target_key?[
          input('submissionAthlete','athlete_name','text',120,row.athlete_name),
@@ -152,12 +154,13 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
        groups.get(key).rows.push(row);
      }
      listing=[...groups.values()].map(({name,rows:entries})=>`<section class="submission-list">
-     <h3 class="submission-group-title">${E(name)} <span class="tag">${E(t('submissionAthletePending',{count:entries.length}))}</span></h3>
+     <h3 class="submission-group-title">${E(name)} <span class="tag">${E(t(history?'submissionAthleteReviewed':'submissionAthletePending',{count:entries.length}))}</span></h3>
      ${entries.map(renderRow).join('')}</section>`).join('');
    }else listing=rows.map(renderRow).join('');
    root.innerHTML=`
-   <div class="section-head"><h2>${E(t(review?'submissionReview':'submissionMine'))}</h2>
+   <div class="section-head"><h2>${E(t(history?'submissionReviewHistory':review?'submissionReview':'submissionMine'))}</h2>
    ${canReview?adminLinks(t,E,review,admin):''}</div>
+   ${review&&admin?`<p><a class="btn" href="${history?'#submissions?review':'#submissions?review&history'}">${E(t(history?'submissionReview':'submissionReviewHistory'))}</a></p>`:''}
    ${!review&&admin?`<div class="card">
      <h3>${E(t(target?'adminDirectCorrection':'adminDirectResult'))}</h3>
      <p>${E(t('adminDirectResultHelp'))}</p>
@@ -227,7 +230,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      finally{buttons.forEach(item=>{item.disabled=false;});}
    };});
    const other=root.querySelector('[data-other-submissions]');
-   if(other)await renderOtherSubmissions(other,{db,user,review,admin,selfEdit,t,E,returnLink}).catch(()=>{
+   if(other)await renderOtherSubmissions(other,{db,user,review,history,admin,selfEdit,t,E,returnLink}).catch(()=>{
      other.textContent=t('submissionUnavailable');
    });
  }catch{if(!messageKey)say('submissionUnavailable');}
