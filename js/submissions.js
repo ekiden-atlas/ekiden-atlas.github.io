@@ -1,3 +1,4 @@
+import {readReviewRoles,reviewRoleBadge} from './submission-review-roles.js';
 import {submissionErrorKey} from './submission-errors.js';
 import {submissionBadgeMarkup,watchSubmissionBadge} from './submission-badge.js';
 import {renderOtherSubmissions} from './other-submissions.js';
@@ -98,6 +99,8 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      rows=data;
    }
    if(!root.isConnected)return;
+   const reviewRoles=history?await readReviewRoles(db,'result',rows):null;
+   if(!root.isConnected)return;
    const resultsById=new Map(results.map(row=>[row.id,row]));
    const input=(key,name,type,max,value='',readOnly=false,required=true)=>`<label class="field">${E(t(key))}<input name="${name}" type="${type}" maxlength="${max}" value="${E(value??'')}" ${required?'required':''} ${readOnly?'readonly':''}></label>`;
    const divisions=['m1','m2','m3','h1','h2','h3','u1','u2','u3','u4'];
@@ -123,7 +126,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      const current=original?`${original.name} · ${meetLabel(original.meet)} · ${recordLabel(original.event)} · ${original.time}`:'';
      const canEdit=selfEdit&&!review&&canSubmit&&row.status==='pending';
      return `<article class="card"><h3>${E(original?.name||row.athlete_name)} · ${E(meetLabel(original?.meet||row.meet))}</h3>
-     <p>${E(t(row.target_key?'submissionCorrection':'submissionNew'))} · ${E(t('submissionStatus.'+row.status))}</p>
+     <p>${E(t(row.target_key?'submissionCorrection':'submissionNew'))} · ${E(t('submissionStatus.'+row.status))} ${reviewRoles?reviewRoleBadge(reviewRoles.get(row.id),t,E):''}</p>
      ${review&&!admin&&row.target_key?`<p>${E(t('submissionCorrectionAdminOnly'))}</p>`:''}
      ${row.target_key?`<p>${E(t('submissionCurrent'))} · ${E(current||t('submissionTargetMissing'))}</p>`:''}
      <p>${E([row.race_date,recordLabel(original?.event||row.event),row.mark,row.finish_rank?`${t('rank')} ${row.finish_rank}`:'',divisionLabel(row.race_division)].filter(Boolean).join(' · '))} ${sourceLink(row.source_url)}</p>
