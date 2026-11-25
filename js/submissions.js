@@ -8,10 +8,10 @@ import {meetLabel,recordLabel} from './record-names.js';
 const table='wsd_atlas_result_submissions';
 const fields='id,target_key,athlete_name,meet,event,race_date,mark,source_url,status';
 
-function adminLinks(t,E,review){
+function adminLinks(t,E,review,admin){
  return `<div class="admin-actions">
  <a href="${review?'#submissions':'#submissions?review'}">${E(t(review?'submissionTitle':'submissionReview'))}${review?'':submissionBadgeMarkup}</a>
- <a href="#admin">${E(t('navAdmin'))}</a></div>`;
+ ${admin?`<a href="#admin">${E(t('navAdmin'))}</a>`:''}</div>`;
 }
 
 function athletePicker(t,E){
@@ -40,11 +40,12 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
    const {data:{user}}=await db.auth.getUser();
    if(!root.isConnected)return;
    const admin=user&&(await db.rpc('wsd_atlas_is_google_admin')).data===true;
+   const canReview=admin||Boolean(user&&(await db.rpc('wsd_atlas_can_review')).data===true);
    const canSubmit=user?.app_metadata?.provider==='google'||user?.app_metadata?.providers?.includes('google');
    if(!user||(!review&&!canSubmit)){
      root.innerHTML=`${user?`<p>${E(t('submissionGoogleRequired'))}</p>`:''}
      <button class="btn" type="button">${E(t(user?'submissionSwitchGoogle':'submissionLogin'))}</button>
-     ${admin?adminLinks(t,E,false):''}
+     ${canReview?adminLinks(t,E,false,admin):''}
      <p role="status"></p>`;
      watchSubmissionBadge(root,db,t);
      const button=root.querySelector('button');
@@ -63,7 +64,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      };
      return;
    }
-   if(review&&!admin){say('submissionReviewDenied');return;}
+   if(review&&!canReview){say('submissionReviewDenied');return;}
    if(params.has('result')&&!target){say('submissionTargetMissing');return;}
    const [edits,details,attachments,sourceOption]=await Promise.all([
      db.rpc('wsd_atlas_submitter_edits_ready'),
@@ -121,6 +122,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      const canEdit=selfEdit&&!review&&canSubmit&&row.status==='pending';
      return `<article class="card"><h3>${E(original?.name||row.athlete_name)} · ${E(meetLabel(original?.meet||row.meet))}</h3>
      <p>${E(t(row.target_key?'submissionCorrection':'submissionNew'))} · ${E(t('submissionStatus.'+row.status))}</p>
+     ${review&&!admin&&row.target_key?`<p>${E(t('submissionCorrectionAdminOnly'))}</p>`:''}
      ${row.target_key?`<p>${E(t('submissionCurrent'))} · ${E(current||t('submissionTargetMissing'))}</p>`:''}
      <p>${E([row.race_date,recordLabel(original?.event||row.event),row.mark,row.finish_rank?`${t('rank')} ${row.finish_rank}`:'',divisionLabel(row.race_division)].filter(Boolean).join(' · '))} ${sourceLink(row.source_url)}</p>
      ${review||canEdit?`<form data-review-form data-id="${E(row.id)}">
@@ -137,7 +139,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      </div>`:''}
      ${canEdit?`<button class="btn btn-sm" type="submit" value="pending">${E(t('submissionSaveEdit'))}</button>
      <button class="btn btn-sm" type="submit" value="withdrawn" formnovalidate>${E(t('submissionWithdraw'))}</button>`:`
-     <button class="btn btn-sm" type="submit" value="published" ${row.target_key&&!original?'disabled':''}>${E(t(upgraded?'submissionReviewSubmit':'submissionPublish'))}</button>
+     <button class="btn btn-sm" type="submit" value="published" ${row.target_key&&(!original||!admin)?'disabled':''}>${E(t(upgraded?'submissionReviewSubmit':'submissionPublish'))}</button>
      <button class="btn btn-sm" type="submit" value="rejected" formnovalidate>${E(t('submissionReject'))}</button>`}</form>`:''}</article>`;
    };
    let listing;
@@ -155,7 +157,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
    }else listing=rows.map(renderRow).join('');
    root.innerHTML=`
    <div class="section-head"><h2>${E(t(review?'submissionReview':'submissionMine'))}</h2>
-   ${admin?adminLinks(t,E,review):''}</div>
+   ${canReview?adminLinks(t,E,review,admin):''}</div>
    ${!review&&admin?`<div class="card">
      <h3>${E(t(target?'adminDirectCorrection':'adminDirectResult'))}</h3>
      <p>${E(t('adminDirectResultHelp'))}</p>
@@ -204,6 +206,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
    root.querySelectorAll('[data-review-form]').forEach(form=>{form.onsubmit=async event=>{
      event.preventDefault();
      const decision=event.submitter?.value;
+     if(review&&decision==='published'&&!admin&&rows.find(row=>row.id===form.dataset.id)?.target_key)return;
      if(!(review?['published','rejected']:['pending','withdrawn']).includes(decision))return;
      if(decision==='withdrawn'&&!confirm(t('submissionConfirmWithdraw')))return;
      const row=rows.find(item=>item.id===form.dataset.id);
@@ -224,7 +227,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      finally{buttons.forEach(item=>{item.disabled=false;});}
    };});
    const other=root.querySelector('[data-other-submissions]');
-   if(other)await renderOtherSubmissions(other,{db,user,review,selfEdit,t,E,returnLink}).catch(()=>{
+   if(other)await renderOtherSubmissions(other,{db,user,review,admin,selfEdit,t,E,returnLink}).catch(()=>{
      other.textContent=t('submissionUnavailable');
    });
  }catch{if(!messageKey)say('submissionUnavailable');}
