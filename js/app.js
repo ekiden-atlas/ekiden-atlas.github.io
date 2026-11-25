@@ -869,10 +869,14 @@ window.addEventListener('hashchange',event=>{
  const oldHash=new URL(event.oldURL).hash;
  const newHash=new URL(event.newURL).hash;
  const route=newHash.split('?')[0];
+ const previousRoute=oldHash.split('?')[0];
+ const params=new URLSearchParams(newHash.split('?')[1]);
+ const hasScrollTarget=params.has('resultRow')||params.has('returnScroll')||
+   (route==='#guide'&&params.has('official'));
  const athleteProfile=hash=>hash.split('?')[0]==='#athletes'&&new URLSearchParams(hash.split('?')[1]).has('name');
  render();
- if(athleteProfile(newHash)||athleteProfile(oldHash)||newHash.startsWith('#archive?race=')||
-    ['#schedule','#fans','#submissions'].includes(route)){
+ if(!hasScrollTarget&&(route!==previousRoute||athleteProfile(newHash)||athleteProfile(oldHash)||
+    newHash.startsWith('#archive?race=')||['#schedule','#fans','#submissions'].includes(route))){
    window.scrollTo({top:0,behavior:'instant'});
  }
 });
