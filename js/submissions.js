@@ -102,7 +102,12 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
    root.innerHTML=`
    <div class="section-head"><h2>${E(t(review?'submissionReview':'submissionMine'))}</h2>
    ${admin?adminLinks(t,E,review):''}</div>
-   ${!review&&canSubmit?`<form class="card submission-form">
+   ${!review&&admin?`<div class="card">
+     <h3>${E(t(target?'adminDirectCorrection':'adminDirectResult'))}</h3>
+     <p>${E(t('adminDirectResultHelp'))}</p>
+     <a class="btn btn-primary" href="#admin?result=${encodeURIComponent(target?.id||'')}">${E(t(target?'adminDirectCorrection':'adminDirectResult'))}</a>
+   </div>`:''}
+   ${!review&&canSubmit&&!admin?`<form class="card submission-form">
      <h3>${E(t(target?'submissionCorrection':'submissionNew'))}</h3>
      ${target?`<p>${E([target.date,meetLabel(target.meet),recordLabel(target.event),target.time].filter(Boolean).join(' · '))}</p>`:''}
      ${target?input('submissionAthlete','athlete_name','text',120,target.name,true):athletePicker(t,E)}
