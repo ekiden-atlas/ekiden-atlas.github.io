@@ -138,6 +138,7 @@
 .submission-form { display: grid; gap: 12px; max-width: 640px; }
 .submission-form .btn { justify-self: start; }
 .submission-list { display: grid; gap: 12px; }
+.submission-group-title { margin: 8px 0 0; overflow-wrap: anywhere; }
 .submission-list .card { overflow-wrap: anywhere; }
 
 .admin-race-legs, .admin-race-leg { min-width: 0; border: 1px solid var(--line); border-radius: 10px; padding: 12px; }

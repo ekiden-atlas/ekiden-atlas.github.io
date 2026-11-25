@@ -76,10 +76,26 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
    const upgraded=attachments.data===true;
    const optionalSource=upgraded&&sourceOption.data===true;
    const selectedFields=fields+(selfEdit?',revision':'')+(detailsReady?',finish_rank,race_division':'');
-   const query=db.from(table).select(selectedFields).order('created_at',{ascending:false}).limit(100);
-   const {data:rows,error}=await (review?query.eq('status','pending'):query.eq('author_id',user.id));
-   if(error)throw error;
+   const query=()=>db.from(table).select(selectedFields).order('created_at',{ascending:false});
+   let rows;
+   if(review){
+     const pending=new Map();
+     const pageSize=100;
+     for(let offset=0;;offset+=pageSize){
+       const {data,error}=await query().eq('status','pending').order('id').range(offset,offset+pageSize-1);
+       if(error)throw error;
+       if(!root.isConnected)return;
+       for(const row of data)pending.set(row.id,row);
+       if(data.length<pageSize)break;
+     }
+     rows=[...pending.values()];
+   }else{
+     const {data,error}=await query().eq('author_id',user.id).limit(100);
+     if(error)throw error;
+     rows=data;
+   }
    if(!root.isConnected)return;
+   const resultsById=new Map(results.map(row=>[row.id,row]));
    const input=(key,name,type,max,value='',readOnly=false,required=true)=>`<label class="field">${E(t(key))}<input name="${name}" type="${type}" maxlength="${max}" value="${E(value??'')}" ${required?'required':''} ${readOnly?'readonly':''}></label>`;
    const divisions=['m1','m2','m3','h1','h2','h3','u1','u2','u3','u4'];
    const divisionLabels=t('submissionDivisionOptions').split('|');
@@ -99,30 +115,8 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      if(optionalSource&&'source_url' in values)values.source_url=values.source_url||null;
      return values;
    }
-   root.innerHTML=`
-   <div class="section-head"><h2>${E(t(review?'submissionReview':'submissionMine'))}</h2>
-   ${admin?adminLinks(t,E,review):''}</div>
-   ${!review&&admin?`<div class="card">
-     <h3>${E(t(target?'adminDirectCorrection':'adminDirectResult'))}</h3>
-     <p>${E(t('adminDirectResultHelp'))}</p>
-     <a class="btn btn-primary" href="#admin?result=${encodeURIComponent(target?.id||'')}">${E(t(target?'adminDirectCorrection':'adminDirectResult'))}</a>
-   </div>`:''}
-   ${!review&&canSubmit&&!admin?`<form class="card submission-form">
-     <h3>${E(t(target?'submissionCorrection':'submissionNew'))}</h3>
-     ${target?`<p>${E([target.date,meetLabel(target.meet),recordLabel(target.event),target.time].filter(Boolean).join(' · '))}</p>`:''}
-     ${target?input('submissionAthlete','athlete_name','text',120,target.name,true):athletePicker(t,E)}
-     ${input('meet','meet','text',240,meetLabel(target?.meet),Boolean(target))}
-     ${input('event','event','text',80,recordLabel(target?.event),Boolean(target))}
-     ${!target?input('date','race_date','date',10):''}
-     ${input('resultMark','mark','text',20,target?.time)}
-     ${detailFields()}
-     ${input(optionalSource?'submissionOptionalSource':'source','source_url','url',600,'',false,!optionalSource)}
-     <button class="btn" type="submit">${E(t('submissionSend'))}</button>
-   </form>`:''}
-   <p role="status">${messageKey?E(t(messageKey)):''}</p>
-   <div data-submission-return>${successLink}</div>
-   <div class="submission-list">${rows.map(row=>{
-     const original=row.target_key&&results.find(result=>result.id===row.target_key);
+   const renderRow=row=>{
+     const original=row.target_key&&resultsById.get(row.target_key);
      const current=original?`${original.name} · ${meetLabel(original.meet)} · ${recordLabel(original.event)} · ${original.time}`:'';
      const canEdit=selfEdit&&!review&&canSubmit&&row.status==='pending';
      return `<article class="card"><h3>${E(original?.name||row.athlete_name)} · ${E(meetLabel(original?.meet||row.meet))}</h3>
@@ -145,7 +139,43 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      <button class="btn btn-sm" type="submit" value="withdrawn" formnovalidate>${E(t('submissionWithdraw'))}</button>`:`
      <button class="btn btn-sm" type="submit" value="published" ${row.target_key&&!original?'disabled':''}>${E(t(upgraded?'submissionReviewSubmit':'submissionPublish'))}</button>
      <button class="btn btn-sm" type="submit" value="rejected" formnovalidate>${E(t('submissionReject'))}</button>`}</form>`:''}</article>`;
-   }).join('')||`<p>${E(t('empty'))}</p>`}</div>
+   };
+   let listing;
+   if(review){
+     const groups=new Map();
+     for(const row of rows){
+       const name=officialAthleteName(resultsById.get(row.target_key)?.name||row.athlete_name);
+       const key=nameSearch(name);
+       if(!groups.has(key))groups.set(key,{name,rows:[]});
+       groups.get(key).rows.push(row);
+     }
+     listing=[...groups.values()].map(({name,rows:entries})=>`<section class="submission-list">
+     <h3 class="submission-group-title">${E(name)} <span class="tag">${E(t('submissionAthletePending',{count:entries.length}))}</span></h3>
+     ${entries.map(renderRow).join('')}</section>`).join('');
+   }else listing=rows.map(renderRow).join('');
+   root.innerHTML=`
+   <div class="section-head"><h2>${E(t(review?'submissionReview':'submissionMine'))}</h2>
+   ${admin?adminLinks(t,E,review):''}</div>
+   ${!review&&admin?`<div class="card">
+     <h3>${E(t(target?'adminDirectCorrection':'adminDirectResult'))}</h3>
+     <p>${E(t('adminDirectResultHelp'))}</p>
+     <a class="btn btn-primary" href="#admin?result=${encodeURIComponent(target?.id||'')}">${E(t(target?'adminDirectCorrection':'adminDirectResult'))}</a>
+   </div>`:''}
+   ${!review&&canSubmit&&!admin?`<form class="card submission-form">
+     <h3>${E(t(target?'submissionCorrection':'submissionNew'))}</h3>
+     ${target?`<p>${E([target.date,meetLabel(target.meet),recordLabel(target.event),target.time].filter(Boolean).join(' · '))}</p>`:''}
+     ${target?input('submissionAthlete','athlete_name','text',120,target.name,true):athletePicker(t,E)}
+     ${input('meet','meet','text',240,meetLabel(target?.meet),Boolean(target))}
+     ${input('event','event','text',80,recordLabel(target?.event),Boolean(target))}
+     ${!target?input('date','race_date','date',10):''}
+     ${input('resultMark','mark','text',20,target?.time)}
+     ${detailFields()}
+     ${input(optionalSource?'submissionOptionalSource':'source','source_url','url',600,'',false,!optionalSource)}
+     <button class="btn" type="submit">${E(t('submissionSend'))}</button>
+   </form>`:''}
+   <p role="status">${messageKey?E(t(messageKey)):''}</p>
+   <div data-submission-return>${successLink}</div>
+   <div class="submission-list">${listing||`<p>${E(t('empty'))}</p>`}</div>
    ${upgraded&&!target?'<section data-other-submissions></section>':''}`;
    watchSubmissionBadge(root,db,t);
    const status=root.querySelector('[role=status]');
