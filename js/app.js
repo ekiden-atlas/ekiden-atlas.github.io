@@ -223,14 +223,10 @@ function rosterDivisionLabel(a){
  return division==='alumni'?t('alumni'):division==='graduate'?t('graduateStudent'):gradeName(a.grade);
 }
 const blocks={'短距離':'blockSprint','中距離':'blockMiddle','長距離':'blockLong','ハードル':'blockHurdles','跳躍':'blockJumps','投擲':'blockThrows','混成':'blockCombined'};
-function rosterSources(athlete){
- const links=[...new Set(Object.values(athlete._pbSources||{}))].map(url=>sourceLink(url)).filter(Boolean);
- return links.length?links.join('<br>'):sourceLink(athlete.source_url)||E(t('sourceFallback'));
+function halfPreview(row,showSource=true){
+ return row?`<span class="subline">${E(t('halfPreview',{time:row.time}))} ${showSource?sourceLink(row.source):''}</span>`:'';
 }
-function halfPreview(row){
- return row?`<span class="subline">${E(t('halfPreview',{time:row.time}))} ${sourceLink(row.source)}</span>`:'';
-}
-function athleteRows(rows){return rows.map(a=>`<tr><td><a href="#athletes?name=${encodeURIComponent(a.name)}">${E(officialAthleteName(a.name))}</a>${ekidenRoleBadge(a.name)} ${watchStar(a.name,t,E)}<span class="subline">${blocks[a.block]?`${E(t(blocks[a.block]))} · `:''}${E(rosterDivisionLabel(a))} · ${E(t({女:'female',男:'male'}[a.gender]||'notRecorded'))}</span></td><td class="mono">${E(a.pb1500||'—')}</td><td class="mono">${E(a.pb5000||'—')}</td><td class="mono">${E(a.pb10000||'—')}</td><td class="mono">${E(a.pbHalf||'—')}${halfPreview(a._halfPreview)}</td><td>${rosterSources(a)}</td></tr>`).join('');}
+function athleteRows(rows){return rows.map(a=>`<tr><td><a href="#athletes?name=${encodeURIComponent(a.name)}">${E(officialAthleteName(a.name))}</a>${ekidenRoleBadge(a.name)} ${watchStar(a.name,t,E)}<span class="subline">${blocks[a.block]?`${E(t(blocks[a.block]))} · `:''}${E(rosterDivisionLabel(a))} · ${E(t({女:'female',男:'male'}[a.gender]||'notRecorded'))}</span></td><td class="mono">${E(a.pb1500||'—')}</td><td class="mono">${E(a.pb5000||'—')}</td><td class="mono">${E(a.pb10000||'—')}</td><td class="mono">${E(a.pbHalf||'—')}${halfPreview(a._halfPreview,false)}</td><td>${sourceLink(a.clubSource,t('officialAthleteProfile'))||'—'}</td></tr>`).join('');}
 const longDistanceRosterNames=new Set(OFFICIAL_LONG_DISTANCE_ROSTER.map(member=>nameSearch(member.name)));
 const isCurrentLongDistance=a=>rosterDivision(a)!=='alumni'&&longDistanceRosterNames.has(nameSearch(a.name));
 let filter={q:'',grade:'all',gender:'all',metric:'pb5000'};
