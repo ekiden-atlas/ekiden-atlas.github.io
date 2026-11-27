@@ -46,6 +46,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
    const canSubmit=user?.app_metadata?.provider==='google'||user?.app_metadata?.providers?.includes('google');
    if(!user||(!review&&!canSubmit)){
      root.innerHTML=`${user?`<p>${E(t('submissionGoogleRequired'))}</p>`:''}
+     <p>${E(t('submissionLoginNotice'))} <a href="#privacy">${E(t('privacyTitle'))}</a></p>
      <button class="btn" type="button">${E(t(user?'submissionSwitchGoogle':'submissionLogin'))}</button>
      ${canReview?adminLinks(t,E,false,admin):''}
      <p role="status"></p>`;
