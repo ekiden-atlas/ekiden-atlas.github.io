@@ -37,12 +37,14 @@ alter policy atlas_attachment_insert on storage.objects
 
 -- Route policies remain bound to the existing functions. Password and recovery
 -- sessions cannot exercise admin permissions for an account with a linked Google identity.
+-- AMR identifies OAuth, while linked identities constrain it to Google.
+-- Email can remain the primary provider on a Google-linked account.
 create or replace function public.wsd_atlas_is_google_admin()
 returns boolean language sql stable security definer set search_path = '' as $$
   select auth.uid() is not null
     and coalesce(auth.jwt()->'amr' @> '[{"method":"oauth"}]'::jsonb,false)
-    and auth.jwt()->'app_metadata'->>'provider' = 'google'
     and exists (select 1 from auth.identities i where i.user_id=auth.uid() and i.provider='google')
+    and not exists (select 1 from auth.identities i where i.user_id=auth.uid() and i.provider not in ('email', 'google'))
     and (exists (select 1 from public.wsd_community_admins a where a.user_id=auth.uid())
       or exists (select 1 from public.wsd_atlas_admins a where a.user_id=auth.uid()))
 $$;
@@ -51,9 +53,9 @@ returns boolean language sql stable security definer set search_path = '' as $$
   select public.wsd_atlas_is_google_admin() or (
     auth.uid() is not null
     and coalesce(auth.jwt()->'amr' @> '[{"method":"oauth"}]'::jsonb,false)
-    and auth.jwt()->'app_metadata'->>'provider' = 'google'
     and exists (select 1 from atlas_review.reviewers r where r.user_id=auth.uid())
     and exists (select 1 from auth.identities i where i.user_id=auth.uid() and i.provider='google')
+    and not exists (select 1 from auth.identities i where i.user_id=auth.uid() and i.provider not in ('email', 'google'))
   )
 $$;
 notify pgrst, 'reload schema';

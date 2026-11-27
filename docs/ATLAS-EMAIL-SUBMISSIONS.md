@@ -18,8 +18,10 @@ an OAuth session for a Google account with the existing role grant.
   callback URL ending in `?atlas-submissions=1` for confirmation and recovery.
   These Auth settings are project-wide and can affect Running Lab.
 - Verify that production Google administrators have OAuth in their Supabase AMR
-  claims and Google as their primary provider. Check the scope of all callers of
-  the two existing Atlas authorization functions before replacing them.
+  claims and a linked Google identity. Email may be the primary provider.
+  If the account has another linked provider besides email and Google, deny
+  privileged access because the OAuth AMR does not identify the provider. Check
+  the scope of all callers before replacing the authorization functions.
 - Apply the optional SQL only after owner approval. Verify four roles, including
   an administrator account using a password session, before publishing the UI.
   Confirm real signup, confirmation and password recovery with a disposable
