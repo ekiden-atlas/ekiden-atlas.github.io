@@ -17,8 +17,16 @@ import {ROSTER} from '../data/roster.js';
 import {RECENT_EKIDEN} from '../data/recent-ekiden.js';
 import {VERIFIED_5000M,VERIFIED_SCHOOL_SOURCE,VERIFIED_STUDENT_SOURCE} from '../data/verified.js';
 let supabasePromise;
+export let submissionPasswordRecovery=false;
+export function finishSubmissionPasswordRecovery(){submissionPasswordRecovery=false;}
 export function getDb(){
-  if(!supabasePromise)supabasePromise=Promise.race([import(SUPABASE_SDK),new Promise((_,reject)=>setTimeout(()=>reject(new Error('SDK network timeout')),6000))]).then(m=>m.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}})).catch(e=>{supabasePromise=null;throw e;});
+  if(!supabasePromise)supabasePromise=Promise.race([import(SUPABASE_SDK),new Promise((_,reject)=>setTimeout(()=>reject(new Error('SDK network timeout')),6000))]).then(m=>{
+    const db=m.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+    if(new URLSearchParams(location.search).get('atlas-submissions')==='1'){
+      db.auth.onAuthStateChange((event)=>{if(event==='PASSWORD_RECOVERY')submissionPasswordRecovery=true;});
+    }
+    return db;
+  }).catch(e=>{supabasePromise=null;throw e;});
   return supabasePromise;
 }
 export const state={profiles:[],rankings:[],legacyEdits:[],managed:[],managedReady:false,submissionsReady:false,dbOnline:false,official:null,officialOnline:false};
@@ -341,12 +349,6 @@ export function parseTime(s){if(!s)return Infinity;const parts=String(s).trim().
 export function formatPace(s,km){const v=parseTime(s);if(!Number.isFinite(v))return null;const n=Math.round(v/km);return `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}/km`;}
 export async function checkAdmin(db){
  const {data:{user},error}=await db.auth.getUser();if(error||!user)return {ok:false,user:null};
- const providers=user.app_metadata?.providers||[];
- const hasGoogle=user.app_metadata?.provider==='google'||providers.includes('google');
- if(!hasGoogle)return {ok:false,user};
- const {data:row,error:e}=await db.from('wsd_community_admins').select('user_id').eq('user_id',user.id).maybeSingle();
- if(!e && row)return {ok:true,user};
- // New site-specific grants are checked by a protected SQL function, not user_metadata.
  const {data:atlasAdmin,error:atlasError}=await db.rpc('wsd_atlas_is_google_admin');
  return {ok:!atlasError && atlasAdmin===true,user};
 }
