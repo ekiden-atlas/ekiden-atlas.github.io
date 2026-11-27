@@ -29,7 +29,7 @@ jobs:
       - run: node tests/data-integrity.mjs
       - name: Build clean static output
         env:
-          CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ vars.CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
+          CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ vars.CLOUDFLARE_WEB_ANALYTICS_TOKEN || '77937e705be14f56ae66f236802cc5a2' }}
         run: node scripts/build-site.mjs
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
