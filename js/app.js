@@ -144,6 +144,20 @@ function competitionAthlete(name){
  const match=athlete(name) || athletes().find(row=>nameSearch(row.name)===nameSearch(name));
  return match?`<a href="#athletes?name=${encodeURIComponent(match.name)}">${E(officialAthleteName(name))}</a>`:E(officialAthleteName(name));
 }
+const clubNews=[
+ {competition:'ageo-2026',date:'2026-11-24',title:['上杉敦史回顾首次半马','上杉敦史が振り返る初ハーフ'],publisher:'THE ANSWER',url:'https://the-ans.jp/bukatsu/756597/'},
+ {competition:'ageo-2026',date:'2026-11-23',title:['上尾半马赛后报道与瀬間元輔采访','上尾ハーフの大会レポートと瀬間元輔のコメント'],publisher:'早稲田スポーツ新聞会',url:'https://wasedasports-sousupo.com/news/trackandfield/athletics/301868/'},
+ {competition:'all-japan-58',date:'2026-11-03',title:['全日本大学驿传夺冠发布会','全日本大学駅伝の優勝会見'],publisher:'早稲田スポーツ新聞会',url:'https://wasedasports-sousupo.com/news/trackandfield/ekiden/300863/'}
+];
+function renderClubNews(competition){
+ const rows=competition?clubNews.filter(row=>row.competition===competition):clubNews.slice(0,5);
+ if(!rows.length)return '';
+ const index=language()==='zh'?0:1;
+ return `<section class="${competition?'':'wrap section'}" aria-labelledby="club-news-title">
+ <div class="section-head"><h2 id="club-news-title">${E(t(competition?'scheduleNews':'clubNewsTitle'))}</h2></div>
+ <ul class="official-link-list">${rows.map(row=>`<li>${sourceLink(row.url,row.title[index])}
+ <span class="subline"><time datetime="${E(row.date)}">${E(row.date)}</time> · ${E(row.publisher)}${competition?'':` · <a href="#schedule?meet=${encodeURIComponent(row.competition)}">${E(t('navSchedule'))}</a>`}</span></li>`).join('')}</ul></section>`;
+}
 function renderCompetitionDetail(meet){
  const marks=meet.relay?.legs?.length?meet.relay.legs.map(leg=>({
    name:leg.name,event:`${t('section')} ${leg.leg}`,time:leg.time,rank:leg.rank,source:meet.relay.source
@@ -176,7 +190,8 @@ function renderCompetitionDetail(meet){
  <tbody>${marks.map(row=>`<tr><td>${competitionAthlete(row.name)}</td>
  <td>${E(recordLabel(row.event))}${row.stage?`<span class="subline">${E(recordLabel(row.stage))}</span>`:''}</td>
  <td class="mono">${E(row.time||'—')}${row.pb?' · PB':''}</td><td>${E(row.rank??'—')}</td><td>${sourceLink(row.source)}</td></tr>`).join('')}
- </tbody></table></div>`:`<p>${E(t('scheduleAwaitingResults'))}</p>`}</section></div>`;
+ </tbody></table></div>`:`<p>${E(t('scheduleAwaitingResults'))}</p>`}</section>
+ ${renderClubNews(meet.id)}</div>`;
 }
 function renderSchedule(){
  const id=new URLSearchParams(location.hash.split('?')[1]).get('meet');
@@ -201,6 +216,7 @@ function renderHome(){
  ${state.submissionsReady?`<a class="btn btn-outline-dark" href="#submissions">${E(t('submissionTitle'))} →</a>`:''}</div></div></div></section>
  ${beginner?`<div class="wrap">${renderEkidenIntro()}</div>`:''}
  ${renderCompetitionList(true)}
+ ${renderClubNews()}
  <section class="section ${beginner?'soft-section':''}" aria-labelledby="latest-heading"><div class="wrap">
  <div class="section-head"><h2 id="latest-heading">${E(t('latest'))}</h2><a class="btn btn-sm" href="#archive">${E(t('navEkiden'))} →</a></div>
  <div class="results-mini">${recent.map(r=>`<article class="result-card">
