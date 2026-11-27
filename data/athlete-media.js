@@ -9,6 +9,60 @@ const intercollegiate=['2026年日本大学生田径锦标赛','2026年日本イ
 
 export const ATHLETE_MEDIA=[
   {
+    athletes:["上杉 敦史"],
+    title:["上杉敦史谈首次半马与选择早稻田的原因","上杉敦史が語る初ハーフと早大進学"],
+    publisher:["THE ANSWER","THE ANSWER"],
+    date:"2026-11-24",
+    meet:["第39届上尾城市半程马拉松","第39回上尾シティハーフマラソン"],
+    kind:"Interview",
+    url:"https://the-ans.jp/bukatsu/756597/"
+  },
+  {
+    athletes:["瀬間 元輔"],
+    title:["濑间元辅谈上尾半马与箱根目标","瀬間元輔が語る上尾ハーフと箱根の目標"],
+    publisher:wasedaSports,
+    date:"2026-11-23",
+    meet:["第39届上尾城市半程马拉松","第39回上尾シティハーフマラソン"],
+    kind:"Interview",
+    url:"https://wasedasports-sousupo.com/news/trackandfield/athletics/301868/"
+  },
+  {
+    athletes:["新妻 遼己"],
+    title:["新妻辽己谈全日本第3区区间新","新妻遼己が語る全日本3区の区間新"],
+    publisher:["月陸Online","月陸Online"],
+    date:"2026-11-01",
+    meet:["第58届全日本大学驿传","第58回全日本大学駅伝"],
+    kind:"Interview",
+    url:"https://www.rikujyokyogi.co.jp/archives/221064"
+  },
+  {
+    athletes:["増子 陽太"],
+    title:["增子阳太谈三大驿传首秀","増子陽太が語る学生三大駅伝デビュー"],
+    publisher:["月陸Online","月陸Online"],
+    date:"2026-11-01",
+    meet:["第58届全日本大学驿传","第58回全日本大学駅伝"],
+    kind:"Interview",
+    url:"https://www.rikujyokyogi.co.jp/archives/221022"
+  },
+  {
+    athletes:["小平 敦之","工藤 慎作","佐々木 哲"],
+    title:["小平敦之、工藤慎作、佐佐木哲的驿传季前访谈","小平敦之・工藤慎作・佐々木哲の駅伝シーズン前インタビュー"],
+    publisher:wasedaSports,
+    date:"2026-10-09",
+    meet:izumo,
+    kind:"Video",
+    url:"https://www.youtube.com/watch?v=LCvUCbR6wuY"
+  },
+  {
+    athletes:["上杉 敦史","本田 桜二郎","新妻 遼己","増子 陽太"],
+    title:["长距离四位新生谈加入早稻田","長距離の新入生4人が語る早大入部"],
+    publisher:wasedaSports,
+    date:"2026-04-14",
+    meet:null,
+    kind:"Interview",
+    url:"https://wasedasports-sousupo.com/infeature/289592/"
+  },
+  {
     athletes:['本田 桜二郎','増子 陽太','新妻 遼己','小平 敦之','鈴木 琉胤','堀野 正太','山口 竣平','工藤 慎作'],
     title:['早稻田夺冠后八棒选手发布会','早大の優勝メンバー8人が振り返る全日本'],
     publisher:wasedaSports, date:'2026-11-03', meet:['第58届全日本大学驿传','第58回全日本大学駅伝'],
