@@ -1,10 +1,11 @@
+import {renderEmailAuth} from './submission-email-auth.js';
 import {bindSiteLogout,siteLogoutMarkup} from './site-logout.js';
 import {readReviewRoles,reviewRoleBadge} from './submission-review-roles.js';
 import {submissionErrorKey} from './submission-errors.js';
 import {submissionBadgeMarkup,watchSubmissionBadge} from './submission-badge.js';
 import {renderOtherSubmissions} from './other-submissions.js';
 import {OFFICIAL_LONG_DISTANCE_ROSTER} from '../data/official-club-roster.js';
-import {getDb,personalResults,state,loadData,athletes,nameSearch,officialAthleteName} from './data.js';
+import {getDb,personalResults,state,loadData,athletes,nameSearch,officialAthleteName,submissionPasswordRecovery,finishSubmissionPasswordRecovery} from './data.js';
 import {meetLabel,recordLabel} from './record-names.js';
 
 const table='wsd_atlas_result_submissions';
@@ -44,17 +45,32 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
    if(!root.isConnected)return;
    const admin=user&&(await db.rpc('wsd_atlas_is_google_admin')).data===true;
    const canReview=admin||Boolean(user&&(await db.rpc('wsd_atlas_can_review')).data===true);
-   const canSubmit=user?.app_metadata?.provider==='google'||user?.app_metadata?.providers?.includes('google');
+   const emailReady=(await db.rpc('wsd_atlas_email_submissions_ready')).data===true;
+   const rerender=()=>renderSubmissions(root,{t,E,sourceLink});
+   if(!root.isConnected)return;
+   if(emailReady&&user&&submissionPasswordRecovery){
+     root.replaceChildren();
+     renderEmailAuth(root,{db,t,E,recovering:true,onRecovered:()=>{
+       finishSubmissionPasswordRecovery();
+       return rerender();
+     }});
+     return;
+   }
+   const google=user?.app_metadata?.provider==='google'||user?.app_metadata?.providers?.includes('google');
+   const canSubmit=google||Boolean(emailReady&&user&&(await db.rpc('wsd_atlas_can_submit')).data===true);
    const bindLogout=()=>bindSiteLogout(root,db,t,()=>renderSubmissions(root,{t,E,sourceLink}));
    if(!user||(!review&&!canSubmit)){
      root.innerHTML=`${user?`<p>${E(t('submissionGoogleRequired'))}</p>`:''}
-     <p>${E(t('submissionLoginNotice'))} <a href="#privacy">${E(t('privacyTitle'))}</a></p>
+     <p>${E(t(emailReady?'emailAuth.notice':'submissionLoginNotice'))} <a href="#privacy">${E(t('privacyTitle'))}</a></p>
      <button class="btn" type="button" data-submission-login>${E(t(user?'submissionSwitchGoogle':'submissionLogin'))}</button>
      ${canReview?adminLinks(t,E,false,admin):''}
      <p role="status" data-login-status></p>
-     ${user?siteLogoutMarkup(t,E):''}`;
+     ${user?siteLogoutMarkup(t,E):''}
+     ${emailReady&&!review?'<section data-email-auth></section>':''}`;
      watchSubmissionBadge(root,db,t);
      bindLogout();
+     const email=root.querySelector('[data-email-auth]');
+     if(email)renderEmailAuth(email,{db,t,E,onLogin:rerender});
      const button=root.querySelector('[data-submission-login]');
      button.onclick=async()=>{
        button.disabled=true;
