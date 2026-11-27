@@ -7,6 +7,11 @@ an OAuth session for a Google account with the existing role grant.
 
 ## Production checks and changes
 
+- Keep Turnstile enabled. Allow the Atlas hostname on the existing public site
+  key, then verify a real challenge in the browser before testing delivery.
+  Production rejected a registration request without a challenge token. No test
+  email was accepted for delivery.
+
 - Inspect the shared project's Email provider, signup, email confirmation,
   delivery limits and redirect allowlist. Enable Email and email confirmation
   only if required. Verify a deliverable SMTP setup and use the existing Atlas
