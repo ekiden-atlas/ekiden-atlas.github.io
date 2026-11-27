@@ -101,7 +101,9 @@ export function athletes(){
    .map(x=>({...x,name:x.athlete_name}));
  const withProfiles=baseline.map(athlete=>{
    const basic=Object.fromEntries(Object.entries(basicProfile(athlete.name)).filter(([,value])=>value!=null&&value!==''));
+   const officialBirthday=officialByName.get(nameSearch(athlete.name))?.birthday;
    const profile={...athlete,...basic};
+   if(officialBirthday)profile.birthday=officialBirthday;
    const guide=printProfilesByName.get(nameSearch(athlete.name));
    if(!guide)return profile;
    const missing=Object.entries(guide).filter(([key,value])=>value!=null&&(profile[key]==null||profile[key]===''));
