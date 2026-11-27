@@ -68,6 +68,41 @@ export async function renderFanBoard(root,{t,E},review){
        }catch{status.textContent=t('fanUnavailable');actions.forEach(action=>action.disabled=false);}
      };
    }
+   if(!review)void renderGuestComposer(root.querySelector('[data-fan-composer]'),db,t,E);
    await load();
  }catch{status.textContent=t('fanUnavailable');}
+}
+
+async function renderGuestComposer(root,db,t,E){
+ try{
+   const {data}=await db.rpc('wsd_atlas_guest_fan_posts_ready');
+   if(!root.isConnected||data!==true)return;
+   root.innerHTML=`<form class="card admin-form fan-composer">
+   <p>${E(t('fanGuestPrivacy'))}</p>
+   <label class="field">${E(t('fanNickname'))}<input name="nickname" maxlength="24" required></label>
+   <label class="field">${E(t('fanMessage'))}<textarea name="message" maxlength="1000" required></textarea></label>
+   <div><button class="btn btn-primary" type="submit">${E(t('fanSend'))}</button></div>
+   <p role="status"></p></form>`;
+   const form=root.querySelector('form');
+   const button=form.querySelector('button');
+   const status=form.querySelector('[role=status]');
+   form.onsubmit=async event=>{
+     event.preventDefault();
+     if(button.disabled)return;
+     const values=new FormData(form);
+     const public_name=values.get('nickname').trim();
+     const body=values.get('message').trim();
+     if(!public_name||!body){status.textContent=t('fanRequired');return;}
+     button.disabled=true;
+     try{
+       const {error}=await db.rpc('wsd_atlas_submit_guest_fan_post',{public_name,body});
+       if(error)throw error;
+       if(form.elements.message.value===values.get('message'))form.elements.message.value='';
+       status.textContent=t('fanSent');
+     }catch{status.textContent=t('fanUnavailable');}
+     finally{button.disabled=false;}
+   };
+ }catch{
+   // A temporarily unavailable submission endpoint does not affect public reading.
+ }
 }

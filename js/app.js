@@ -796,7 +796,7 @@ async function render(){detachAdmin();const path=decodeURIComponent((location.ha
  const review=new URLSearchParams(location.hash.split('?')[1]).has('review');
  app.innerHTML=pageIntro(review?'fanReview':'fanTitle','fanIntro')+`<section class="wrap section fan-board" id="fan-board">
  ${review?`<label class="field">${E(t('fanReviewStatus'))}<select data-fan-status hidden>
- <option value="pending">${E(t('fanPending'))}</option><option value="published">${E(t('fanPublished'))}</option></select></label>`:''}
+ <option value="pending">${E(t('fanPending'))}</option><option value="published">${E(t('fanPublished'))}</option></select></label>`:'<div data-fan-composer></div>'}
  <p role="status">${E(t('loading'))}</p><div class="fan-posts" data-fan-posts></div>
  <button class="btn" type="button" data-fan-more hidden>${E(t('feedbackMore'))}</button></section>`;
  await renderFanBoard(document.querySelector('#fan-board'),{t,E},review);
