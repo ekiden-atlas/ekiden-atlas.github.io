@@ -1,3 +1,4 @@
+import {bindSiteLogout,siteLogoutMarkup} from './site-logout.js';
 import {readReviewRoles,reviewRoleBadge} from './submission-review-roles.js';
 import {submissionErrorKey} from './submission-errors.js';
 import {submissionBadgeMarkup,watchSubmissionBadge} from './submission-badge.js';
@@ -44,14 +45,17 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
    const admin=user&&(await db.rpc('wsd_atlas_is_google_admin')).data===true;
    const canReview=admin||Boolean(user&&(await db.rpc('wsd_atlas_can_review')).data===true);
    const canSubmit=user?.app_metadata?.provider==='google'||user?.app_metadata?.providers?.includes('google');
+   const bindLogout=()=>bindSiteLogout(root,db,t,()=>renderSubmissions(root,{t,E,sourceLink}));
    if(!user||(!review&&!canSubmit)){
      root.innerHTML=`${user?`<p>${E(t('submissionGoogleRequired'))}</p>`:''}
      <p>${E(t('submissionLoginNotice'))} <a href="#privacy">${E(t('privacyTitle'))}</a></p>
-     <button class="btn" type="button">${E(t(user?'submissionSwitchGoogle':'submissionLogin'))}</button>
+     <button class="btn" type="button" data-submission-login>${E(t(user?'submissionSwitchGoogle':'submissionLogin'))}</button>
      ${canReview?adminLinks(t,E,false,admin):''}
-     <p role="status"></p>`;
+     <p role="status" data-login-status></p>
+     ${user?siteLogoutMarkup(t,E):''}`;
      watchSubmissionBadge(root,db,t);
-     const button=root.querySelector('button');
+     bindLogout();
+     const button=root.querySelector('[data-submission-login]');
      button.onclick=async()=>{
        button.disabled=true;
        try{
@@ -61,7 +65,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
          const {error}=await db.auth.signInWithOAuth({provider:'google',options});
          if(error)throw error;
        }catch{
-         root.querySelector('[role=status]').textContent=t('submissionLoginFailed');
+         root.querySelector('[data-login-status]').textContent=t('submissionLoginFailed');
          button.disabled=false;
        }
      };
@@ -163,7 +167,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
    }else listing=rows.map(renderRow).join('');
    root.innerHTML=`
    <div class="section-head"><h2>${E(t(history?'submissionReviewHistory':review?'submissionReview':'submissionMine'))}</h2>
-   ${canReview?adminLinks(t,E,review,admin):''}</div>
+   <div class="admin-actions">${canReview?adminLinks(t,E,review,admin):''}${siteLogoutMarkup(t,E)}</div></div>
    ${review&&admin?`<p><a class="btn" href="${history?'#submissions?review':'#submissions?review&history'}">${E(t(history?'submissionReview':'submissionReviewHistory'))}</a></p>`:''}
    ${!review&&admin?`<div class="card">
      <h3>${E(t(target?'adminDirectCorrection':'adminDirectResult'))}</h3>
@@ -182,12 +186,13 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      ${input(optionalSource?'submissionOptionalSource':'source','source_url','url',600,'',false,!optionalSource)}
      <button class="btn" type="submit">${E(t('submissionSend'))}</button>
    </form>`:''}
-   <p role="status">${messageKey?E(t(messageKey)):''}</p>
+   <p role="status" data-submission-status>${messageKey?E(t(messageKey)):''}</p>
    <div data-submission-return>${successLink}</div>
    <div class="submission-list">${listing||`<p>${E(t('empty'))}</p>`}</div>
    ${upgraded&&!target?'<section data-other-submissions></section>':''}`;
    watchSubmissionBadge(root,db,t);
-   const status=root.querySelector('[role=status]');
+   bindLogout();
+   const status=root.querySelector('[data-submission-status]');
    const form=root.querySelector('.submission-form');
    if(form)form.onsubmit=async event=>{
      event.preventDefault();
