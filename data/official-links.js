@@ -16,6 +16,8 @@ export const OFFICIAL_LINK_GROUPS = [
     source:'https://readyfor.jp/projects/waseda-ac2025/announcements/445234',
     links:[
       ['X','https://x.com/Waseda_Kyoso_LD'],
+      // The club identifies @wasediary in https://www.youtube.com/watch?v=Sc6d99ZrDKs.
+      ['Instagram','https://www.instagram.com/wasediary/'],
       ['SpoLive','https://web.spo.live/team/Waseda_Kyoso_LD']
     ]
   },
