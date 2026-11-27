@@ -192,6 +192,55 @@ async function saveContent(event,base){
 async function setDeleted(value){const {t}=context;if(!current||!state.managedReady)return;if(value&&!confirm(t('adminConfirmDelete')))return;
 try{const {error}=await adminDb.from('wsd_public_content').update({is_deleted:value}).eq('kind',current.kind).eq('record_key',current.record_key);if(error)throw error;await loadData();managedPane();status(t('adminSaved'));}catch{status(t('adminFailed'));}}
 function rankPane(){const {t,E}=context;const area=adminRoot.querySelector('#admin-panel');area.innerHTML=`<div class="notice">${E(t('adminRankingsHint'))}</div><div class="table-wrap"><table class="data-table"><thead><tr><th>${E(t('profile'))}</th><th>${E(t('schoolRecords'))}</th><th>${E(t('worldRank'))}</th><th>${E(t('asiaRank'))}</th><th>${E(t('rankingPoints'))}</th><th>${E(t('rankingDate'))}</th><th>${E(t('source'))}</th></tr></thead><tbody>${worldRankings().map(x=>`<tr><td>${E(x.athlete_name)}</td><td>${E(recordLabel(x.event_name))}</td><td>${E(x.world_rank??'—')}</td><td>${E(x.asia_rank??'—')}</td><td>${E(x.ranking_points??'—')}</td><td>${E(x.ranking_date)}</td><td>${context.sourceLink(x.source_url,t('worldRankingSource'))} ${context.sourceLink(x.asia_source_url,t('asiaRankingSource'))}</td></tr>`).join('')}</tbody></table></div>`;}
-async function auditPane(){const {t,E}=context;const area=adminRoot.querySelector('#admin-panel');area.textContent=t('loading');const {data,error}=await adminDb.from('wsd_public_audit').select('id,kind,record_key,action,actor_id,changed_at,before_data,after_data').order('changed_at',{ascending:false}).limit(60);
-if(!adminRoot||!area.isConnected)return;if(error){area.textContent=t('adminMigration');return;}
-area.innerHTML=(data||[]).map(x=>`<article class="audit-item"><div class="card-top"><strong>${E(x.kind)} / ${E(x.record_key)}</strong><span>${E(x.action)} · ${E(x.changed_at)}</span></div><p>${E(t('adminActor'))}: ${E(x.actor_id)}</p><details><summary>${E(t('adminBefore'))} / ${E(t('adminAfter'))}</summary><p>${E(t('adminBefore'))}</p><pre>${E(JSON.stringify(x.before_data,null,2))}</pre><p>${E(t('adminAfter'))}</p><pre>${E(JSON.stringify(x.after_data,null,2))}</pre></details></article>`).join('')||`<p>${E(t('adminNoHistory'))}</p>`;}
+async function auditPane(){
+ const {t,E}=context;
+ const db=adminDb;
+ const area=adminRoot.querySelector('#admin-panel');
+ area.textContent=t('loading');
+ const {data,error}=await db.from('wsd_public_audit')
+   .select('id,kind,record_key,action,actor_id,changed_at,before_data,after_data')
+   .order('id',{ascending:false}).limit(60);
+ if(!area.isConnected)return;
+ if(error){area.textContent=t('adminFailed');return;}
+
+ const seen=new Set();
+ const recoverable=new Map();
+ area.innerHTML=(data||[]).map(entry=>{
+   const {before_data:before,after_data:after}=entry;
+   const key=JSON.stringify([entry.kind,entry.record_key]);
+   if(!seen.has(key)&&entry.action==='UPDATE'&&before?.id&&before.id===after?.id&&after.updated_at&&
+      before.kind===after.kind&&before.record_key===after.record_key&&KINDS.includes(entry.kind)){
+     recoverable.set(String(entry.id),entry);
+   }
+   seen.add(key);
+   return `<article class="audit-item"><div class="card-top"><strong>${E(KIND_LABELS[entry.kind]?t(KIND_LABELS[entry.kind]):entry.kind)} / ${E(entry.record_key)}</strong><span>${E(entry.action)} · ${E(entry.changed_at)}</span></div>
+   <p>${E(t('adminActor'))} · ${E(entry.actor_id||'—')}</p>
+   <details><summary>${E(t('adminBefore'))} / ${E(t('adminAfter'))}</summary>
+   <p>${E(t('adminBefore'))}</p><pre>${E(JSON.stringify(before,null,2))}</pre>
+   <p>${E(t('adminAfter'))}</p><pre>${E(JSON.stringify(after,null,2))}</pre>
+   ${recoverable.has(String(entry.id))?`<button class="btn btn-sm" type="button" data-restore-audit="${E(entry.id)}">${E(t('adminUndoLastEdit'))}</button>`:''}
+   </details></article>`;
+ }).join('')||`<p>${E(t('adminNoHistory'))}</p>`;
+
+ for(const button of area.querySelectorAll('[data-restore-audit]')){
+   button.onclick=async()=>{
+     const entry=recoverable.get(button.dataset.restoreAudit);
+     const {payload,source_url,is_deleted}=entry.before_data;
+     if(!confirm(t('adminConfirmUndoEdit',{record:entry.record_key})))return;
+     button.disabled=true;
+     try{
+       const {data:restored,error:restoreError}=await db.from('wsd_public_content')
+         .update({payload,source_url,is_deleted})
+         .eq('id',entry.after_data.id).eq('kind',entry.kind).eq('record_key',entry.record_key)
+         .eq('updated_at',entry.after_data.updated_at).select('id').maybeSingle();
+       if(restoreError)throw restoreError;
+       if(restored)await loadData();
+       if(!area.isConnected)return;
+       status(t(restored?'adminUndoEditDone':'adminUndoEditStale'));
+       await auditPane();
+     }catch{
+       if(area.isConnected)status(t('adminFailed'));
+     }finally{button.disabled=false;}
+   };
+ }
+}
