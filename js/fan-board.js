@@ -1,3 +1,4 @@
+import {bindSiteLogout,siteLogoutMarkup} from './site-logout.js';
 import {getDb} from './data.js';
 
 const posts='wsd_atlas_fan_posts';
@@ -68,7 +69,15 @@ export async function renderFanBoard(root,{t,E},review){
        }catch{status.textContent=t('fanUnavailable');actions.forEach(action=>action.disabled=false);}
      };
    }
-   if(!review)void renderGuestComposer(root.querySelector('[data-fan-composer]'),db,t,E);
+   if(!review){
+     const sessionArea=root.querySelector('[data-fan-session]');
+     void db.auth.getSession().then(({data})=>{
+       if(!sessionArea.isConnected||!data?.session)return;
+       sessionArea.innerHTML=siteLogoutMarkup(t,E);
+       bindSiteLogout(sessionArea,db,t,()=>sessionArea.replaceChildren());
+     }).catch(()=>{});
+     void renderGuestComposer(root.querySelector('[data-fan-composer]'),db,t,E);
+   }
    await load();
  }catch{status.textContent=t('fanUnavailable');}
 }
