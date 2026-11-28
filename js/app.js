@@ -674,7 +674,7 @@ function updateResults(reset=false){
  <td>${E(r.event?recordLabel(r.event):'—')}<span class="subline">${E(recordLabel(r.stage))}</span></td><td class="mono">${E(r.time||'—')}${r.pb?' · PB':''}</td>
  <td>${E(({冠军:'1',亚军:'2',季军:'3'})[r.rank]??r.rank??'—')}${r.japaneseRank?`<span class="subline">${E(t('japaneseResultRank',{rank:r.japaneseRank}))}</span>`:''}</td>
  <td>${E(resultDivision(r))}</td>
- <td>${r._managed?E(t('resultManaged')):r.verification==='legacyEdit'?E(t('resultLegacyEdit')):r.verification==='userProvided'?E(t('resultUserProvided')):r.provisional?E(t('resultProvisional')):''}
+ <td>${r._managed?E(t('resultManaged')):r.verification==='legacyEdit'?E(t('resultLegacyEdit')):r.verification==='contemporaryRecord'?E(t('resultContemporaryRecord')):r.verification==='userProvided'?E(t('resultUserProvided')):r.provisional?E(t('resultProvisional')):''}
  <span class="subline">${E(String(r._updatedAt||r.updated_at||state.official?.meta?.fetched||DATA_SNAPSHOT).slice(0,10))}</span>
  ${sourceLink(r.source)}${state.submissionsReady?`<div><a href="#submissions?${E(new URLSearchParams({result:r.id,from:origin+'&resultRow='+encodeURIComponent(r.id)}).toString())}">${E(t('submissionCorrection'))}</a></div>`:''}${r.gradeSource?`<div>${sourceLink(r.gradeSource,t('gradeSource'))}</div>`:''}</td></tr>`;}).join('')||`<tr><td colspan="${colspan}">${E(t(records.length||state.officialOnline?'empty':'historyFailed'))}</td></tr>`;
  document.querySelector('#result-count').textContent=t('resultCount',{start:rows.length?start+1:0,end:Math.min(start+resultsPageSize,rows.length),total:rows.length});

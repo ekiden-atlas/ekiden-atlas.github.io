@@ -4,6 +4,7 @@ const interHighMeet='第77回全国高等学校陸上競技対校選手権大会
 const u20Meet='第41回U20日本陸上競技選手権大会';
 
 const races=[
+ ['2023-07-29',1,'第2回佐賀長距離記録会','3000m','8:28.65',null,'','http://www.sagarikujyo.jp/data/20230801_001.pdf','contemporaryRecord'],
  ["2024-03-24",1,"第47回春の高校伊那駅伝","5区（5.1km）","15:14",6,"区間順位","https://www.chiben.ac.jp/naracollege/wp-content/uploads/sites/6/2024/03/6b4bf672c445c51a56bcc1a5a9040d9d.pdf"],
  ["2024-02-04",1,"第78回南九州駅伝競走大会","3区（8km）","23:12",4,"区間順位","https://www.miyariku.org/keitai/result/2024/02_minami/indexPC.html"],
  ["2023-11-25",1,"全国都道府県駅伝代表選手選考会","5000m","14:33.66",5,"","https://www.fukuriku.com/cms/wp-content/uploads/2023/08/20231125%E5%AF%BE%E6%8A%97%E9%A7%85%E4%BC%9D%E9%81%B8%E8%80%83%E4%BC%9A%E9%AB%98%E6%A0%A1%E4%B8%80%E8%88%AC.pdf"],
