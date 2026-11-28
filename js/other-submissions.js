@@ -9,8 +9,7 @@ const mimeTypes=[
  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
 ];
 
-export async function renderOtherSubmissions(root,{db,user,review,history,admin,selfEdit,t,E,messageKey,returnLink}){
- const bucket=db.storage.from('atlas-submission-files');
+export async function readOtherSubmissions(root,{db,user,review,history,selfEdit}){
  const read=async categoryColumn=>{
    const select=()=>db.from(table).select('id,author_id,folder,title,body,status'+
      (selfEdit?',revision':'')+(categoryColumn?',category':'')).order('created_at',{ascending:false});
@@ -34,8 +33,14 @@ export async function renderOtherSubmissions(root,{db,user,review,history,admin,
    categoryReady=false;
    ({data:rows,error}=await read(false));
  }
+ return {rows,error,categoryReady};
+}
+
+export async function renderOtherSubmissions(root,{db,user,review,history,admin,selfEdit,t,E,messageKey,returnLink,initialRead}){
+ const {rows,error,categoryReady}=await (initialRead??readOtherSubmissions(root,{db,user,review,history,selfEdit}));
  if(error)throw error;
  if(!root.isConnected)return;
+ const bucket=db.storage.from('atlas-submission-files');
  const reviewRoles=history?await readReviewRoles(db,'other',rows):null;
  if(!root.isConnected)return;
  const categoryLabel=value=>t('otherCategory.'+(categories.includes(value)?value:'unspecified'));
