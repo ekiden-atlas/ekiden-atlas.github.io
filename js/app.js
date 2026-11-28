@@ -205,7 +205,13 @@ function renderHome(){
  const calendarOrder=['hak','izu','zen'];
  const recent=ekiden().filter(row=>row.total&&calendarOrder.includes(row.race))
    .sort((a,b)=>b.year-a.year||calendarOrder.indexOf(b.race)-calendarOrder.indexOf(a.race)).slice(0,3);
- return `<section class="hero home-hero ${beginner?'home-hero-guide':'home-hero-results'}">
+ return `${beginner?`<div class="home-ob-ticker">
+ <div class="wrap home-ob-ticker-inner">
+ <div class="home-ob-ticker-window"><div class="home-ob-ticker-track">
+ <span>${E(t('homeObNotice'))}</span><span aria-hidden="true">${E(t('homeObNotice'))}</span>
+ </div></div>
+ <button type="button" data-ob-ticker-toggle aria-label="${E(t('homeObPause'))}" aria-pressed="false">⏸</button>
+ </div></div>`:''}<section class="hero home-hero ${beginner?'home-hero-guide':'home-hero-results'}">
  <div class="wrap hero-inner"><div class="hero-copy"><h1>${E(t('heroTitle'))}</h1><p>${E(t('heroDesc'))}</p>
  <div class="actions">${beginner
    ?`<button class="btn btn-on-dark" id="ekiden-start" type="button">${E(t('heroAction'))} ↓</button>
@@ -945,6 +951,14 @@ document.addEventListener('change',event=>{
    setWatchEvent(input.value);
    refreshWatch('#watch-event');
  }
+});
+document.addEventListener('click',event=>{
+ const button=event.target.closest('[data-ob-ticker-toggle]');
+ if(!button)return;
+ const paused=button.getAttribute('aria-pressed')!=='true';
+ button.setAttribute('aria-pressed',String(paused));
+ button.textContent=paused?'▶':'⏸';
+ button.closest('.home-ob-ticker').classList.toggle('is-paused',paused);
 });
 document.addEventListener('click',e=>{
  const submissionLink=e.target.closest('a[href="#submissions"]');

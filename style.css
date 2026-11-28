@@ -352,3 +352,17 @@
   .team-summary { page: team-summary-sheet; }
   @page team-summary-sheet { size: A4 landscape; margin: 12mm; }
 }
+
+.home-ob-ticker{background:#f5e9ed;color:var(--wine);border-bottom:1px solid var(--line)}
+.home-ob-ticker-inner{display:flex;align-items:center;gap:12px;padding-block:7px}
+.home-ob-ticker-window{flex:1;min-width:0;overflow:hidden}
+.home-ob-ticker-track{display:flex;width:max-content;animation:home-ob-scroll 26s linear infinite;font-size:.85rem}
+.home-ob-ticker-track span{padding-inline-end:4rem;white-space:nowrap}
+.home-ob-ticker.is-paused .home-ob-ticker-track{animation-play-state:paused}
+.home-ob-ticker button{color:inherit;background:transparent;border:1px solid var(--line);border-radius:6px;min-width:32px;min-height:32px}
+@keyframes home-ob-scroll{to{transform:translateX(-50%)}}
+@media(prefers-reduced-motion:reduce){
+ .home-ob-ticker-track{display:block;width:auto;animation:none}
+ .home-ob-ticker-track span{white-space:normal;padding:0}
+ .home-ob-ticker-track [aria-hidden],.home-ob-ticker button{display:none}
+}
