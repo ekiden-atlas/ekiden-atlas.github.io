@@ -261,7 +261,7 @@ function renderAthleteTable(){
    (filter.grade==='all'||rosterDivision(a)===filter.grade)&&(filter.gender==='all'||a.gender===filter.gender));
  rows.sort((a,b)=>parseTime(a[filter.metric])-parseTime(b[filter.metric]));
  const students=rows.filter(isCurrentLongDistance);
- const alumni=rows.filter(a=>rosterDivision(a)==='alumni');
+ const alumni=rows.filter(a=>rosterDivision(a)==='alumni'&&String(a.graduation_year)===DATA_SNAPSHOT.slice(0,4));
  for(const [prefix,body,entries] of [['athlete',studentBody,students],['ob',document.querySelector('#ob-rows'),alumni]]){
    document.querySelector(`#${prefix}-section`).hidden=!entries.length;
    document.querySelector(`#${prefix}-count`).textContent=String(entries.length);
@@ -350,9 +350,9 @@ function ekidenRoleBadge(name,withSource=false){
 }
 function profileDetail(name,records){
  const a=athlete(name)||{name};
- const reading=athleteGuide(name)?.[1];
+ const reading=a.reading||athleteGuide(name)?.[1];
  const hometownKey=a.hometown?.trim()?'hometown':'home_prefecture';
- const basics=[['middleSchoolProfile','middle_school'],['school','high_school'],['birthday','birthday'],['birthplace','birthplace'],['hometown',hometownKey],['height','height_cm','cm'],['weight','weight_kg','kg']];
+ const basics=[['middleSchoolProfile','middle_school'],['school','high_school'],['birthday','birthday'],...(a.affiliation?[['athleteAffiliation','affiliation']]:[]),['birthplace','birthplace'],['hometown',hometownKey],['height','height_cm','cm'],['weight','weight_kg','kg']];
  const metrics=[['1500m','pb1500',1.5],['5000m','pb5000',5],['10000m','pb10000',10],['ハーフマラソン','pbHalf',21.0975]]
    .map(([title,key,km])=>({title,time:a[key],km,source:a._pbSources?.[key],preview:key==='pbHalf'?a._halfPreview:null}));
  const marathon=records.filter(row=>row.pb&&recordLabel(row.event)==='マラソン'&&validUrl(row.source)&&Number.isFinite(parseTime(row.time)))
