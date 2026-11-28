@@ -109,6 +109,28 @@ const nittai334Results = [
 }));
 
 export const ADDITIONAL_RESULTS_2026=[
+  {
+    id:'nittai-334-yamaguchi-tomonori',name:'山口 智規',year:2026,date:'2026-11-28',
+    status:'OB',unit:'SGホールディングス',meet:NITTAI_334,event:'5000m',
+    stage:'男子NCG 2組',time:'13:28.90',rank:2,
+    source:'https://blog.neet-shikakugets.com/nittaidai-ld-2026-1121',verification:'cited'
+  },
+  {
+    id:'kansai-corporate-ekiden-2026-yamaguchi-tomonori',name:'山口 智規',year:2026,date:'2026-11-15',
+    status:'OB',unit:'SGホールディングス',meet:'第69回関西実業団対抗駅伝競走大会',
+    event:'6区（11km）',stage:'区間賞・区間新',time:'31:56',rank:1,
+    source:'https://ui-techno.jp/kanjitsu/ekiden/2026/kanjitsu_ekiden_result.pdf',verification:'primary'
+  },
+  {
+    id:'chicago-marathon-2026-osako',name:'大迫 傑',year:2026,date:'2026-10-11',
+    status:'OB',meet:'シカゴマラソン2026',event:'マラソン',time:'2:07:34',rank:14,
+    source:'https://suguruosako.com/?p=15481',verification:'primary'
+  },
+  {
+    id:'tokyo-marathon-2026-osako',name:'大迫 傑',year:2026,date:'2026-03-01',
+    status:'OB',meet:'東京マラソン2026',event:'マラソン',time:'2:05:59',rank:12,
+    source:'https://worldathletics.org/competition/calendar-results/results/7236397',verification:'primary'
+  },
   ...nittai334Results,
   ...ageoResults,
   {"id":"official-2026-784-石崎友太朗-1500m-3-58.49","name":"石崎友太朗","year":2026,"date":"2026-03-21","precision":"日","status":"student","meet":"Spring Trial in Waseda","event":"1500m","time":"3:58.49","rank":11,"source":"https://waseda-ac.jp/competition/detail/784","verification":"primary","gradeAtRace":1},
