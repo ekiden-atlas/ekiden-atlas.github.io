@@ -14,6 +14,11 @@ const chitose = {
 };
 
 export const RESULT_CORRECTIONS = {
+  'workbook-174':{meet:'パリ2024オリンピック',event:'マラソン',stage:'決勝',
+    source:'https://worldathletics.org/competitions/olympic-games/the-xxxiii-olympic-games-7153115/results/men/marathon/final/result',
+    verification:'primary'},
+  'workbook-176':{meet:'バレンシアマラソン2025',event:'マラソン',stage:'日本新記録',pb:true,
+    verification:'primary'},
   'annual-17': {...chitose,meetAlias:'北联千岁站',gradeAtRace:3,rank:5,stage:'男子5000m A組'},
   'annual-23': {...chitose,meetAlias:'北联千岁站',gradeAtRace:3,rank:13,stage:'男子5000m B組'},
   'annual-64': {...chitose,meetAlias:'北陆长距离挑战赛千岁站',gradeAtRace:1,rank:6,stage:'男子5000m B組'},

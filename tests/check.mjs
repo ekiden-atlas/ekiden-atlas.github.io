@@ -9,7 +9,7 @@ const {RECENT_EKIDEN}=await import('../data/recent-ekiden.js');
 const {t,language,setLanguage}=await import('../js/i18n.js');
 assert.equal(language(),'ja');
 const {parseTime,formatPace}=await import('../js/data.js');
-assert.equal(ROSTER.length,50);
+assert.equal(ROSTER.length,51);
 assert.equal(new Set(ROSTER.map(x=>x.name)).size,ROSTER.length);
 assert.equal(FEATURED.length,6);
 assert.ok(FEATURED.every(x=>ROSTER.some(a=>a.name===x)));

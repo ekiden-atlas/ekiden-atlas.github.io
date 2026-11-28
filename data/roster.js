@@ -68,6 +68,18 @@ const alumni = [
  _pbSources:{...(pb1500?{pb1500:pb1500Source}:{}),pb5000:pbSource,pb10000:pbSource,pbHalf:pbSource}
 }));
 
-export const ROSTER=[...students.map(row=>({...row,...VERIFIED_ROSTER_PROFILES[row.name]})),...alumni];
+const osakoJaaf='https://www.jaaf.or.jp/athletes/profile/suguru_osako/';
+const osakoProfile={
+ name:'大迫 傑',grade:null,gender:'男',block:'長距離',reading:'おおさこ すぐる',
+ birthday:'1991-05-23',home_prefecture:'東京都',middle_school:'金井中学校',high_school:'佐久長聖高等学校',
+ mainEvent:'マラソン',affiliation:'LI-NING',graduation_year:2014,
+ graduation_source:'https://www.waseda.jp/inst/tokyo/other/2021/05/31/8925/',
+ source_url:osakoJaaf,updated_at:'2026-11-28',
+ pb5000:'13:08.40',pb10000:'27:36.93',pbHalf:'1:01:13',
+ _pbSources:{pb5000:osakoJaaf,pb10000:osakoJaaf,pbHalf:'https://worldathletics.org/news/report/kirwa-and-hawkins-win-marugame-half-marathon'},
+ _profileSources:{birthday:osakoJaaf,home_prefecture:osakoJaaf,middle_school:osakoJaaf,high_school:osakoJaaf,affiliation:osakoJaaf}
+};
+
+export const ROSTER=[...students.map(row=>({...row,...VERIFIED_ROSTER_PROFILES[row.name]})),...alumni,osakoProfile];
 export const FEATURED=['山口 竣平','増子 陽太','工藤 慎作','鈴木 琉胤','本田 桜二郎','新妻 遼己'];
 export const DATA_SNAPSHOT='2026-11-18';

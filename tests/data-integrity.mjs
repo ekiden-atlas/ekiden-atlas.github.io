@@ -9,7 +9,7 @@ import {OFFICIAL_CLUB_ROSTER} from '../data/official-club-roster.js';
 import {ADDITIONAL_RESULTS_2026} from '../data/race-date-audit-2026.js';
 import {RECENT_EKIDEN} from '../data/recent-ekiden.js';
 import {state,athletes,athlete,ekiden,worldRankings,personalResults,resultGrade,specialtyPbs,sectionRecords,schoolRecords,alltimeRankings,parseTime,formatPace,nameSearch} from '../js/data.js';
-assert.equal(ROSTER.length,50);
+assert.equal(ROSTER.length,51);
 assert.equal(OFFICIAL_CLUB_ROSTER.length,129);
 assert.equal(new Set(OFFICIAL_CLUB_ROSTER.map(row=>row.block)).size,7);
 assert.equal(new Set(athletes().map(row=>nameSearch(row.name))).size,athletes().length);
@@ -78,7 +78,7 @@ assert.deepEqual(athletes().filter(row=>row.clubSource).map(row=>row.clubSource)
 assert.equal(athlete('佐々木 哲').high_school,'佐久長聖高等学校');
 const rows=personalResults();
 assert.equal(rows.length,1092+HONDA_SCHOOL_RESULTS.length+SASAKI_SCHOOL_RESULTS.length+EARLIER_ATHLETE_RESULTS.length+ADDITIONAL_RESULTS_2026.length);
-assert.equal(new Set(EARLIER_ATHLETE_RESULTS.map(row=>nameSearch(row.name))).size,32);
+assert.equal(new Set(EARLIER_ATHLETE_RESULTS.map(row=>nameSearch(row.name))).size,33);
 assert.equal(new Set(rows.map(row=>row.id)).size,rows.length);
 for(const [year,count] of [[2023,92],[2024,366],[2025,270],[2026,244+ADDITIONAL_RESULTS_2026.length]]){
  assert.equal(rows.filter(row=>row.year===year).length,count+HONDA_SCHOOL_RESULTS.filter(row=>row.year===year).length+SASAKI_SCHOOL_RESULTS.filter(row=>row.year===year).length+EARLIER_ATHLETE_RESULTS.filter(row=>row.year===year).length);
@@ -187,8 +187,8 @@ assert.equal(official.asia_rank,7);
 assert.equal(official.ranking_points,1135);
 assert.match(official.asia_source_url,/region=asia/);
 state.rankings=[];
-assert.equal(worldRankings().length,12);
-assert.ok(worldRankings().every(row=>row.asia_rank>0&&row.ranking_points>0&&row.ranking_date==='2026-11-10'));
+assert.equal(worldRankings().length,14);
+assert.ok(worldRankings().every(row=>row.asia_rank>0&&row.ranking_points>0&&['2026-11-10','2026-11-24'].includes(row.ranking_date)));
 console.log('PASS: dated World Athletics Asia rankings, points and offline fallback.');
 
 const copenhagen=rows.filter(row=>row.id.startsWith("primary-wa-7204187-"));

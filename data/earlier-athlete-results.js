@@ -30,7 +30,29 @@ const ina2024Results = [
   source:'https://www.ina-ekiden.jp/wpnew/wp-content/uploads/2024/03/2024danshi.pdf',verification:'primary'
 }));
 
+const rioOsakoSource='https://worldathletics.org/competitions/olympic-games/the-xxxi-olympic-games-7093747/country/japan';
+const osakoResults=[
+  ['incheon','2014-10-02','仁川アジア競技大会','10000m','28:11.94',2,'決勝','https://www.joc.or.jp/games/asia/2014/stats/01result.html'],
+  ['night','2015-07-18','ナイト・オブ・アスレチックス','5000m','13:08.40',null,'日本記録','https://worldathletics.org/athletes/-/14335060',true],
+  ['rio-10000','2016-08-13','リオデジャネイロオリンピック','10000m','27:51.94',17,'決勝',rioOsakoSource],
+  ['rio-5000','2016-08-17','リオデジャネイロオリンピック','5000m','13:31.45',16,'予選',rioOsakoSource],
+  ['marugame','2017-02-05','第71回香川丸亀国際ハーフマラソン','ハーフマラソン','1:01:13',6,'','https://worldathletics.org/news/report/kirwa-and-hawkins-win-marugame-half-marathon',true],
+  ['boston-2017','2017-04-17','ボストンマラソン2017','マラソン','2:10:28',3,'初マラソン','https://worldathletics.org/news/news/chicago-marathon-2018-kawauchi-osako'],
+  ['fukuoka','2017-12-03','第71回福岡国際マラソン選手権大会','マラソン','2:07:19',3,'','https://www.waseda.jp/inst/tokyo/news/2017/12/04/904/'],
+  ['chicago-2018','2018-10-07','シカゴマラソン2018','マラソン','2:05:50',3,'当時の日本新記録','https://worldathletics.org/competition/calendar-results/results/7122980'],
+  ['tokyo-2020','2020-03-01','東京マラソン2020','マラソン','2:05:29',4,'当時の日本新記録','https://worldathletics.org/news/report/tokyo-marathon-2020-legese-salpeter-osako'],
+  ['japan-10000','2020-12-04','第104回日本陸上競技選手権大会・長距離','10000m','27:36.93',6,'決勝','https://www.jaaf.or.jp/news/article/14530/?category=2&year=2020',true],
+  ['olympics-tokyo','2021-08-08','東京2020オリンピック','マラソン','2:10:41',6,'決勝','https://worldathletics.org/results/olympic-games/2021/the-xxxii-olympic-games-7132391/men/marathon/final/result'],
+  ['tokyo-2023','2023-03-05','東京マラソン2023','マラソン','2:06:13',9,'','https://worldathletics.org/competition/calendar-results/results/7191878?eventId=10229634'],
+  ['mgc-2023','2023-10-15','マラソングランドチャンピオンシップ2023','マラソン','2:09:11',3,'','https://worldathletics.org/competition/calendar-results/results/7202464?eventId=10229634'],
+  ['boston-2024','2024-04-15','ボストンマラソン2024','マラソン','2:11:44',13,'','https://worldathletics.org/competition/calendar-results/results/7207300']
+].map(([id,date,meet,event,time,rank,stage,source,pb=false])=>({
+  id:'osako-'+id,name:'大迫 傑',year:Number(date.slice(0,4)),date,meet,event,time,rank,stage,
+  status:'OB',source,pb,verification:'primary'
+}));
+
 export const EARLIER_ATHLETE_RESULTS = [
+  ...osakoResults,
   {
     id:'mashiko-2019-national-primary-cross-country',
     name:'増子 陽太',year:2019,date:'2019-12-08',status:'primarySchool',gradeAtRace:6,
@@ -352,6 +374,7 @@ export const EARLIER_ATHLETE_PBS = {
   "水出 依寿":{"_pbSources":{"pb1500":"https://waseda-ac.jp/team/member/detail/399","pb5000":"https://waseda-ac.jp/team/member/detail/399","pb10000":"https://waseda-ac.jp/team/member/detail/399"},"pb1500":"3:55.81","pb5000":"14:32.66","pb10000":"30:47.56"}
 };
 export const EARLIER_SPECIALTY_PBS = [
+  {id:'osako-pb-3000',name:'大迫 傑',event:'3000m',time:'7:40.09',source:'https://worldathletics.org/athletes/-/14335060'},
   {"id":"earlier-pb-198-3000m","name":"高橋 優喜","event":"3000m","time":"8:28.87","source":"https://waseda-ac.jp/team/member/detail/198"},
   {"id":"earlier-pb-198-5km","name":"高橋 優喜","event":"5km","time":"14:23","source":"https://waseda-ac.jp/team/member/detail/198"},
   {"id":"earlier-pb-198-5000mW","name":"高橋 優喜","event":"5000mW","time":"18:57.43","source":"https://waseda-ac.jp/team/member/detail/198"},
