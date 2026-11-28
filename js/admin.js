@@ -117,6 +117,13 @@ function sourceChoices(kind){
  return [];
 }
 
+function savedRecordLabel(row,base){
+ const {t}=context;
+ if(row.kind!=='result')return `${t(KIND_LABELS[row.kind]||'adminSelectType')} / ${row.record_key}`;
+ const {name,meet,date,year,event,time}= {...base,...row.payload};
+ return [name,meetLabel(meet),date||year,recordLabel(event),time].filter(Boolean).join(' · ')||row.record_key;
+}
+
 function managedPane(){
  const {t,E}=context;
  const area=adminRoot.querySelector('#admin-panel');
@@ -130,8 +137,12 @@ function managedPane(){
  const payload={...value.payload,...base?.payload};
  const officialProfiles=kind==='athlete'?templates.filter(row=>longDistanceSources.has(row.payload.clubSource)):[];
  const savedRows=state.managed.filter(row=>row.kind===kind);
-area.innerHTML=`${!deployed?`<div class="notice"><strong>${E(t('adminMigration'))}</strong><p>${E(t('adminMigrationHelp'))}</p></div>`:''}<div class="split"><div><div class="card-top"><h3>${E(t('adminEditedRecords'))}</h3><button id="admin-new" class="btn btn-sm" type="button" ${deployed?'':'disabled'}>${E(t('adminCreate'))}</button></div><div class="admin-list">${savedRows.map(x=>`<button type="button" data-edit-kind="${E(x.kind)}" data-edit-key="${E(x.record_key)}">${E(t(KIND_LABELS[x.kind]||'adminSelectType'))} / ${E(x.record_key)} ${x.is_deleted?'· '+E(t('adminDeleted')):''}</button>`).join('')||`<p class="empty">${E(t('empty'))}</p>`}</div>${officialProfiles.length?`<h3>${E(t('adminOfficialRoster'))} · ${officialProfiles.length}</h3>
+ const resultsByKey=kind==='result'?new Map(templates.map(row=>[row.key,row.payload])):null;
+ const previousList=area.querySelector('[data-saved-kind]');
+ const listScroll=previousList?.dataset.savedKind===kind?previousList.scrollTop:0;
+area.innerHTML=`${!deployed?`<div class="notice"><strong>${E(t('adminMigration'))}</strong><p>${E(t('adminMigrationHelp'))}</p></div>`:''}<div class="split"><div><div class="card-top"><h3>${E(t('adminEditedRecords'))}</h3><button id="admin-new" class="btn btn-sm" type="button" ${deployed?'':'disabled'}>${E(t('adminCreate'))}</button></div><div class="admin-list" data-saved-kind="${E(kind)}">${savedRows.map(row=>`<button type="button" data-edit-kind="${E(row.kind)}" data-edit-key="${E(row.record_key)}" aria-pressed="${row===chosen}">${E(savedRecordLabel(row,resultsByKey?.get(row.record_key)))}${row.is_deleted?' · '+E(t('adminDeleted')):''}</button>`).join('')||`<p class="empty">${E(t('empty'))}</p>`}</div>${officialProfiles.length?`<h3>${E(t('adminOfficialRoster'))} · ${officialProfiles.length}</h3>
  <div class="admin-list">${officialProfiles.map(profile=>`<button type="button" data-profile-key="${E(profile.key)}">${E(profile.label)} · ${E(profile.payload.block)}</button>`).join('')}</div>`:''}</div><div><form id="admin-content-form" class="admin-form"><label class="field">${E(t('adminSelectType'))}<select name="kind" required ${chosen?'disabled':''}>${KINDS.map(k=>`<option value="${k}" ${value.kind===k?'selected':''}>${E(t(KIND_LABELS[k]||'adminSelectType'))}</option>`).join('')}</select></label>${!chosen?`<label class="field">${E(t('adminUseBase'))}<select id="admin-base-chooser"><option value="">${E(t('adminPickBase'))}</option>${templates.map((r,i)=>`<option value="${i}" ${r.key===prefill?.key?'selected':''}>${E(r.label)}</option>`).join('')}</select></label>`:''}${structured?'':`<label class="field">${E(t('adminKey'))}<input name="record_key" value="${E(value.record_key)}" required minlength="2" maxlength="180" ${chosen?'readonly':''}></label>`}<label class="field">${E(t(structured?'adminOfficialSource':'adminSource'))}<input name="source_url" type="url" required pattern="${kind==='result'?'https?':'https'}://.*" value="${E(value.source_url)}" placeholder="https://…"></label>${structured?raceFields(kind,payload,context):`<label class="field">${E(t('adminPayload'))}<textarea name="payload" required spellcheck="false">${E(JSON.stringify(value.payload,null,2))}</textarea></label>`}<div class="admin-actions"><button class="btn btn-primary" type="submit" ${deployed?'':'disabled'}>${E(t(kind==='result'?'adminPublishResult':'adminSave'))}</button><button class="btn btn-danger" type="button" id="admin-delete" ${deployed&&(chosen||prefill?.source)&&!value.is_deleted?'':'disabled'}>${E(t('adminDelete'))}</button><button class="btn" type="button" id="admin-restore" ${deployed&&chosen&&value.is_deleted?'':'disabled'}>${E(t('adminRestore'))}</button><button class="btn" type="button" id="admin-cancel">${E(t('adminCancel'))}</button></div><p id="admin-form-msg" role="status"></p></form></div></div>`;
+area.querySelector('[data-saved-kind]').scrollTop=listScroll;
 area.querySelector('#admin-new')?.addEventListener('click',()=>{current=null;prefill=null;managedPane();});
 area.querySelector('select[name=kind]')?.addEventListener('change',e=>{draftKind=e.target.value;current=null;prefill=null;managedPane();});
 area.querySelector('#admin-base-chooser')?.addEventListener('change',e=>{const item=e.target.value===''?null:templates[Number(e.target.value)];
@@ -145,7 +156,15 @@ area.querySelectorAll('[data-profile-key]').forEach(button=>button.onclick=()=>{
  managedPane();
  area.querySelector('form input').focus();
 });
-area.querySelectorAll('[data-edit-kind]').forEach(btn=>btn.addEventListener('click',()=>{prefill=null;current={kind:btn.dataset.editKind,record_key:btn.dataset.editKey};managedPane();}));
+area.querySelectorAll('[data-edit-kind]').forEach(button=>button.addEventListener('click',()=>{
+ const {editKind,editKey}=button.dataset;
+ const pageTop=window.scrollY;
+ prefill=null;
+ current={kind:editKind,record_key:editKey};
+ managedPane();
+ area.querySelector(`[data-edit-key="${CSS.escape(editKey)}"]`)?.focus({preventScroll:true});
+ if(window.scrollY!==pageTop)window.scrollTo({top:pageTop,behavior:'instant'});
+}));
 area.querySelector('#admin-cancel')?.addEventListener('click',()=>{current=null;prefill=null;managedPane();});
 const form=area.querySelector('#admin-content-form');
 if(kind==='ekiden')bindRelayLegs(form);
