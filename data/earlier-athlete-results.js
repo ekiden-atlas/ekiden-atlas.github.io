@@ -32,6 +32,9 @@ const ina2024Results = [
 
 const rioOsakoSource='https://worldathletics.org/competitions/olympic-games/the-xxxi-olympic-games-7093747/country/japan';
 const osakoResults=[
+  ['twilight','2012-07-22','トワイライト・ゲームス','1500m','3:42.68',null,'','https://suguruosako.com/?page_id=26',true,3],
+  ['nittai-2013','2013-11-17','日本体育大学長距離競技会','5000m','13:20.80',null,'','https://suguruosako.com/?page_id=26',false,4],
+  ['great-north','2022-09-11','グレート・ノース・ラン','ハーフマラソン','1:01:05',4,'','https://worldathletics.org/news/report/great-north-run-obiri-kiplimo'],
   ['incheon','2014-10-02','仁川アジア競技大会','10000m','28:11.94',2,'決勝','https://www.joc.or.jp/games/asia/2014/stats/01result.html'],
   ['night','2015-07-18','ナイト・オブ・アスレチックス','5000m','13:08.40',null,'日本記録','https://worldathletics.org/athletes/-/14335060',true],
   ['rio-10000','2016-08-13','リオデジャネイロオリンピック','10000m','27:51.94',17,'決勝',rioOsakoSource],
@@ -46,9 +49,9 @@ const osakoResults=[
   ['tokyo-2023','2023-03-05','東京マラソン2023','マラソン','2:06:13',9,'','https://worldathletics.org/competition/calendar-results/results/7191878?eventId=10229634'],
   ['mgc-2023','2023-10-15','マラソングランドチャンピオンシップ2023','マラソン','2:09:11',3,'','https://worldathletics.org/competition/calendar-results/results/7202464?eventId=10229634'],
   ['boston-2024','2024-04-15','ボストンマラソン2024','マラソン','2:11:44',13,'','https://worldathletics.org/competition/calendar-results/results/7207300']
-].map(([id,date,meet,event,time,rank,stage,source,pb=false])=>({
+].map(([id,date,meet,event,time,rank,stage,source,pb=false,gradeAtRace])=>({
   id:'osako-'+id,name:'大迫 傑',year:Number(date.slice(0,4)),date,meet,event,time,rank,stage,
-  status:'OB',source,pb,verification:'primary'
+  status:gradeAtRace?'student':'OB',gradeAtRace,source,pb,verification:'primary'
 }));
 
 export const EARLIER_ATHLETE_RESULTS = [

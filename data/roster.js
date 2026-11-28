@@ -75,8 +75,8 @@ const osakoProfile={
  mainEvent:'マラソン',affiliation:'LI-NING',graduation_year:2014,
  graduation_source:'https://www.waseda.jp/inst/tokyo/other/2021/05/31/8925/',
  source_url:osakoJaaf,updated_at:'2026-11-28',
- pb5000:'13:08.40',pb10000:'27:36.93',pbHalf:'1:01:13',
- _pbSources:{pb5000:osakoJaaf,pb10000:osakoJaaf,pbHalf:'https://worldathletics.org/news/report/kirwa-and-hawkins-win-marugame-half-marathon'},
+ pb1500:'3:42.68',pb5000:'13:08.40',pb10000:'27:36.93',pbHalf:'1:01:13',
+ _pbSources:{pb1500:"https://waseda-ac.jp/record/detail/2",pb5000:osakoJaaf,pb10000:osakoJaaf,pbHalf:'https://worldathletics.org/news/report/kirwa-and-hawkins-win-marugame-half-marathon'},
  _profileSources:{birthday:osakoJaaf,home_prefecture:osakoJaaf,middle_school:osakoJaaf,high_school:osakoJaaf,affiliation:osakoJaaf}
 };
 
