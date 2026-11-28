@@ -24,6 +24,8 @@ export async function renderAdminPage(root,ctx){adminRoot=root;context=ctx;
      return;
    }
    const params=new URLSearchParams(location.hash.split('?')[1]);
+   const from=params.get('from');
+   const returnToProfile=from?.startsWith('#athletes?')&&new URLSearchParams(from.slice(10)).has('name')?from:'';
    const submissionId=params.get('submission');
    const destination=params.get('kind');
    if(submissionId&&KINDS.includes(destination)&&/^[0-9a-f-]{36}$/i.test(submissionId)){
@@ -50,9 +52,22 @@ export async function renderAdminPage(root,ctx){adminRoot=root;context=ctx;
      draftKind='result';
      tab='managed';
    }
+   if(returnToProfile&&prefill){
+     const {data:allowed,error}=await db.rpc('wsd_atlas_is_google_admin');
+     if(adminRoot!==root)return;
+     if(error||allowed!==true){
+       root.textContent=t('adminNoAccess');
+       return;
+     }
+   }
+   if(prefill&&params.has('result')&&state.managed.some(row=>row.kind==='result'&&row.record_key===prefill.key)){
+     current={kind:'result',record_key:prefill.key};
+     prefill=null;
+   }
    adminDb=db;
    root.innerHTML=`<h1>${E(t('adminTitle'))}</h1><p>${E(t('adminDesc'))}</p>
    <div class="admin-actions">
+   ${returnToProfile?`<a class="btn" href="${E(returnToProfile)}">${E(t('profileResultBack'))}</a>`: ''}
    ${state.submissionsReady?`<a class="btn" href="#submissions?review">${E(t('submissionReview'))}${submissionBadgeMarkup}</a>`:''}
    <a class="btn" href="#fans?review">${E(t('fanReview'))}</a>
    <button class="btn" type="button" id="google-logout">${E(t('logout'))}</button></div>
@@ -73,6 +88,8 @@ export async function renderAdminPage(root,ctx){adminRoot=root;context=ctx;
      if(adminRoot===root)location.hash='#submissions';
    });
    showWork();
+   if(params.get('action')==='delete')root.querySelector('#admin-delete:not(:disabled)')?.focus();
+   else if(returnToProfile)root.querySelector('#admin-content-form input')?.focus();
  }catch{
    if(adminRoot===root)root.textContent=t('adminFailed');
  }
@@ -114,7 +131,7 @@ function managedPane(){
  const officialProfiles=kind==='athlete'?templates.filter(row=>longDistanceSources.has(row.payload.clubSource)):[];
  const savedRows=state.managed.filter(row=>row.kind===kind);
 area.innerHTML=`${!deployed?`<div class="notice"><strong>${E(t('adminMigration'))}</strong><p>${E(t('adminMigrationHelp'))}</p></div>`:''}<div class="split"><div><div class="card-top"><h3>${E(t('adminEditedRecords'))}</h3><button id="admin-new" class="btn btn-sm" type="button" ${deployed?'':'disabled'}>${E(t('adminCreate'))}</button></div><div class="admin-list">${savedRows.map(x=>`<button type="button" data-edit-kind="${E(x.kind)}" data-edit-key="${E(x.record_key)}">${E(t(KIND_LABELS[x.kind]||'adminSelectType'))} / ${E(x.record_key)} ${x.is_deleted?'· '+E(t('adminDeleted')):''}</button>`).join('')||`<p class="empty">${E(t('empty'))}</p>`}</div>${officialProfiles.length?`<h3>${E(t('adminOfficialRoster'))} · ${officialProfiles.length}</h3>
- <div class="admin-list">${officialProfiles.map(profile=>`<button type="button" data-profile-key="${E(profile.key)}">${E(profile.label)} · ${E(profile.payload.block)}</button>`).join('')}</div>`:''}</div><div><form id="admin-content-form" class="admin-form"><label class="field">${E(t('adminSelectType'))}<select name="kind" required ${chosen?'disabled':''}>${KINDS.map(k=>`<option value="${k}" ${value.kind===k?'selected':''}>${E(t(KIND_LABELS[k]||'adminSelectType'))}</option>`).join('')}</select></label>${!chosen?`<label class="field">${E(t('adminUseBase'))}<select id="admin-base-chooser"><option value="">${E(t('adminPickBase'))}</option>${templates.map((r,i)=>`<option value="${i}" ${r.key===prefill?.key?'selected':''}>${E(r.label)}</option>`).join('')}</select></label>`:''}${structured?'':`<label class="field">${E(t('adminKey'))}<input name="record_key" value="${E(value.record_key)}" required minlength="2" maxlength="180" ${chosen?'readonly':''}></label>`}<label class="field">${E(t(structured?'adminOfficialSource':'adminSource'))}<input name="source_url" type="url" required pattern="${kind==='result'?'https?':'https'}://.*" value="${E(value.source_url)}" placeholder="https://…"></label>${structured?raceFields(kind,payload,context):`<label class="field">${E(t('adminPayload'))}<textarea name="payload" required spellcheck="false">${E(JSON.stringify(value.payload,null,2))}</textarea></label>`}<div class="admin-actions"><button class="btn btn-primary" type="submit" ${deployed?'':'disabled'}>${E(t(kind==='result'?'adminPublishResult':'adminSave'))}</button><button class="btn btn-danger" type="button" id="admin-delete" ${deployed&&chosen&&!value.is_deleted?'':'disabled'}>${E(t('adminDelete'))}</button><button class="btn" type="button" id="admin-restore" ${deployed&&chosen&&value.is_deleted?'':'disabled'}>${E(t('adminRestore'))}</button><button class="btn" type="button" id="admin-cancel">${E(t('adminCancel'))}</button></div><p id="admin-form-msg" role="status"></p></form></div></div>`;
+ <div class="admin-list">${officialProfiles.map(profile=>`<button type="button" data-profile-key="${E(profile.key)}">${E(profile.label)} · ${E(profile.payload.block)}</button>`).join('')}</div>`:''}</div><div><form id="admin-content-form" class="admin-form"><label class="field">${E(t('adminSelectType'))}<select name="kind" required ${chosen?'disabled':''}>${KINDS.map(k=>`<option value="${k}" ${value.kind===k?'selected':''}>${E(t(KIND_LABELS[k]||'adminSelectType'))}</option>`).join('')}</select></label>${!chosen?`<label class="field">${E(t('adminUseBase'))}<select id="admin-base-chooser"><option value="">${E(t('adminPickBase'))}</option>${templates.map((r,i)=>`<option value="${i}" ${r.key===prefill?.key?'selected':''}>${E(r.label)}</option>`).join('')}</select></label>`:''}${structured?'':`<label class="field">${E(t('adminKey'))}<input name="record_key" value="${E(value.record_key)}" required minlength="2" maxlength="180" ${chosen?'readonly':''}></label>`}<label class="field">${E(t(structured?'adminOfficialSource':'adminSource'))}<input name="source_url" type="url" required pattern="${kind==='result'?'https?':'https'}://.*" value="${E(value.source_url)}" placeholder="https://…"></label>${structured?raceFields(kind,payload,context):`<label class="field">${E(t('adminPayload'))}<textarea name="payload" required spellcheck="false">${E(JSON.stringify(value.payload,null,2))}</textarea></label>`}<div class="admin-actions"><button class="btn btn-primary" type="submit" ${deployed?'':'disabled'}>${E(t(kind==='result'?'adminPublishResult':'adminSave'))}</button><button class="btn btn-danger" type="button" id="admin-delete" ${deployed&&(chosen||prefill?.source)&&!value.is_deleted?'':'disabled'}>${E(t('adminDelete'))}</button><button class="btn" type="button" id="admin-restore" ${deployed&&chosen&&value.is_deleted?'':'disabled'}>${E(t('adminRestore'))}</button><button class="btn" type="button" id="admin-cancel">${E(t('adminCancel'))}</button></div><p id="admin-form-msg" role="status"></p></form></div></div>`;
 area.querySelector('#admin-new')?.addEventListener('click',()=>{current=null;prefill=null;managedPane();});
 area.querySelector('select[name=kind]')?.addEventListener('change',e=>{draftKind=e.target.value;current=null;prefill=null;managedPane();});
 area.querySelector('#admin-base-chooser')?.addEventListener('change',e=>{const item=e.target.value===''?null:templates[Number(e.target.value)];
@@ -189,8 +206,36 @@ async function saveContent(event,base){
  }catch{if(form.isConnected)status(t('adminFailed'));}
  finally{button.disabled=false;}
 }
-async function setDeleted(value){const {t}=context;if(!current||!state.managedReady)return;if(value&&!confirm(t('adminConfirmDelete')))return;
-try{const {error}=await adminDb.from('wsd_public_content').update({is_deleted:value}).eq('kind',current.kind).eq('record_key',current.record_key);if(error)throw error;await loadData();managedPane();status(t('adminSaved'));}catch{status(t('adminFailed'));}}
+async function setDeleted(value){
+ const {t}=context;
+ const root=adminRoot;
+ const saved=selectedRecord();
+ const original=!saved&&draftKind==='result'?prefill:null;
+ const button=root.querySelector(value?'#admin-delete':'#admin-restore');
+ if(!state.managedReady||!adminDb||button.disabled||(!saved&&(!value||!original?.source)))return;
+ if(value&&!confirm(t('adminConfirmDelete')))return;
+ const db=adminDb;
+ button.disabled=true;
+ try{
+   let write;
+   if(saved){
+     write=db.from('wsd_public_content').update({is_deleted:value})
+       .eq('kind',saved.kind).eq('record_key',saved.record_key).eq('updated_at',saved.updated_at);
+   }else{
+     write=db.from('wsd_public_content').insert({
+       kind:'result',record_key:original.key,payload:original.payload,source_url:original.source,is_deleted:true
+     });
+   }
+   const {data,error}=await write.select('record_key').maybeSingle();
+   if(error||!data)throw error||new Error('Result changed');
+   await loadData();
+   if(adminRoot!==root)return;
+   if(original){current={kind:'result',record_key:original.key};prefill=null;}
+   managedPane();
+   status(t('adminSaved'));
+ }catch{if(adminRoot===root)status(t('adminFailed'));}
+ finally{button.disabled=false;}
+}
 function rankPane(){const {t,E}=context;const area=adminRoot.querySelector('#admin-panel');area.innerHTML=`<div class="notice">${E(t('adminRankingsHint'))}</div><div class="table-wrap"><table class="data-table"><thead><tr><th>${E(t('profile'))}</th><th>${E(t('schoolRecords'))}</th><th>${E(t('worldRank'))}</th><th>${E(t('asiaRank'))}</th><th>${E(t('rankingPoints'))}</th><th>${E(t('rankingDate'))}</th><th>${E(t('source'))}</th></tr></thead><tbody>${worldRankings().map(x=>`<tr><td>${E(x.athlete_name)}</td><td>${E(recordLabel(x.event_name))}</td><td>${E(x.world_rank??'—')}</td><td>${E(x.asia_rank??'—')}</td><td>${E(x.ranking_points??'—')}</td><td>${E(x.ranking_date)}</td><td>${context.sourceLink(x.source_url,t('worldRankingSource'))} ${context.sourceLink(x.asia_source_url,t('asiaRankingSource'))}</td></tr>`).join('')}</tbody></table></div>`;}
 async function auditPane(){
  const {t,E}=context;
