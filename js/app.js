@@ -114,7 +114,7 @@ function competitionCards(events){
  <span class="tag">${E(t(meet.phase))}</span></div>
  <h3><a href="${competitionHref(meet)}">${E(meet.title)} →</a></h3>
  ${meet.venue?`<p>${E(meet.venue)}</p>`:''}
- ${language()==='zh'?`<p>${E(t(meet.intro))}</p>`:''}</article>`).join('');
+ ${language()==='zh'&&meet.intro?`<p>${E(t(meet.intro))}</p>`:''}</article>`).join('');
 }
 function competitionCalendar(){
  const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -166,8 +166,8 @@ function renderCompetitionDetail(meet){
  return `<header class="page-intro"><div class="wrap">
  <a href="#schedule">← ${E(t('navSchedule'))}</a><h1>${E(meet.title)}</h1>
  <p>${E(competitionDate(meet))}${meet.venue?` · ${E(meet.venue)}`:''}</p>
- ${language()==='zh'?`<p>${E(t(meet.intro))}</p>`:''}
- ${sourceLink(meet.source,t('scheduleOfficial'))}${meet.timetable?` · ${sourceLink(meet.timetable,t('scheduleFullTimetable'))}`:''}</div></header>
+ ${language()==='zh'&&meet.intro?`<p>${E(t(meet.intro))}</p>`:''}
+ ${sourceLink(meet.source,t('scheduleOfficial'))}${meet.spoLive?` · ${sourceLink(meet.spoLive,'SpoLive')}`:''}${meet.timetable?` · ${sourceLink(meet.timetable,t('scheduleFullTimetable'))}`:''}</div></header>
  <div class="wrap section schedule-detail">
  ${meet.liveLinks?.length?`<section aria-labelledby="schedule-live-title"><h2 id="schedule-live-title">${E(t('scheduleLive'))}</h2>
  <div class="actions">${meet.liveLinks.map(([label,url])=>sourceLink(url,t(label))).join('')}</div>

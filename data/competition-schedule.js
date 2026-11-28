@@ -1,7 +1,14 @@
 export const NITTAI_334 = '第334回日本体育大学長距離競技会';
 
+const wasedaSpoLiveFixtures = 'https://web.spo.live/team/Waseda_Kyoso_LD/fixtures';
+
 // Match results by the archive's exact meet label and edition dates.
 export const COMPETITIONS = [
+  {
+    id:'waseda-otokomatsuri-2026', title:'第6回早稲田大学競技会・2026年漢祭り', start:'2026-12-27',
+    venue:'早稲田大学織田幹雄記念陸上競技場', source:'https://waseda-ac.jp/wasedagames/detail/7',
+    spoLive:wasedaSpoLiveFixtures, resultMeet:'第6回早稲田大学競技会・2026年漢祭り'
+  },
   {
     id:'nittai-334', title:NITTAI_334, start:'2026-11-28', end:'2026-11-29',
     venue:'日本体育大学横浜健志台キャンパス陸上競技場',
@@ -38,7 +45,7 @@ export const COMPETITIONS = [
   {
     id:'hakone-2027', title:'第103回東京箱根間往復大学駅伝競走', start:'2027-01-02', end:'2027-01-03',
     venue:'東京・大手町 ⇄ 箱根・芦ノ湖', source:'https://www.hakone-ekiden.jp/',
-    intro:'hakoneWatch', race:'hak'
+    spoLive:wasedaSpoLiveFixtures, intro:'hakoneWatch', race:'hak'
   },
   {
     id:'tokai-253', title:'第253回東海大学長距離競技会', start:'2026-11-15',
