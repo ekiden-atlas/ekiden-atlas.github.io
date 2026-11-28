@@ -1,5 +1,22 @@
+export const NITTAI_334 = '第334回日本体育大学長距離競技会';
+
 // Match results by the archive's exact meet label and edition dates.
 export const COMPETITIONS = [
+  {
+    id:'nittai-334', title:NITTAI_334, start:'2026-11-28', end:'2026-11-29',
+    venue:'日本体育大学横浜健志台キャンパス陸上競技場',
+    source:'https://waseda-ac.jp/competition/detail/1079',
+    timetable:'https://blog.neet-shikakugets.com/nittaidai-ld-2026-1121-entry',
+    intro:'nittai334Watch', resultMeet:NITTAI_334,
+    entryStatus:'entriesAnnounced', entrySource:'https://waseda-ac.jp/news/detail/1059',
+    entries:[
+      {event:'男子5000m · 12組', start:'13:03', athletes:['髙久 拓己','神先 強志']},
+      {event:'女子5000m · 2組', start:'15:10', athletes:['熊倉花萌']},
+      {event:'女子5000m · 3組', start:'15:29', athletes:['始関千華']},
+      {event:'男子5000m · 15組', start:'17:10', athletes:['鈴木 勇飛']},
+      {event:'男子5000m · 17組', start:'17:44', athletes:['高舘 友杜']}
+    ]
+  },
   {
     id:'ageo-2026', title:'第39回2026上尾シティハーフマラソン', start:'2026-11-22',
     venue:'上尾運動公園陸上競技場', source:'https://www.ageocity-marathon.com/outline/',

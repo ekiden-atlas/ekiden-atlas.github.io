@@ -167,7 +167,7 @@ function renderCompetitionDetail(meet){
  <a href="#schedule">← ${E(t('navSchedule'))}</a><h1>${E(meet.title)}</h1>
  <p>${E(competitionDate(meet))}${meet.venue?` · ${E(meet.venue)}`:''}</p>
  ${language()==='zh'?`<p>${E(t(meet.intro))}</p>`:''}
- ${sourceLink(meet.source,t('scheduleOfficial'))}</div></header>
+ ${sourceLink(meet.source,t('scheduleOfficial'))}${meet.timetable?` · ${sourceLink(meet.timetable,t('scheduleFullTimetable'))}`:''}</div></header>
  <div class="wrap section schedule-detail">
  ${meet.liveLinks?.length?`<section aria-labelledby="schedule-live-title"><h2 id="schedule-live-title">${E(t('scheduleLive'))}</h2>
  <div class="actions">${meet.liveLinks.map(([label,url])=>sourceLink(url,t(label))).join('')}</div>
@@ -183,6 +183,7 @@ function renderCompetitionDetail(meet){
  :`<p>${E(t(marks.length?'scheduleEntriesUnarchived':'scheduleEntriesAwaiting'))}</p>`}</section>
  <section aria-labelledby="schedule-results-title"><div class="section-head"><h2 id="schedule-results-title">${E(t('scheduleResults'))}</h2>
  ${meet.relay?`<a class="btn btn-sm" href="${raceArchiveLink(meet.race,meet.relay.year)}">${E(t('navEkiden'))} →</a>`:''}</div>
+ ${meet.id==='nittai-334'?`<p>${E(t('nittai334RankNote'))}</p>`:''}
  ${meet.replayUrl?`<p>${sourceLink(meet.replayUrl,t('scheduleReplay'))}</p>`:''}
  ${marks.some(row=>row.provisional)?`<p>${E(t('scheduleProvisionalMarks'))}</p>`:''}
  ${meet.relay?.total?`<p>${E(t('teamRank'))} ${E(meet.relay.rank??'—')} · ${E(t('time'))} ${E(meet.relay.total)}</p>`:''}
