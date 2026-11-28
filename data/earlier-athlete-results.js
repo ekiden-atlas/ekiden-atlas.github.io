@@ -18,7 +18,20 @@ const niizuma2024 = [
   gradeAtRace,status:'highSchool',unit:'西脇工業高校',meet,event,time,rank,stage,source,verification:'primary'
 }));
 
+const ina2024Results = [
+  ['tomita','冨田 拓臣',2,'水城高等学校','1区','24:23',53,'7.98km'],
+  ['horino','堀野 正太',2,'須磨学園高等学校','2区','23:33',12,'7.52km'],
+  ['wakasa','若狭 奏汰',1,'草津東高等学校','2区','23:56',23,'7.52km'],
+  ['takaku','髙久 拓己',1,'佐野日本大学高等学校','3区','24:18',53,'7.2km'],
+  ['tada','多田 真',2,'洛北高等学校','5区','15:20',10,'5.1km']
+].map(([id,name,gradeAtRace,unit,event,time,rank,stage])=>({
+  id:'ina-2024-'+id,name,year:2024,date:'2024-03-24',gradeAtRace,status:'highSchool',
+  unit,meet:'第47回春の高校伊那駅伝',event,time,rank,stage,
+  source:'https://www.ina-ekiden.jp/wpnew/wp-content/uploads/2024/03/2024danshi.pdf',verification:'primary'
+}));
+
 export const EARLIER_ATHLETE_RESULTS = [
+  ...ina2024Results,
   ...niizuma2024,
   {"id":"earlier-niizuma-2025-hyogo-ih-1500","name":"新妻 遼己","year":2025,"date":"2025-05-30","status":"highSchool","gradeAtRace":3,"unit":"西脇工業高校","meet":"第69回兵庫県高等学校総合体育大会（陸上競技）","event":"1500m","time":"3:49.45","rank":1,"stage":"決勝","source":"https://www.haaa.jp/~koukou/2025/ih/html/rel183.html","verification":"primary"},
   {"id":"earlier-niizuma-2025-hyogo-ih-5000","name":"新妻 遼己","year":2025,"date":"2025-06-01","status":"highSchool","gradeAtRace":3,"unit":"西脇工業高校","meet":"第69回兵庫県高等学校総合体育大会（陸上競技）","event":"5000m","time":"14:07.33","rank":1,"stage":"タイムレース2組1位・総合1位","source":"https://www.haaa.jp/~koukou/2025/ih/html/rel256.html","verification":"primary"},
