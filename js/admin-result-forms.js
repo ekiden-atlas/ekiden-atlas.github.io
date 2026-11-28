@@ -1,6 +1,6 @@
 import {athletes,personalResults,resultGrade} from './data.js';
 const relayTypes={hak:'introHak',izu:'introIzu',zen:'introZen',other:'otherEkiden'};
-const statuses={student:'student',OB:'alumni',highSchool:'highSchool',middleSchool:'middleSchool'};
+const statuses={student:'student',OB:'alumni',highSchool:'highSchool',middleSchool:'middleSchool',primarySchool:'primarySchool'};
 
 export function raceFields(kind,payload,{t,E}){
  const field=(name,label,value='',attributes='')=>
@@ -34,7 +34,7 @@ export function raceFields(kind,payload,{t,E}){
  ${field('stage','adminRaceStage',payload.stage,'maxlength="100"')}
  <label class="field">${E(t('resultStatus'))}<select name="status"><option value="">${E(t('notRecorded'))}</option>
  ${Object.entries(statuses).map(([value,label])=>`<option value="${value}" ${payload.status===value?'selected':''}>${E(t(label))}</option>`).join('')}</select></label>
- ${field('gradeAtRace','filterGrade',resultGrade(payload),'type="number" min="1" max="4"')}
+ ${field('gradeAtRace','filterGrade',resultGrade(payload),'type="number" min="1" max="6"')}
  <label><input name="pb" type="checkbox" ${payload.pb?'checked':''}> PB</label>`;
  const leg=(row={},index='')=>`<fieldset class="admin-race-leg" data-leg-index="${index}">
  ${field('leg','section',row.leg,'required type="number" min="1" max="99"')}

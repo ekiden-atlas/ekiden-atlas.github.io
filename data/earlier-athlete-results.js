@@ -31,6 +31,14 @@ const ina2024Results = [
 }));
 
 export const EARLIER_ATHLETE_RESULTS = [
+  {
+    id:'mashiko-2019-national-primary-cross-country',
+    name:'増子 陽太',year:2019,date:'2019-12-08',status:'primarySchool',gradeAtRace:6,
+    unit:'鏡石第一小学校',meet:'第22回全国小学生クロスカントリーリレー研修大会',
+    event:'4区（1.5km）',time:'5:09',rank:8,stage:'区間順位',verification:'primary',
+    source:'https://gold.jaic.org/gunma/menu/results/r_19/r191208PS/results.pdf',
+    gradeSource:'https://www.jaaf.or.jp/files/upload/201911/15_173619.pdf'
+  },
   ...ina2024Results,
   ...niizuma2024,
   {"id":"earlier-niizuma-2025-hyogo-ih-1500","name":"新妻 遼己","year":2025,"date":"2025-05-30","status":"highSchool","gradeAtRace":3,"unit":"西脇工業高校","meet":"第69回兵庫県高等学校総合体育大会（陸上競技）","event":"1500m","time":"3:49.45","rank":1,"stage":"決勝","source":"https://www.haaa.jp/~koukou/2025/ih/html/rel183.html","verification":"primary"},

@@ -235,12 +235,13 @@ function legacyResultKey(row){
  return 'ob:'+[row.name,row.date,row.meet,row.event,row.time].map(x=>String(x??'').trim()).join('|').slice(0,178);
 }
 export function resultGrade(row){
- if(!['student','highSchool','middleSchool'].includes(row.status))return '';
+ if(!['student','highSchool','middleSchool','primarySchool'].includes(row.status))return '';
  // Annual imports carry the roster's new academic year. A winter or undated result needs a race-grade override.
  const annualSnapshotGrade=row.id?.startsWith('annual-')&&!/^\d{4}-(?:0[4-9]|1[0-2])(?:-|$)/.test(row.date||'');
  const grade=String(row.gradeAtRace??(annualSnapshotGrade?'':row.grade)??'').normalize('NFKC').trim();
- const value=/^([1-4])(?:年(?:生|級)?)?$/.exec(grade)?.[1]||'';
- return value==='4'&&row.status!=='student'?'':value;
+ const value=/^([1-6])(?:年(?:生|級)?)?$/.exec(grade)?.[1]||'';
+ const maxGrade={primarySchool:6,student:4,highSchool:3,middleSchool:3}[row.status];
+ return Number(value)<=maxGrade?value:'';
 }
 export function personalResults(){
  const rows=new Map([...SCHOOL_RESULTS,...HONDA_SCHOOL_RESULTS,...SASAKI_SCHOOL_RESULTS,...KUDO_UNIVERSITY_RESULTS,...ROSTER_AUDITED_RESULTS,...EARLIER_ATHLETE_RESULTS,...ADDITIONAL_RESULTS_2026].map(row=>[row.id,row]));
