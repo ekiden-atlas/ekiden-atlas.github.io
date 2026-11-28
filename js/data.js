@@ -283,6 +283,22 @@ export function personalResults(){
       meetLabel(annual.meet)!==meetLabel(special.meet)||recordLabel(annual.event)!==recordLabel(special.event))continue;
    duplicateIds.add(annual._managed&&!special._managed?specialId:annualId);
  }
+ // Keep the archive entry when an approved submission repeats the same Honda result.
+ for(const [submissionId,archiveId] of [
+   ["submission-9fd926e5-2596-41ce-ab0a-e77e5785926c","honda-school-2024-03-24-5区（5.1km）"],
+   ["submission-3a3cc1df-03d9-4d5e-8b41-697314364e77","honda-school-2024-02-04-3区（8km）"],
+   ["submission-50742407-a272-4b57-ad19-56f56f3c35e4","honda-school-2023-11-25-5000m"],
+   ["submission-dfa7008f-5d0d-44f9-9e05-5e8560e92e7e","honda-school-2023-11-04-7区（5km）"],
+   ["submission-3d0e77d7-1966-4371-9ac9-d6336e37224a","honda-school-2023-05-04-3000m"],
+   ["submission-68ccc3cd-a75a-4c6b-a5b7-eb382f3c8ea6","honda-school-2023-04-09-3000m"],
+   ["submission-8b32efe4-d321-4be7-80c0-8709b992c4a6","honda-school-2023-07-29-3000m"]
+ ]){
+   const submission=resultsById.get(submissionId),archive=resultsById.get(archiveId);
+   if(submission&&archive&&nameSearch(submission.name)==='本田桜二郎'&&nameSearch(archive.name)==='本田桜二郎'&&
+      submission.date===archive.date&&parseTime(submission.time)===parseTime(archive.time)){
+     duplicateIds.add(submissionId);
+   }
+ }
  return merged.filter(row=>!duplicateIds.has(row.id))
    .map(row=>{
      if(row.id==='submission-6d6f9c57-be4a-4916-b4ac-3c5b9daa5768'&&row.date==='2022-11-12'&&
