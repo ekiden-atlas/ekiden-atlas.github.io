@@ -2,7 +2,7 @@ import {bindSiteLogout,siteLogoutMarkup} from './site-logout.js';
 import {readReviewRoles,reviewRoleBadge} from './submission-review-roles.js';
 import {submissionErrorKey} from './submission-errors.js';
 import {submissionBadgeMarkup,watchSubmissionBadge} from './submission-badge.js';
-import {renderOtherSubmissions} from './other-submissions.js';
+import {readOtherSubmissions,renderOtherSubmissions} from './other-submissions.js';
 import {OFFICIAL_LONG_DISTANCE_ROSTER} from '../data/official-club-roster.js';
 import {getDb,personalResults,state,loadData,athletes,nameSearch,officialAthleteName} from './data.js';
 import {meetLabel,recordLabel} from './record-names.js';
@@ -28,8 +28,7 @@ function athletePicker(t,E){
 
 export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
  const params=new URLSearchParams(location.hash.split('?')[1]);
- const results=personalResults();
- const target=params.has('result')?results.find(row=>row.id===params.get('result')):null;
+ const resultId=params.get('result');
  const history=params.has('history');
  const review=history||params.has('review');
  const from=params.get('from')||'';
@@ -42,9 +41,18 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
    const db=await getDb();
    const {data:{user}}=await db.auth.getUser();
    if(!root.isConnected)return;
-   const admin=user&&(await db.rpc('wsd_atlas_is_google_admin')).data===true;
-   const canReview=admin||Boolean(user&&(await db.rpc('wsd_atlas_can_review')).data===true);
    const canSubmit=user?.app_metadata?.provider==='google'||user?.app_metadata?.providers?.includes('google');
+   const [adminRole,reviewRole,edits,details,attachments,sourceOption]=await Promise.all([
+     user&&db.rpc('wsd_atlas_is_google_admin'),
+     user&&db.rpc('wsd_atlas_can_review'),
+     user&&(review||canSubmit)&&db.rpc('wsd_atlas_submitter_edits_ready'),
+     user&&(review||canSubmit)&&db.rpc('wsd_atlas_submission_details_ready'),
+     user&&(review||canSubmit)&&db.rpc('wsd_atlas_attachment_submissions_ready'),
+     user&&(review||canSubmit)&&db.rpc('wsd_atlas_optional_submission_source_ready')
+   ]);
+   if(!root.isConnected)return;
+   const admin=adminRole?.data===true;
+   const canReview=admin||reviewRole?.data===true;
    const bindLogout=()=>bindSiteLogout(root,db,t,()=>renderSubmissions(root,{t,E,sourceLink}));
    if(!user||(!review&&!canSubmit)){
      root.innerHTML=`${user?`<p>${E(t('submissionGoogleRequired'))}</p>`:''}
@@ -72,17 +80,16 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      return;
    }
    if((history&&!admin)||(review&&!canReview)){say('submissionReviewDenied');return;}
+   const results=resultId?personalResults():null;
+   const target=results?.find(row=>row.id===resultId);
    if(params.has('result')&&!target){say('submissionTargetMissing');return;}
-   const [edits,details,attachments,sourceOption]=await Promise.all([
-     db.rpc('wsd_atlas_submitter_edits_ready'),
-     db.rpc('wsd_atlas_submission_details_ready'),
-     db.rpc('wsd_atlas_attachment_submissions_ready'),
-     db.rpc('wsd_atlas_optional_submission_source_ready')
-   ]);
-   const selfEdit=edits.data===true;
-   const detailsReady=details.data===true;
-   const upgraded=attachments.data===true;
-   const optionalSource=upgraded&&sourceOption.data===true;
+   const selfEdit=edits?.data===true;
+   const detailsReady=details?.data===true;
+   const upgraded=attachments?.data===true;
+   const optionalSource=upgraded&&sourceOption?.data===true;
+   const initialRead=upgraded&&!target
+     ?readOtherSubmissions(root,{db,user,review,history,selfEdit}).catch(error=>({error}))
+     :undefined;
    const selectedFields=fields+(selfEdit?',revision':'')+(detailsReady?',finish_rank,race_division':'');
    const query=()=>db.from(table).select(selectedFields).order('created_at',{ascending:false});
    let rows;
@@ -106,7 +113,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
    if(!root.isConnected)return;
    const reviewRoles=history?await readReviewRoles(db,'result',rows):null;
    if(!root.isConnected)return;
-   const resultsById=new Map(results.map(row=>[row.id,row]));
+   const resultsById=new Map((results??(rows.some(row=>row.target_key)?personalResults():[])).map(row=>[row.id,row]));
    const input=(key,name,type,max,value='',readOnly=false,required=true)=>`<label class="field">${E(t(key))}<input name="${name}" type="${type}" maxlength="${max}" value="${E(value??'')}" ${required?'required':''} ${readOnly?'readonly':''}></label>`;
    const divisions=['m1','m2','m3','h1','h2','h3','u1','u2','u3','u4'];
    const divisionLabels=t('submissionDivisionOptions').split('|');
@@ -239,7 +246,7 @@ export async function renderSubmissions(root,{t,E,sourceLink,messageKey}){
      finally{buttons.forEach(item=>{item.disabled=false;});}
    };});
    const other=root.querySelector('[data-other-submissions]');
-   if(other)await renderOtherSubmissions(other,{db,user,review,history,admin,selfEdit,t,E,returnLink}).catch(()=>{
+   if(other)await renderOtherSubmissions(other,{db,user,review,history,admin,selfEdit,t,E,returnLink,initialRead}).catch(()=>{
      other.textContent=t('submissionUnavailable');
    });
  }catch{if(!messageKey)say('submissionUnavailable');}
