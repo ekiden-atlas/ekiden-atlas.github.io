@@ -237,7 +237,7 @@ function renderHome(){
 const rosterDivision=a=>a.graduation_year?'alumni':a.officialGrade==='大学院'?'graduate':String(a.grade??'');
 function rosterDivisionLabel(a){
  const division=rosterDivision(a);
- return division==='alumni'?t('alumni'):division==='graduate'?t('graduateStudent'):gradeName(a.grade);
+ return division==='alumni'?t('alumniGraduationYear',{year:a.graduation_year}):division==='graduate'?t('graduateStudent'):gradeName(a.grade);
 }
 const blocks={'短距離':'blockSprint','中距離':'blockMiddle','長距離':'blockLong','ハードル':'blockHurdles','跳躍':'blockJumps','投擲':'blockThrows','混成':'blockCombined'};
 function halfPreview(row,showSource=true){
