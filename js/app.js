@@ -22,7 +22,7 @@ const E=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt
 const validUrl=(v,allowHttp=false)=>{try{const u=new URL(String(v));return (u.protocol==='https:'||(allowHttp&&u.protocol==='http:'))&&!u.username&&!u.password&&!/(?:^|\.)(github\.com|github\.io|githubusercontent\.com)$/.test(u.hostname)?u.href:null;}catch{return null;}};
 const sourceLink=(url,label=t('viewSource'))=>{const href=validUrl(url,true);return href?`<a href="${E(href)}" target="_blank" rel="noopener noreferrer">${E(label)} ↗</a>`:'';};
 const raceName=r=>t({hak:'introHak',izu:'introIzu',zen:'introZen',other:'otherEkiden'}[r]||'introHak');
-const gradeName=n=>t({1:'first',2:'second',3:'third',4:'fourth'}[n]||'notRecorded');
+const gradeName=n=>t({1:'first',2:'second',3:'third',4:'fourth',5:'fifth',6:'sixth'}[n]||'notRecorded');
 function verifiedContext(name){
  const rows=comparisonRankings().filter(row=>row.name===name);
  return rows.length?`<div class="verified-context">${rows.map(row=>`<div>
@@ -560,7 +560,7 @@ function resultDivision(row){
  const grade=resultGrade(row);
  if(row.status==='OB')return 'OB / OG';
  if(row.status==='student')return grade?gradeName(grade):t('resultGradeUnknown');
- if(['middleSchool','highSchool'].includes(row.status)){
+ if(['primarySchool','middleSchool','highSchool'].includes(row.status)){
    const school=t(row.status);
    return grade?t('schoolResultGrade',{school,grade:gradeName(grade)}):school;
  }
@@ -629,8 +629,8 @@ function resultPanel(records,showAthlete,name=''){
  ${events.map(value=>`<option value="${E(value)}">${E(value)}</option>`).join('')}</select></label>
  <label class="field">${E(t('groupResults'))}<select id="result-group">
  <option value="year">${E(t('years'))}</option><option value="meet">${E(t('meet'))}</option></select></label>
- <label class="field">${E(t('resultStatus'))}<select id="result-status"><option value="">${E(t('all'))}</option><option value="middleSchool">${E(t('middleSchool'))}</option><option value="highSchool">${E(t('highSchool'))}</option><option value="student">${E(t('student'))}</option><option value="OB">OB / OG</option></select></label>
- <label class="field">${E(t('filterGrade'))}<select id="result-grade"><option value="">${E(t('all'))}</option>${[1,2,3,4].map(grade=>`<option value="${grade}">${E(gradeName(grade))}</option>`).join('')}</select></label>
+ <label class="field">${E(t('resultStatus'))}<select id="result-status"><option value="">${E(t('all'))}</option><option value="primarySchool">${E(t('primarySchool'))}</option><option value="middleSchool">${E(t('middleSchool'))}</option><option value="highSchool">${E(t('highSchool'))}</option><option value="student">${E(t('student'))}</option><option value="OB">OB / OG</option></select></label>
+ <label class="field">${E(t('filterGrade'))}<select id="result-grade"><option value="">${E(t('all'))}</option>${[1,2,3,4,5,6].map(grade=>`<option value="${grade}">${E(gradeName(grade))}</option>`).join('')}</select></label>
  </div>${showAthlete?`<p>${E(t('resultsMatching'))}</p>`:''}
  <p id="result-count" role="status" tabindex="-1"></p><div class="table-wrap"><table class="data-table">
  <thead><tr>${headers.map(key=>`<th scope="col">${E(t(key))}</th>`).join('')}</tr></thead>
