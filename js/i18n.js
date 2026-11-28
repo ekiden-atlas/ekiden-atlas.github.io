@@ -376,6 +376,7 @@ adminMigrationHelp:'请先由项目所有者审核并执行 sql/optional-managed
 adminSyncNotice:'在此保存的修订适用于 EKIDEN ATLAS。',
 adminUseBase:'从现有记录预填',adminPickBase:'选择已有记录以生成编辑草稿',adminSelectType:'数据类型',adminKey:'唯一键',adminPayload:'结构化内容（JSON）',adminSource:'HTTPS 来源链接',adminSave:'保存修改',adminDirectResult:'直接录入赛果',adminDirectCorrection:'直接编辑赛果',adminDirectResultHelp:'管理员可以在内容管理中直接发布赛果。',adminPublishResult:'直接发布赛果',adminResultPublished:'赛果已发布。',adminCreate:'新增记录',adminDelete:'软删除',adminRestore:'恢复',adminCancel:'取消',adminRecords:'已有记录',adminActor:'操作人',adminBefore:'修改前',adminAfter:'修改后',adminWhen:'操作时间',adminNoHistory:'暂无历史记录',adminDeleted:'已删除',adminTypeAthlete:'选手资料',adminTypePb:'个人最佳成绩',adminTypeEkiden:'驿传战绩',adminTypeSchool:'学校纪录',adminTypeAlltime:'历代排名',adminTypeWorld:'世界田联排名',skip:'跳到正文',menu:'展开菜单',mainNavigation:'主导航',mobileNavigation:'移动端导航',
 adminRankingsHint:'在「内容编辑」选择「世界田联排名」，填写来源后可保存修订并查看操作记录。',
+profileResultEdit:'修改赛果',profileResultDelete:'删除赛果',profileResultBack:'返回选手成绩',
 adminConfirmDelete:'确定软删除这条资料？该操作可恢复。',adminSaved:'更改已提交。',adminInvalidJson:'JSON 结构无效。',adminInvalidResultUrl:'来源必须是 HTTP 或 HTTPS 链接。',adminInvalidUrl:'来源必须是 HTTPS 链接。',adminFailed:'操作未成功；检查 RLS、登录和数据库设置。',
 footerData:'资料快照 2026-11-18 · 早稻田跑步资料独立整理',copyright:'数据属于事实信息；网站的原创排版与解释由本站制作。',
 },
@@ -733,6 +734,7 @@ adminMigrationHelp:'プロジェクト管理者による sql/optional-managed-co
 adminSyncNotice:'ここで保存した修正は EKIDEN ATLAS に反映されます。',
 adminUseBase:'既存の記録から入力',adminPickBase:'既存の記録を選んで編集の下書きを作成',adminSelectType:'データ種別',adminKey:'固有キー',adminPayload:'構造化データ（JSON）',adminSource:'HTTPS 出典',adminSave:'保存',adminDirectResult:'競技結果を直接登録',adminDirectCorrection:'競技結果を直接編集',adminDirectResultHelp:'管理者はコンテンツ管理から競技結果を直接公開できます。',adminPublishResult:'競技結果を公開',adminResultPublished:'競技結果を公開しました。',adminCreate:'新規追加',adminDelete:'論理削除',adminRestore:'復元',adminCancel:'取り消し',adminRecords:'既存の記録',adminActor:'操作ユーザー',adminBefore:'変更前',adminAfter:'変更後',adminWhen:'変更日時',adminNoHistory:'履歴はありません',adminDeleted:'削除済み',adminTypeAthlete:'選手プロフィール',adminTypePb:'自己ベスト',adminTypeEkiden:'駅伝結果',adminTypeSchool:'学校記録',adminTypeAlltime:'歴代順位',adminTypeWorld:'世界陸連ランキング',skip:'本文へ移動',menu:'メニューを開く',mainNavigation:'メインナビゲーション',mobileNavigation:'モバイルナビゲーション',
 adminRankingsHint:'「コンテンツ編集」の「世界陸連ランキング」で出典を入力して修正を保存し、操作履歴を確認できます。',
+profileResultEdit:'結果を編集',profileResultDelete:'結果を削除',profileResultBack:'選手の競技結果に戻る',
 adminConfirmDelete:'このデータを論理削除しますか？ 復元できます。',adminSaved:'変更を保存しました。',adminInvalidJson:'有効な JSON を入力してください。',adminInvalidResultUrl:'出典には HTTP または HTTPS の URL を入力してください。',adminInvalidUrl:'出典は HTTPS URL が必要です。',adminFailed:'処理に失敗しました。RLS と認証設定を確認してください。',
 footerData:'2026-11-18 時点の資料 · 独立長距離データ研究',copyright:'事実データを整理し、構成と解説は独自に制作しています。',
 };

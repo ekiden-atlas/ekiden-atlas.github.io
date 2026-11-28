@@ -13,7 +13,7 @@ import {ATHLETE_MEDIA} from '../data/athlete-media.js';
 import {ATHLETE_SOCIAL_LINKS} from '../data/athlete-social-links.js';
 import {OFFICIAL_LINK_GROUPS} from '../data/official-links.js';
 import {t,language,setLanguage,translateStatic} from './i18n.js';
-import {loadData,state,athletes,athlete,worldRankings,ekiden,schoolRecords,alltimeRankings,parseTime,formatPace,personalResults,resultGrade,specialtyPbs,sectionRecords,legHonors,athleteEkidenHonors,nameSearch,officialAthleteName,comparisonRankings} from './data.js';
+import {getDb,loadData,state,athletes,athlete,worldRankings,ekiden,schoolRecords,alltimeRankings,parseTime,formatPace,personalResults,resultGrade,specialtyPbs,sectionRecords,legHonors,athleteEkidenHonors,nameSearch,officialAthleteName,comparisonRankings} from './data.js';
 import {meetLabel,recordLabel} from './record-names.js';
 import {DATA_SNAPSHOT} from '../data/roster.js';
 import {renderAdminPage,detachAdmin} from './admin.js';
@@ -566,6 +566,7 @@ function resultDivision(row){
  }
  return t('notRecorded');
 }
+let canManageProfileResults=false;
 const resultFilterIds=['q','year','meet','event','group','status','grade'];
 
 function submissionOrigin(){
@@ -664,7 +665,11 @@ function updateResults(reset=false){
  const colspan=isProfile?7:8;
  let currentGroup;
  const start=resultsPage*resultsPageSize;
- const origin=state.submissionsReady?submissionOrigin():'';
+ const canManage=isProfile&&canManageProfileResults;
+ const origin=state.submissionsReady||canManage?submissionOrigin():'';
+ const adminLink=(id,action)=>'#admin?'+new URLSearchParams({
+   result:id,action,from:origin+'&resultRow='+encodeURIComponent(id)
+ });
  root.innerHTML=rows.slice(start,start+resultsPageSize).map(({row:r,key})=>{
  const heading=key===currentGroup?'':`<tr class="result-group-heading"><td colspan="${colspan}"><strong>${E(key)}</strong> · ${groups.get(key).length}</td></tr>`;
  currentGroup=key;
@@ -676,7 +681,7 @@ function updateResults(reset=false){
  <td>${E(resultDivision(r))}</td>
  <td>${r._managed?E(t('resultManaged')):r.verification==='legacyEdit'?E(t('resultLegacyEdit')):r.verification==='contemporaryRecord'?E(t('resultContemporaryRecord')):r.verification==='userProvided'?E(t('resultUserProvided')):r.provisional?E(t('resultProvisional')):''}
  <span class="subline">${E(String(r._updatedAt||r.updated_at||state.official?.meta?.fetched||DATA_SNAPSHOT).slice(0,10))}</span>
- ${sourceLink(r.source)}${state.submissionsReady?`<div><a href="#submissions?${E(new URLSearchParams({result:r.id,from:origin+'&resultRow='+encodeURIComponent(r.id)}).toString())}">${E(t('submissionCorrection'))}</a></div>`:''}${r.gradeSource?`<div>${sourceLink(r.gradeSource,t('gradeSource'))}</div>`:''}</td></tr>`;}).join('')||`<tr><td colspan="${colspan}">${E(t(records.length||state.officialOnline?'empty':'historyFailed'))}</td></tr>`;
+ ${sourceLink(r.source)}${canManage?`<div class="admin-actions"><a href="${E(adminLink(r.id,'edit'))}">${E(t('profileResultEdit'))}</a><a href="${E(adminLink(r.id,'delete'))}">${E(t('profileResultDelete'))}</a></div>`:''}${state.submissionsReady?`<div><a href="#submissions?${E(new URLSearchParams({result:r.id,from:origin+'&resultRow='+encodeURIComponent(r.id)}).toString())}">${E(t('submissionCorrection'))}</a></div>`:''}${r.gradeSource?`<div>${sourceLink(r.gradeSource,t('gradeSource'))}</div>`:''}</td></tr>`;}).join('')||`<tr><td colspan="${colspan}">${E(t(records.length||state.officialOnline?'empty':'historyFailed'))}</td></tr>`;
  document.querySelector('#result-count').textContent=t('resultCount',{start:rows.length?start+1:0,end:Math.min(start+resultsPageSize,rows.length),total:rows.length});
  document.querySelector('#result-prev').disabled=!resultsPage;
  document.querySelector('#result-next').disabled=start+resultsPageSize>=rows.length;
@@ -804,7 +809,7 @@ function historyTable(tab){
  `<tr><td colspan="${headers.length}">${E(t(state.officialOnline?'empty':'historyFailed'))}</td></tr>`}</tbody></table></div>`;
 }
 function renderGuide(){const keys=['PB','Leg','Student','World','Team','Source'];return pageIntro('aboutTitle','guideIntro')+`<section class="wrap section"><div class="guide-grid">${keys.map(k=>`<article class="card"><span class="micro">GLOSSARY / ${E(k.toUpperCase())}</span><h3>${E(t('term'+k))}</h3><p>${E(t('term'+k+'Desc'))}</p></article>`).join('')}</div><article class="intro-panel" style="margin-top:20px"><h3>${E(t('legalTitle'))}</h3><p>${E(t('independent'))}</p><p>${E(t('legalNote'))}</p><p>${sourceLink('https://waseda-ac.jp/record/',t('sourceLabel'))}</p></article>${fanBoardLink(t,E)}${renderClubDiary()}${renderOfficialLinks(true)}</section>`;}
-async function render(){detachAdmin();const path=decodeURIComponent((location.hash.slice(1).split('?')[0]||'home'));const tab=archiveTab(path);const current=tab?'archive':['home','athletes','results','schedule','guide','admin','submissions','fans','privacy','terms','security'].includes(path)?path:'home';document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('active',a.dataset.nav===current));document.querySelector('#mobile-nav').hidden=true;document.querySelector('#menu-btn').setAttribute('aria-expanded','false');document.documentElement.lang=language()==='ja'?'ja':'zh-CN';translateStatic(document);document.querySelectorAll('[data-submission-link]').forEach(link=>{link.hidden=!state.submissionsReady;});if(!dataLoaded&&['results','archive','schedule','submissions'].includes(current)){app.innerHTML=`<p class="wrap section" role="status">${E(t('historyBusy'))}</p>`;return;}if(['privacy','terms','security'].includes(current)){
+async function render(){detachAdmin();canManageProfileResults=false;const path=decodeURIComponent((location.hash.slice(1).split('?')[0]||'home'));const tab=archiveTab(path);const current=tab?'archive':['home','athletes','results','schedule','guide','admin','submissions','fans','privacy','terms','security'].includes(path)?path:'home';document.querySelectorAll('[data-nav]').forEach(a=>a.classList.toggle('active',a.dataset.nav===current));document.querySelector('#mobile-nav').hidden=true;document.querySelector('#menu-btn').setAttribute('aria-expanded','false');document.documentElement.lang=language()==='ja'?'ja':'zh-CN';translateStatic(document);document.querySelectorAll('[data-submission-link]').forEach(link=>{link.hidden=!state.submissionsReady;});if(!dataLoaded&&['results','archive','schedule','submissions'].includes(current)){app.innerHTML=`<p class="wrap section" role="status">${E(t('historyBusy'))}</p>`;return;}if(['privacy','terms','security'].includes(current)){
  app.innerHTML=pageIntro(current+'Title',current+'Intro')+`<article class="wrap section">
  <div class="card">${t(current+'Body').split('|').map(text=>`<p>${E(text)}</p>`).join('')}
  <p><a class="btn btn-sm" href="#submissions">${E(t('submissionTitle'))}</a></p></div></article>`;
@@ -832,7 +837,19 @@ if(!state.dbOnline&&state.official)app.insertAdjacentHTML('beforeend',`<p class=
 if(current==='athletes'){
  const gender=document.querySelector('#filter-gender');
  if(gender){gender.value=filter.gender;renderAthleteTable();}
- else if(dataLoaded){restoreResultView();updateResults();}
+ else if(dataLoaded){
+   restoreResultView();
+   updateResults();
+   const resultsRoot=document.querySelector('#result-rows');
+   if(state.managedReady&&resultsRoot){
+     getDb().then(db=>db.rpc('wsd_atlas_is_google_admin')).then(({data,error})=>{
+       if(!error&&data===true&&resultsRoot.isConnected){
+         canManageProfileResults=true;
+         updateResults();
+       }
+     }).catch(()=>{});
+   }
+ }
 }
 scrollToSubmissionOrigin();
 if(current==='archive'){
