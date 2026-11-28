@@ -143,7 +143,7 @@ assert.equal(resultById('annual-51').status,'highSchool');
 assert.equal(resultGrade(resultById('school-suzuki-2022-ekiden')),'1');
 assert.equal(resultGrade({status:'OB',grade:4}),'');
 assert.ok(rows.some(row=>row.verification==='primary'&&row.rank===64&&row.time==='26:03'&&row.status==='highSchool'&&resultGrade(row)==='2'));
-assert.equal(rows.filter(row=>row.status==='OB').length,state.official.results.filter(row=>row.status==='OB').length+EARLIER_ATHLETE_RESULTS.filter(row=>row.status==='OB').length);
+assert.equal(rows.filter(row=>row.status==='OB').length,state.official.results.filter(row=>row.status==='OB').length+EARLIER_ATHLETE_RESULTS.filter(row=>row.status==='OB').length+ADDITIONAL_RESULTS_2026.filter(row=>row.status==='OB').length);
 const legacy=rows.find(row=>row.id==='ob2026-1');
 const record_key='ob:'+[legacy.name,legacy.date,legacy.meet,legacy.event,legacy.time].join('|').slice(0,178);
 state.legacyEdits=[{entity_type:'ob_result',record_key,payload:{rank:7}}];
