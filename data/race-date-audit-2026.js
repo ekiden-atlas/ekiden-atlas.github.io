@@ -1,3 +1,5 @@
+import {NITTAI_334} from './competition-schedule.js';
+
 // Competition dates follow the local date at the venue.
 // Each override links to the relevant result or race-day report where available.
 export const RACE_DATE_CORRECTIONS_2026={
@@ -93,7 +95,21 @@ const ageoResults=[
 }));
 
 // Finishing marks from official Waseda competition result tables.
+const nittai334Results = [
+  ['takaku','髙久 拓己',1,'男子12組','14:50.56',16],
+  ['kanzaki','神先 強志',2,'男子12組','14:56.22',24],
+  ['kumakura','熊倉花萌',2,'女子2組','17:05.85',9],
+  ['shizeki','始関千華',3,'女子3組','16:58.17',27],
+  ['suzuki','鈴木 勇飛',1,'男子15組','15:02.89',30],
+  ['takadate','高舘 友杜',1,'男子17組','14:32.88',13]
+].map(([id,name,gradeAtRace,stage,time,rank])=>({
+  id:'nittai-334-'+id,name,year:2026,date:'2026-11-28',gradeAtRace,status:'student',
+  unit:'早稲田大学',meet:NITTAI_334,event:'5000m',stage,time,rank,
+  source:'https://blog.neet-shikakugets.com/nittaidai-ld-2026-1121',verification:'cited'
+}));
+
 export const ADDITIONAL_RESULTS_2026=[
+  ...nittai334Results,
   ...ageoResults,
   {"id":"official-2026-784-石崎友太朗-1500m-3-58.49","name":"石崎友太朗","year":2026,"date":"2026-03-21","precision":"日","status":"student","meet":"Spring Trial in Waseda","event":"1500m","time":"3:58.49","rank":11,"source":"https://waseda-ac.jp/competition/detail/784","verification":"primary","gradeAtRace":1},
   {"id":"official-2026-797-吉田新-800m-1-52.97","name":"吉田新","year":2026,"date":"2026-04-05","precision":"日","status":"student","meet":"第59回東京六大学対校陸上競技大会","event":"800m","time":"1:52.97","rank":6,"source":"https://waseda-ac.jp/competition/detail/797","verification":"primary","stage":"決勝","gradeAtRace":2},
